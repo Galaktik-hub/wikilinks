@@ -1,34 +1,34 @@
-import {useState} from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
 import './App.css'
 
 function App() {
-    const [count, setCount] = useState(0)
-
     return (
-        <>
-            <div>
-                <a href="https://vite.dev" target="_blank">
-                    <img src={viteLogo} className="logo" alt="Vite logo"/>
-                </a>
-                <a href="https://react.dev" target="_blank">
-                    <img src={reactLogo} className="logo react" alt="React logo"/>
-                </a>
-            </div>
-            <h1>Vite + React</h1>
-            <div className="card">
-                <button onClick={() => setCount((count) => count + 1)}>
-                    count is {count}
+        <div className="min-h-screen bg-sea-salt p-8">
+            <div className="max-w-xl mx-auto space-y-8">
+                <h1 className="text-4xl font-bold text-blue text-center">
+                    Tailwind Test
+                </h1>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="p-6 rounded-lg bg-columbia-blue shadow-lg">
+                        <h2 className="text-xl font-semibold mb-3">Card 1</h2>
+                        <p className="text-gray-700">
+                            This card uses the columbia-blue background
+                        </p>
+                    </div>
+                    
+                    <div className="p-6 rounded-lg bg-tea-green shadow-lg">
+                        <h2 className="text-xl font-semibold mb-3">Card 2</h2>
+                        <p className="tex-bl">
+                            This card uses the tea-green background
+                        </p>
+                    </div>
+                </div>
+                
+                <button className="w-full bg-blue hover:bg-opacity-90 text-white font-bold py-3 px-6 rounded-lg transition-colors">
+                    Test Button
                 </button>
-                <p>
-                    Edit <code>src/App.tsx</code> and save to test HMR
-                </p>
             </div>
-            <p className="read-the-docs">
-                Click on the Vite and React logos to learn more
-            </p>
-        </>
+        </div>
     )
 }
 
