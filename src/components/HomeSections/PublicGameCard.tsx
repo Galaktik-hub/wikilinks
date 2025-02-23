@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { Button } from "./Button";
+import { HomeButton } from "../Buttons/HomeButton.tsx";
 
 interface PublicGameCardProps {
     hostName: string;
@@ -44,9 +44,9 @@ export const PublicGameCard: React.FC<PublicGameCardProps> = ({
                 />
             </div>
 
-            <Button variant="blue" className="px-16 py-3.5 mt-3 w-full">
+            <HomeButton variant="blue" className="px-16 py-3.5 mt-3 w-full">
                 Rejoindre
-            </Button>
+            </HomeButton>
         </article>
     );
 };

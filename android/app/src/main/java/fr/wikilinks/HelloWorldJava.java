@@ -7,7 +7,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.ViewGroup.LayoutParams;
-import android.widget.Button;
+import android.widget.HomeButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -29,13 +29,13 @@ public class HelloWorldJava extends Activity  {
         LinearLayout.LayoutParams tvParams =
                 new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT /*width*/, LayoutParams.WRAP_CONTENT /*height*/, 1/*weight*/);
         layout.addView(tv, tvParams);
-        Button b = new Button(this);
+        HomeButton b = new HomeButton(this);
         b.setText("Quit the activity");
         // We choose a weight of 1 for the TextView and 0 for the button (only the TextView will be resized)
         LinearLayout.LayoutParams buttonParams =
                 new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT, 0);
         layout.addView(b, buttonParams);
-        Button b2 = new Button(this);
+        HomeButton b2 = new HomeButton(this);
         b2.setText("Restart activity");
         layout.addView(b2, buttonParams);
         // We add a listener for the click event of the button to finish the activity

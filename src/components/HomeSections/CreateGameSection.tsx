@@ -1,13 +1,13 @@
 "use client";
 import React from "react";
-import { Input } from "./Input";
-import { Button } from "./Button";
+import { HomeInput } from "../Inputs/HomeInput.tsx";
+import { HomeButton } from "../Buttons/HomeButton.tsx";
 
 export const CreateGameSection: React.FC = () => {
     return (
         <section className="p-4 w-full bg-gray-800 rounded-xl border-2 border-blue-700 border-solid max-w-[358px]">
-            <Input placeholder="Saisissez votre pseudo" />
-            <Button
+            <HomeInput placeholder="Saisissez votre pseudo" />
+            <HomeButton
                 variant="primary"
                 className="flex gap-1 items-center justify-center w-full mt-2 py-4"
             >
@@ -17,7 +17,7 @@ export const CreateGameSection: React.FC = () => {
                     alt=""
                 />
                 <span className="font-bold">Créer une partie</span>
-            </Button>
+            </HomeButton>
         </section>
     );
 };

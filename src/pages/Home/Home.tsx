@@ -1,9 +1,9 @@
 "use client";
 import React from "react";
-import { CreateGameSection } from "./CreateGameSection";
-import { JoinGameSection } from "./JoinGameSection";
-import { DailyChallengeSection } from "./DailyChallengeSection";
-import { PublicGamesList } from "./PublicGamesList";
+import { CreateGameSection } from "../../components/HomeSections/CreateGameSection.tsx";
+import { JoinGameSection } from "../../components/HomeSections/JoinGameSection.tsx";
+import { DailyChallengeSection } from "../../components/HomeSections/DailyChallengeSection.tsx";
+import { PublicGamesList } from "../../components/HomeSections/PublicGamesList.tsx";
 
 export const Home: React.FC = () => {
     return (
