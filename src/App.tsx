@@ -1,9 +1,7 @@
-import Home from './pages/Home/Home.tsx';
+import AppRoutes from "./route";
 
-export default function App() {
-    return (
-        <div className={"min-h-screen bg-sea-salt"}>
-            <Home />
-        </div>
-    );
+function App() {
+    return <AppRoutes />;
 }
+
+export default App;

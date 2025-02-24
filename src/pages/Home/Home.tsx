@@ -1,30 +1,20 @@
 "use client";
 import React from "react";
-import { CreateGameSection } from "../../components/HomeSections/CreateGameSection.tsx";
-import { JoinGameSection } from "../../components/HomeSections/JoinGameSection.tsx";
-import { DailyChallengeSection } from "../../components/HomeSections/DailyChallengeSection.tsx";
-import { PublicGamesList } from "../../components/HomeSections/PublicGamesList.tsx";
+import Layout from "../../components/Layout";
+import { DailyChallengeSection } from "../../components/HomeSections/DailyChallengeSection";
+import { PublicGamesList } from "../../components/HomeSections/PublicGamesList";
+import Header from "../../components/Header/Header.tsx";
+import CreateOrJoinGame from "../../components/HomeSections/CreateOrJoinGame.tsx";
 
-export const Home: React.FC = () => {
+const Home: React.FC = () => {
     return (
-        <div className="overflow-hidden mx-auto w-full bg-white rounded-lg border-2 border-gray-300 border-solid max-w-[480px]">
-            <main className="w-full">
-                <div className="flex flex-col flex-1 items-center py-4 w-full bg-gray-900">
-                    <header className="py-3.5 pr-16 pl-24 max-w-full text-xl text-center text-white whitespace-nowrap w-[358px]">
-                        ikiLinks
-                    </header>
-
-                    <div className="p-4 w-full">
-                        <div className="max-w-full w-[358px] mx-auto">
-                            <CreateGameSection />
-                            <JoinGameSection />
-                            <DailyChallengeSection />
-                            <PublicGamesList />
-                        </div>
-                    </div>
-                </div>
-            </main>
-        </div>
+        <Layout header={<Header/>}>
+            <div className="flex flex-col w-full overflow-hidden items-center justify-center">
+                <CreateOrJoinGame />
+                <DailyChallengeSection />
+                <PublicGamesList />
+            </div>
+        </Layout>
     );
 };
 

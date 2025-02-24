@@ -1,20 +1,26 @@
 "use client";
+
 import React from "react";
 
-interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+interface HomeInputProps {
     placeholder: string;
+    value: string;
+    onChange: (value: string) => void;
 }
 
-export const HomeInput: React.FC<InputProps> = ({
-                                                placeholder,
-                                                className = "",
-                                                ...props
-                                            }) => {
+export const HomeInput: React.FC<HomeInputProps> = ({
+                                                          placeholder,
+                                                          value,
+                                                          onChange,
+                                                      }) => {
     return (
         <input
-            className={`px-3 py-4 w-full text-gray-400 bg-gray-700 rounded-lg ${className}`}
+            type="text"
+            className="gap-2.5 self-stretch px-2.5 w-full text-base text-gray-400 bg-gray-700 rounded-lg min-h-12"
             placeholder={placeholder}
-            {...props}
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+            aria-label={placeholder}
         />
     );
 };
