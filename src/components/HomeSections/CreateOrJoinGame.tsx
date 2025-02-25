@@ -15,7 +15,7 @@ export const CreateOrJoinGame: React.FC = () => {
     };
 
     return (
-        <section className="flex flex-wrap gap-4 justify-center items-start bg-black bg-opacity-0">
+        <section className="flex flex-wrap gap-4 justify-center items-start">
             <LobbyCard
                 inputPlaceholder="Saisissez votre pseudo"
                 buttonText="Créer une partie"

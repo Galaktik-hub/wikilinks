@@ -9,7 +9,7 @@ import CreateOrJoinGame from "../../components/HomeSections/CreateOrJoinGame.tsx
 const Home: React.FC = () => {
     return (
         <Layout header={<Header/>}>
-            <div className="flex flex-col w-full overflow-hidden items-center justify-center">
+            <div className="flex flex-col w-full overflow-hidden items-center justify-center p-4">
                 <CreateOrJoinGame />
                 <DailyChallengeSection />
                 <PublicGamesList />
