@@ -13,7 +13,7 @@ export const CreateOrJoinButton: React.FC<CreateOrJoinButtonProps> = ({
                                                         }) => {
     return (
         <button
-            className="flex gap-1.5 justify-center items-center py-4 mt-2 w-full bg-sky-500 rounded-lg min-h-12 shadow-[0px_4px_6px_rgba(29,151,216,0.5)] max-md:px-5 hover:shadow-[0px_4px_6px_rgba(29,151,216,1)]"
+            className="flex gap-1.5 justify-center items-center py-4 mt-2 w-full bg-sky-500 rounded-lg min-h-12 shadow-[0px_0px_6px_rgba(29,151,216,0.5)] max-md:px-5 hover:shadow-[0px_0px_15px_rgba(29,151,216,1)]"
             onClick={onClick}
             type="button"
         >

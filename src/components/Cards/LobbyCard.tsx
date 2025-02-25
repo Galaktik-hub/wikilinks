@@ -3,6 +3,7 @@
 import React from "react";
 import { HomeInput } from "../Inputs/HomeInput";
 import { CreateOrJoinButton } from "../Buttons/CreateOrJoinButton.tsx";
+import Container from "../Container.tsx";
 
 interface LobbyCardProps {
     inputPlaceholder: string;
@@ -24,13 +25,13 @@ export const LobbyCard: React.FC<LobbyCardProps> = ({
     };
 
     return (
-        <section className="p-4 bg-gray-800 rounded-xl border-2 border-blue-700 border-solid min-w-60 w-[360px]">
+        <Container className="min-w-60 w-[360px]">
             <HomeInput
                 placeholder={inputPlaceholder}
                 value={inputValue}
                 onChange={setInputValue}
             />
             <CreateOrJoinButton text={buttonText} icon={buttonIcon} onClick={handleSubmit} />
-        </section>
+        </Container>
     );
 };
