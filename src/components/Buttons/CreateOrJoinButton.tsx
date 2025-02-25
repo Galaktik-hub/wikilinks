@@ -1,4 +1,5 @@
 import React from "react";
+import PlusSVG from "../../assets/PlusSVG.tsx";
 
 interface CreateOrJoinButtonProps {
     text: string;
@@ -20,11 +21,7 @@ export const CreateOrJoinButton: React.FC<CreateOrJoinButtonProps> = ({
             {icon && (
                 <span className="flex gap-2.5 items-center self-stretch my-auto w-3.5">
                     <span className="flex justify-center items-center self-stretch my-auto w-3.5 min-h-4">
-                        <img
-                            src={icon}
-                            alt=""
-                            className="object-contain self-stretch my-auto w-3.5 aspect-[0.87]"
-                        />
+                        <PlusSVG />
                     </span>
                 </span>
             )}
