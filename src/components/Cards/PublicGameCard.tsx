@@ -3,6 +3,7 @@ import React from "react";
 import { useMediaQuery } from "react-responsive";
 import CopySVG from "../../assets/CopySVG.tsx";
 import PlayerCountBadge from "../HomeSections/PlayerCountBadge.tsx";
+import { copyToClipboard } from "../../functions/copyToClipboard.ts"
 
 interface PublicGameCardProps {
     hostName: string;
@@ -35,7 +36,10 @@ export const PublicGameCard: React.FC<PublicGameCardProps> = ({
                         <p className="self-stretch my-auto text-sm text-gray-400">
                             Code : {gameCode}
                         </p>
-                        <button className="flex overflow-hidden justify-center items-center self-stretch my-auto w-4 min-h-4">
+                        <button
+                            onClick={() => copyToClipboard(gameCode)}
+                            className="flex overflow-hidden justify-center items-center self-stretch my-auto w-4 min-h-4"
+                        >
                             <CopySVG />
                         </button>
                     </div>
@@ -62,7 +66,10 @@ export const PublicGameCard: React.FC<PublicGameCardProps> = ({
                         <p className="self-stretch my-auto text-sm text-gray-400">
                             Code : {gameCode}
                         </p>
-                        <button className="flex overflow-hidden justify-center items-center self-stretch my-auto w-4 min-h-4">
+                        <button
+                            onClick={() => copyToClipboard(gameCode)}
+                            className="flex overflow-hidden justify-center items-center self-stretch my-auto w-4 min-h-4"
+                        >
                             <CopySVG />
                         </button>
                     </div>

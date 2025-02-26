@@ -17,7 +17,7 @@ export const PublicGamesList: React.FC = () => {
             </h2>
             <div className="flex flex-wrap gap-5 justify-center items-start mt-5 w-full max-md:max-w-full">
                 {games.map((game, index) => (
-                    <PublicGameCard key={index} {...game} />
+                    <PublicGameCard key={index} {...game} onJoin={() => {}}/>
                 ))}
             </div>
         </section>
