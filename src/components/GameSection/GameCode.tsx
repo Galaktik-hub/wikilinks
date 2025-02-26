@@ -3,13 +3,13 @@
 import * as React from "react";
 
 interface GameCodeProps {
-    code: string;
+    code: number;
 }
 
 export const GameCode: React.FC<GameCodeProps> = ({ code }) => {
     const handleCopy = async () => {
         try {
-            await navigator.clipboard.writeText(code);
+            await navigator.clipboard.writeText(code.toString());
         } catch (err) {
             console.error("Failed to copy code:", err);
         }
