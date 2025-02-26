@@ -10,7 +10,10 @@ export default {
               'primary': '#111827',
 
               'button-primary': '#1D97D8',
-          }
+          },
+          fontFamily: {
+              'martian-mono': ['Martian mono', 'serif'],
+          },
       },
   },
   plugins: [],

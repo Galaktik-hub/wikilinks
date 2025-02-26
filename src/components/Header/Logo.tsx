@@ -1,13 +1,11 @@
 import React from 'react';
+import logo from '../../assets/logo.png';
 
-interface LogoProps {
-    text: string;
-}
-
-const Logo: React.FC<LogoProps> = ({ text }) => {
+const Logo: React.FC = () => {
     return (
-        <div className="pt-4 pr-16 pb-2.5 pl-24 text-xl text-center text-white whitespace-nowrap max-w-[360px]">
-            {text}
+        <div className={"flex items-center justify-center leading-none"}>
+            <img src={logo} alt="W" className={"h-[60px] w-auto -mb-2"} />
+            <span className={"text-lg self-end text-white font-medium font-martian-mono -ml-3"}>ikilinks</span>
         </div>
     );
 };
