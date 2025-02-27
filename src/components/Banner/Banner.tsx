@@ -15,7 +15,7 @@ const Banner: React.FC = () => {
                     {[...Array(5)].map((_, index) => (
                         <div
                             key={index}
-                            className="flex flex-1 shrink py-2.5 basis-0 bg-black bg-opacity-0 h-[200px] w-[110px]"
+                            className="flex flex-1 shrink py-2.5 basis-0 h-[200px] w-[110px]"
                         />
                     ))}
                 </div>
