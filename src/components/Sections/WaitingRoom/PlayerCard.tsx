@@ -1,8 +1,8 @@
 "use client";
 
 import * as React from "react";
-import CrownIcon from "../../../assets/CrownSVG.tsx";
-import MoreOptionsIcon from "../../../assets/MoreSVG.tsx";
+import CrownIcon from "../../../assets/WaitingRoom/CrownSVG.tsx";
+import MoreOptionsIcon from "../../../assets/WaitingRoom/MoreSVG.tsx";
 
 interface PlayerCardProps {
     playerName: string;

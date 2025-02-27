@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import PlaySVG from "../../../assets/PlaySVG.tsx";
+import PlaySVG from "../../../assets/WaitingRoom/PlaySVG.tsx";
 
 const ValidateButton: React.FC<{ onClick?: () => void; disabled?: boolean }> = ({ onClick, disabled = false }) => {
     return (
