@@ -21,7 +21,7 @@ const Banner: React.FC = () => {
                 </div>
                 <img
                     src="https://cdn.builder.io/api/v1/image/assets/a3499e695a8948379525afb53ffea904/14bd27d9f207455d697acdd5b7009aafda810766dd493b9c910247e6eb4b9519"
-                    className="absolute bottom-0 right-0 object-contain aspect-[1.57] min-w-60 w-[314px] shadow-md brightness-[0.6] contrast-75"
+                    className="absolute bottom-0 right-0 object-contain aspect-[1.57] min-w-60 w-[314px] shadow-md brightness-[0.4] contrast-75"
                     alt=""
                 />
             </div>
@@ -34,14 +34,14 @@ const Banner: React.FC = () => {
             <div className="absolute inset-0 z-5 bg-blue-700 bg-opacity-60" />
 
             {/* Content */}
-            <div className="relative z-10">
-                <div className="text-white text-lg mb-8 font-inter px-8">
+            <div className="relative z-10 md:flex md:justify-around md:items-center">
+                <div className="text-white text-lg md:text-2xl mb-8 md:mb-0 font-inter px-8 md:ml-2 md:px-0 md:max-w-2xl md:flex-1">
                     Affrontez vos amis à travers les pages de{' '}
                     <span className="font-bold">Wikipédia</span> en vous aidant des {' '}
                     <span className="font-bold">bonus</span> que vous trouverez en chemin !
                 </div>
                 
-                <div className="flex justify-around items-center">
+                <div className="flex justify-evenly items-center md:justify-center md:gap-16 md:flex-1">
                     <BannerItem
                         icon={<CupSVG />}
                         number="1500+"
