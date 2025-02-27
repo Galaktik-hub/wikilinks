@@ -8,7 +8,7 @@ interface HomeInputProps {
     onChange: (value: string) => void;
 }
 
-export const HomeInput: React.FC<HomeInputProps> = ({
+export const Input: React.FC<HomeInputProps> = ({
                                                           placeholder,
                                                           value,
                                                           onChange,

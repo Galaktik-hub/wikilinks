@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { LobbyCard } from "../Cards/LobbyCard";
+import { LobbyCard } from "./LobbyCard.tsx";
 
 export const CreateOrJoinGame: React.FC = () => {
     const handleCreateGame = (username: string) => {

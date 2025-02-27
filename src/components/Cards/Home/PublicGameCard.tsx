@@ -1,9 +1,9 @@
 "use client";
 import React from "react";
 import { useMediaQuery } from "react-responsive";
-import CopySVG from "../../assets/CopySVG.tsx";
-import PlayerCountBadge from "../HomeSections/PlayerCountBadge.tsx";
-import { copyToClipboard } from "../../functions/copyToClipboard.ts"
+import CopySVG from "../../../assets/Home/CopySVG.tsx";
+import PlayerCountBadge from "./PlayerCountBadge.tsx";
+import { copyToClipboard } from "../../../functions/copyToClipboard.ts"
 
 interface PublicGameCardProps {
     hostName: string;

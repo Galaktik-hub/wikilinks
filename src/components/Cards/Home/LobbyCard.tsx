@@ -1,9 +1,9 @@
 "use client";
 
 import React from "react";
-import { HomeInput } from "../Inputs/HomeInput";
-import { CreateOrJoinButton } from "../Buttons/CreateOrJoinButton.tsx";
-import Container from "../Container.tsx";
+import { Input } from "../../Inputs/Home/Input.tsx";
+import { CreateOrJoinButton } from "../../Buttons/Home/CreateOrJoinButton.tsx";
+import Container from "../../Container.tsx";
 
 interface LobbyCardProps {
     inputPlaceholder: string;
@@ -26,7 +26,7 @@ export const LobbyCard: React.FC<LobbyCardProps> = ({
 
     return (
         <Container className="min-w-60 w-[360px]">
-            <HomeInput
+            <Input
                 placeholder={inputPlaceholder}
                 value={inputValue}
                 onChange={setInputValue}

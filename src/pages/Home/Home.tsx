@@ -1,11 +1,11 @@
 "use client";
 import React from "react";
 import Layout from "../../components/Layout";
-import { DailyChallengeSection } from "../../components/HomeSections/DailyChallengeSection";
-import { PublicGamesList } from "../../components/HomeSections/PublicGamesList";
+import { DailyChallengeSection } from "../../components/Sections/Home/DailyChallengeSection.tsx";
+import { PublicGamesList } from "../../components/Sections/Home/PublicGamesList.tsx";
 import Header from "../../components/Header/Header.tsx";
 import Banner from "../../components/Banner/Banner.tsx";
-import CreateOrJoinGame from "../../components/HomeSections/CreateOrJoinGame.tsx";
+import CreateOrJoinGame from "../../components/Cards/Home/CreateOrJoinGame.tsx";
 
 const Home: React.FC = () => {
     return (

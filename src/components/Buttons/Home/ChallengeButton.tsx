@@ -6,7 +6,7 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
     children: React.ReactNode;
 }
 
-export const HomeButton: React.FC<ButtonProps> = ({
+export const ChallengeButton: React.FC<ButtonProps> = ({
                                                   variant = "primary",
                                                   children,
                                                   className = "",

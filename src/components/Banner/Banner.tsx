@@ -1,8 +1,8 @@
 import React from 'react';
 import BannerItem from './BannerItem';
-import CupSVG from "../../assets/CupSVG.tsx";
-import StarSVG from "../../assets/StarSVG.tsx";
-import DiceSVG from "../../assets/DiceSVG.tsx";
+import CupSVG from "../../assets/Banner/CupSVG.tsx";
+import StarSVG from "../../assets/Banner/StarSVG.tsx";
+import DiceSVG from "../../assets/Banner/DiceSVG.tsx";
 import { CircularBorder } from './CircularBorder';
 import { DecorativeLines } from './DecorativeLines';
 

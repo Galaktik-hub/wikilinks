@@ -1,5 +1,5 @@
 import React from "react";
-import PlusSVG from "../../assets/PlusSVG.tsx";
+import PlusSVG from "../../../assets/Cards/PlusSVG.tsx";
 
 interface CreateOrJoinButtonProps {
     text: string;

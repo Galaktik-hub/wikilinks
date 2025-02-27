@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { HomeButton } from "../Buttons/HomeButton.tsx";
+import { ChallengeButton } from "../../Buttons/Home/ChallengeButton.tsx";
 
 export const DailyChallengeSection: React.FC = () => {
     return (
@@ -27,9 +27,9 @@ export const DailyChallengeSection: React.FC = () => {
                 </p>
             </div>
 
-            <HomeButton variant="secondary" className="px-16 w-full mt-1.5 font-bold">
+            <ChallengeButton variant="secondary" className="px-16 w-full mt-1.5 font-bold">
                 Jouez maintenant
-            </HomeButton>
+            </ChallengeButton>
         </section>
     );
 };

@@ -1,6 +1,6 @@
 "use client";
 import React from "react";
-import { PublicGameCard } from "../Cards/PublicGameCard.tsx";
+import { PublicGameCard } from "../../Cards/Home/PublicGameCard.tsx";
 
 export const PublicGamesList: React.FC = () => {
     const games = [
