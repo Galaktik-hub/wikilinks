@@ -5,7 +5,7 @@ import PlaySVG from "../../../assets/WaitingRoom/PlaySVG.tsx";
 
 const ValidateButton: React.FC<{ onClick?: () => void; disabled?: boolean }> = ({ onClick, disabled = false }) => {
     return (
-        <div className="flex justify-center w-full mb-4 mt-3">
+        <div className="flex justify-center w-[360px] mb-4 mt-3">
             <button
                 onClick={onClick}
                 disabled={disabled}

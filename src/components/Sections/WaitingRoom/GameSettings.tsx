@@ -10,7 +10,7 @@ const GameSettings: React.FC = () => {
     };
 
     return (
-        <Container className="w-full whitespace-nowrap">
+        <Container className="w-[360px] whitespace-nowrap">
                 <GameSettingsHeader onEdit={handleEdit} />
                 <GameSettingsParameters timeLimit={2} articleCount={2} maxPlayers={10} gameType={"Privé"}/>
         </Container>

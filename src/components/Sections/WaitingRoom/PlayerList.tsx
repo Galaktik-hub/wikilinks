@@ -6,7 +6,7 @@ import Container from "../../Container.tsx";
 
 export const PlayerList: React.FC = () => {
     return (
-        <Container  className="w-full whitespace-nowrap mt-3 mb-3">
+        <Container  className="w-[360px] whitespace-nowrap mt-3 mb-3">
             <h2 className="gap-2.5 self-start py-1 text-lg font-bold leading-none text-sky-500 whitespace-nowrap">
                 Joueurs
             </h2>
