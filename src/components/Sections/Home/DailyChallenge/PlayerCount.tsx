@@ -1,4 +1,5 @@
 import React from 'react';
+import FriendsSVG from "../../../../assets/Home/FriendsSVG.tsx";
 
 interface PlayerCountProps {
     count: number;
@@ -7,7 +8,8 @@ interface PlayerCountProps {
 export const PlayerCount: React.FC<PlayerCountProps> = ({ count }) => {
     return (
         <div className="flex items-center gap-2 text-base md:text-lg">
-            👥 {count} joueurs y ont déjà joué aujourd'hui
+            <FriendsSVG />
+            {count} joueurs y ont déjà joué aujourd'hui
         </div>
     );
 };
