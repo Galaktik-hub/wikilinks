@@ -8,7 +8,7 @@ import { DecorativeLines } from './DecorativeLines';
 
 const Banner: React.FC = () => {
     return (
-        <div className="w-fullbg-primary text-center overflow-hidden relative py-8 mb-6">
+        <div className="w-full bg-primary text-center overflow-hidden relative py-8 mb-6">
             {/* Background grid and image */}
             <div className="absolute inset-0 z-0">
                 <div className="flex flex-wrap">
