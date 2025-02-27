@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import InventarySVG from "../../assets/InventarySVG.tsx";
+import InventarySVG from "../../../assets/Game/InventarySVG.tsx";
 import {useEffect, useState} from "react";
 
 const IventaryButton: React.FC<{ onClick?: () => void; disabled?: boolean }> = ({ onClick, disabled = false }) => {

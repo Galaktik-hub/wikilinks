@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import Container from "../Container.tsx";
+import Container from "../../Container.tsx";
 
 const Title: React.FC<{ playerName?: string }> = ({ playerName }) => (
     <Container

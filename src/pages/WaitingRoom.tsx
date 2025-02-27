@@ -1,8 +1,8 @@
 "use client";
 import React from "react";
 import Layout from "../components/Layout";
-import Title from "../components/WaitingRoomSection/Title.tsx";
-import GameRoomCard from "../components/WaitingRoomSection/GameRoomCard.tsx";
+import Title from "../components/Sections/WaitingRoom/Title.tsx";
+import GameRoomCard from "../components/Sections/WaitingRoom/GameRoomCard.tsx";
 
 const WaitingRoom: React.FC = () => {
     return (

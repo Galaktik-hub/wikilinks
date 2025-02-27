@@ -1,5 +1,5 @@
 import * as React from "react";
-import CheckCircle from "../Check/CheckCircle.tsx";
+import CheckCircle from "../../Check/Game/CheckCircle.tsx";
 
 interface ObjectiveItemProps {
     text: string;

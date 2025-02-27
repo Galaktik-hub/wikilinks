@@ -1,9 +1,9 @@
 "use client";
 
 import * as React from "react";
-import { GameCode } from "./GameCode";
-import { PlayerCount } from "./PlayerCount";
-import Container from "../Container.tsx";
+import { GameCode } from "./GameCode.tsx";
+import { PlayerCount } from "./PlayerCount.tsx";
+import Container from "../../Container.tsx";
 
 interface GameRoomCardProps {
     codegame: number;

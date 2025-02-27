@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import ExcludeSVG from "../../assets/ExcludeSVG.tsx";
+import ExcludeSVG from "../../../assets/WaitingRoom/ExcludeSVG.tsx";
 
 const ExcludeButton: React.FC<{ onClick?: () => void; disabled?: boolean }> = ({ onClick, disabled = false }) => {
 

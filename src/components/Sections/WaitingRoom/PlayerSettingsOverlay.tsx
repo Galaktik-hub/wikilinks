@@ -1,9 +1,9 @@
 "use client";
 
 import * as React from "react";
-import Container from "../Container.tsx";
-import VolumeButton from "../Buttons/VolumeButton.tsx";
-import ExcludeButton from "../Buttons/ExcludeButton.tsx";
+import Container from "../../Container.tsx";
+import VolumeButton from "../../Buttons/WaitingRoom/VolumeButton.tsx";
+import ExcludeButton from "../../Buttons/WaitingRoom/ExcludeButton.tsx";
 
 interface PlayerSettingsOverlayProps {
     muted: boolean,

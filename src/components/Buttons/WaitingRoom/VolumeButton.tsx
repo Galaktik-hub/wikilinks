@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import VolumeSVG from "../../assets/VolumeSVG.tsx";
+import VolumeSVG from "../../../assets/WaitingRoom/VolumeSVG.tsx";
 import {useState} from "react";
 
 const VolumeButton: React.FC<{ onClick?: (muted: boolean) => void; disabled?: boolean }> = ({ onClick, disabled = false }) => {

@@ -3,8 +3,8 @@
 import * as React from "react";
 import { useState } from "react";
 import ObjectiveItem from "./ObjectiveItem.tsx";
-import UpSVG from "../../assets/UpSVG.tsx";
-import Container from "../Container.tsx";
+import UpSVG from "../../../assets/Game/UpSVG.tsx";
+import Container from "../../Container.tsx";
 
 interface Objective {
     id: string;
