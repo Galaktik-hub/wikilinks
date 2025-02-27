@@ -3,13 +3,21 @@ import React from "react";
 import Layout from "../components/Layout";
 import Title from "../components/Sections/WaitingRoom/Title.tsx";
 import GameRoomCard from "../components/Sections/WaitingRoom/GameRoomCard.tsx";
+import DeleteButton from "../components/Buttons/WaitingRoom/DeleteButton.tsx";
+import ValidateButton from "../components/Buttons/WaitingRoom/ValidateButton.tsx";
+import GameSettings from "../components/Sections/WaitingRoom/GameSettings.tsx";
+import PlayerList from "../components/Sections/WaitingRoom/PlayerList.tsx";
 
 const WaitingRoom: React.FC = () => {
     return (
         <Layout header={<div/>}>
             <div className="flex flex-col w-full overflow-hidden items-center justify-center p-4">
                 <Title playerName={"Pierre"} />
-                <GameRoomCard codegame={123456} playerCount={10} maxPlayers={10} />
+                <GameRoomCard codegame={123456} playerCount={4} maxPlayers={10} />
+                <GameSettings/>
+                <PlayerList/>
+                <ValidateButton/>
+                <DeleteButton isAdmin={true}></DeleteButton>
             </div>
         </Layout>
     );

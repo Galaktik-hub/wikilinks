@@ -14,7 +14,7 @@ interface GameRoomCardProps {
 export const GameRoomCard: React.FC<GameRoomCardProps> = ({ codegame, playerCount, maxPlayers }) => {
     return (
         <Container
-            className="w-full whitespace-nowrap"
+            className="w-full whitespace-nowrap mb-3"
         >
             <GameCode code={codegame} />
             <PlayerCount playerCount={playerCount} maxPlayers={maxPlayers} />
