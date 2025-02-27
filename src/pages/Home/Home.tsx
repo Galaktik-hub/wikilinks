@@ -1,7 +1,7 @@
 "use client";
 import React from "react";
 import Layout from "../../components/Layout";
-import { DailyChallengeSection } from "../../components/Sections/Home/DailyChallengeSection.tsx";
+import DailyChallengeSection from "../../components/Sections/Home/DailyChallenge/DailyChallengeSection.tsx";
 import { PublicGamesList } from "../../components/Sections/Home/PublicGamesList.tsx";
 import Header from "../../components/Header/Header.tsx";
 import Banner from "../../components/Banner/Banner.tsx";
@@ -13,7 +13,10 @@ const Home: React.FC = () => {
             <div className="flex flex-col w-full overflow-hidden items-center justify-center">
                 <Banner />
                 <CreateOrJoinGame />
-                <DailyChallengeSection />
+                <DailyChallengeSection
+                    title="Les extincteurs"
+                    playerCount={247}
+                />
                 <PublicGamesList />
             </div>
         </Layout>
