@@ -13,6 +13,8 @@ export default {
           },
           fontFamily: {
               'martian-mono': ['Martian mono', 'serif'],
+              'righteous': ['Righteous', 'serif'],
+              'inter': ['Inter', 'serif'],
           },
       },
   },
