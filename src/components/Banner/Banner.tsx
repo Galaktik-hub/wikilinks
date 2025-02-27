@@ -20,7 +20,7 @@ const Banner: React.FC = () => {
                     ))}
                 </div>
                 <img
-                    src="https://cdn.builder.io/api/v1/image/assets/a3499e695a8948379525afb53ffea904/14bd27d9f207455d697acdd5b7009aafda810766dd493b9c910247e6eb4b9519"
+                    src="src/assets/wikiplanet.png"
                     className="absolute bottom-0 right-0 object-contain aspect-[1.57] min-w-60 w-[314px] shadow-md brightness-[0.4] contrast-75"
                     alt=""
                 />
