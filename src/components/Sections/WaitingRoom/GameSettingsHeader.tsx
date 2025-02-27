@@ -8,7 +8,10 @@ interface GameSettingsHeaderProps {
 export const GameSettingsHeader: React.FC<GameSettingsHeaderProps> = ({ onEdit }) => {
     return (
         <header className="flex gap-10 justify-between items-center w-full">
-            <h2 className="self-stretch my-auto text-lg font-bold leading-none text-sky-500">
+            <h2
+                className="self-stretch my-auto text-lg font-bold leading-none text-sky-500"
+                style={{ textShadow: "0px 0px 14px #0ea5e9"}}
+            >
                 Paramètres de la partie
             </h2>
             <button

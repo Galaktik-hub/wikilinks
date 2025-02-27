@@ -6,14 +6,19 @@ import Container from "../../Container.tsx";
 
 export const PlayerList: React.FC = () => {
     return (
-        <Container  className="w-[360px] whitespace-nowrap mt-3 mb-3">
-            <h2 className="gap-2.5 self-start py-1 text-lg font-bold leading-none text-sky-500 whitespace-nowrap">
+        <Container className="w-[360px] whitespace-nowrap mt-3 mb-3">
+            <h2
+                className="gap-2.5 self-start py-1 text-lg font-bold leading-none text-sky-500 whitespace-nowrap"
+                style={{ textShadow: "0px 0px 14px #0ea5e9"}}
+            >
                 Joueurs
             </h2>
             <div className="mt-4 w-full text-base leading-none text-white ">
-                <PlayerCard playerName="Joueur 1" idAdmin={true} />
                 <div className="mt-3">
-                    <PlayerCard playerName="Joueur 2" />
+                    <PlayerCard playerName="Joueur 1" idAdmin={true}/>
+                </div>
+                <div className="mt-3">
+                    <PlayerCard playerName="Joueur 2"/>
                 </div>
                 <div className="mt-3">
                     <PlayerCard playerName="Joueur 3" />

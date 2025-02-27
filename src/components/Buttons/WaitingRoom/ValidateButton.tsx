@@ -9,7 +9,7 @@ const ValidateButton: React.FC<{ onClick?: () => void; disabled?: boolean }> = (
             <button
                 onClick={onClick}
                 disabled={disabled}
-                className="w-full h-16 flex items-center justify-center text-xl font-bold text-white bg-green-600 rounded-lg shadow-[0px_4px_6px_rgba(16,185,64,0.5)] hover:bg-green-700 transition-colors"
+                className="w-full h-16 flex items-center justify-center text-xl font-bold text-white bg-green-600 rounded-lg shadow-[0px_0px_10px_rgba(16,185,64,0.5)] hover:shadow-[0px_0px_15px_rgba(16,185,64,1)] transition-colors"
                 type="button"
                 aria-label="Lancer la partie"
             >

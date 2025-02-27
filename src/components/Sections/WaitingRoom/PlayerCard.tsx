@@ -21,10 +21,10 @@ export const PlayerCard: React.FC<PlayerCardProps> = ({ playerName, idAdmin = fa
             <div className="flex gap-1.5 items-center self-stretch py-2 my-auto">
                 <span className="self-stretch my-auto">{playerName}</span>
                 {idAdmin && (
-                    <CrownIcon className="w-[18px] h-[18px] text-yellow-500" />
+                    <CrownIcon className="text-yellow-500" />
                 )}
             </div>
-            <button onClick={handleMoreClick} className="p-1 rounded hover:bg-blue-600">
+            <button onClick={handleMoreClick} className="p-1 rounded hover:bg-gray-600">
                 <MoreOptionsIcon className="w-[25px] h-[25px] text-gray-400" />
             </button>
         </article>
