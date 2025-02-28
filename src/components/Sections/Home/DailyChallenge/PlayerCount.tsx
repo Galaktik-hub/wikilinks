@@ -7,7 +7,7 @@ interface PlayerCountProps {
 
 export const PlayerCount: React.FC<PlayerCountProps> = ({ count }) => {
     return (
-        <div className="flex items-center gap-2 text-base md:text-lg">
+        <div className="font-inter flex items-center gap-2 text-base md:text-lg">
             <FriendsSVG />
             {count} joueurs y ont déjà joué aujourd'hui
         </div>
