@@ -7,7 +7,6 @@ import DeleteButton from "../components/Buttons/WaitingRoom/DeleteButton.tsx";
 import ValidateButton from "../components/Buttons/WaitingRoom/ValidateButton.tsx";
 import GameSettings from "../components/Sections/WaitingRoom/GameSettings.tsx";
 import PlayerList from "../components/Sections/WaitingRoom/PlayerList.tsx";
-import SettingsGameOverlay from "../components/Sections/WaitingRoom/SettingsGameOverlay.tsx";
 
 const WaitingRoom: React.FC = () => {
     return (
@@ -17,7 +16,6 @@ const WaitingRoom: React.FC = () => {
                 <GameRoomCard codegame={123456} playerCount={4} maxPlayers={10} />
                 <GameSettings/>
                 <PlayerList/>
-                <SettingsGameOverlay/>
                 <ValidateButton/>
                 <DeleteButton isAdmin={true}></DeleteButton>
             </div>
