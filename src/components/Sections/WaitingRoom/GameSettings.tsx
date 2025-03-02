@@ -5,7 +5,11 @@ import { GameSettingsParameters } from "./GameSettingsParameters.tsx";
 import SettingsGameOverlay from "./SettingsGameOverlay";
 import Container from "../../Container.tsx";
 
-const GameSettings: React.FC = () => {
+interface GameSettingsProps {
+    isAdmin: boolean;
+}
+
+const GameSettings: React.FC<GameSettingsProps> = ({ isAdmin }) => {
     const [isModalOpen, setIsModalOpen] = React.useState(false);
 
     const handleEdit = () => {
@@ -19,7 +23,7 @@ const GameSettings: React.FC = () => {
 
     return (
         <Container className="w-[360px] whitespace-nowrap">
-            <GameSettingsHeader onEdit={handleEdit} />
+            <GameSettingsHeader onEdit={handleEdit} isAdmin={isAdmin} />
             <GameSettingsParameters
                 timeLimit={2}
                 articleCount={2}

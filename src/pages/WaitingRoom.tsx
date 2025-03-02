@@ -14,7 +14,7 @@ const WaitingRoom: React.FC = () => {
             <div className="flex flex-col w-full overflow-hidden items-center justify-center p-4">
                 <Title playerName={"Pierre"} />
                 <GameRoomCard codegame={123456} playerCount={4} maxPlayers={10} />
-                <GameSettings/>
+                <GameSettings isAdmin={true}/>
                 <PlayerList/>
                 <ValidateButton/>
                 <DeleteButton isAdmin={true}></DeleteButton>
