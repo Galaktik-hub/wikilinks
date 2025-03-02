@@ -7,12 +7,15 @@ export default {
   theme: {
       extend: {
           colors: {
-              'blue': '#345995',
-              'columbia-blue': '#b1d8ec',
-              'silver': '#bababa',
-              'tea-green': '#d9f2b4',
-              'sea-salt': '#f7f7f7',
-          }
+              'primary': '#111827',
+
+              'button-primary': '#1D97D8',
+          },
+          fontFamily: {
+              'martian-mono': ['Martian mono', 'serif'],
+              'righteous': ['Righteous', 'serif'],
+              'inter': ['Inter', 'serif'],
+          },
       },
   },
   plugins: [],
