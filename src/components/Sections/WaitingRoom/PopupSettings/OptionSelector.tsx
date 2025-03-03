@@ -29,9 +29,9 @@ export const OptionSelector: React.FC<OptionSelectorProps> = ({
             {options.map((option) => (
                 <button
                     key={option.value}
-                    className={`px-3 py-1 rounded-md transition-colors ${
+                    className={`w-10 text-center px-3 py-1 rounded-md transition-colors ${
                         selectedValue === option.value
-                            ? "font-medium text-sky-500"
+                            ? "font-simple text-sky-500"
                             : "hover:text-sky-500"
                     }`}
                     onClick={() => handleClick(option.value)}

@@ -2,7 +2,7 @@ import * as React from "react";
 import { GameSettingsRow } from "./GameSettingsRow.tsx";
 
 interface GameSettingsParametersProps {
-    timeLimit: number; // Gardé en number
+    timeLimit: number;
     articleCount: number;
     maxPlayers: number;
     gameType: string;
