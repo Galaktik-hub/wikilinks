@@ -1,5 +1,5 @@
 import * as React from "react";
-import EditSVG from "../../../assets/WaitingRoom/EditSVG.tsx";
+import EditSVG from "../../../../assets/WaitingRoom/EditSVG.tsx";
 
 interface GameSettingsHeaderProps {
     onEdit: () => void;

@@ -1,12 +1,12 @@
 "use client";
 import React from "react";
 import Layout from "../components/Layout";
-import Title from "../components/Sections/WaitingRoom/Title.tsx";
-import GameRoomCard from "../components/Sections/WaitingRoom/GameRoomCard.tsx";
+import Title from "../components/Sections/WaitingRoom/TitleParty/Title.tsx";
+import GameRoomCard from "../components/Sections/WaitingRoom/GameCode/GameRoomCard.tsx";
 import DeleteButton from "../components/Buttons/WaitingRoom/DeleteButton.tsx";
 import ValidateButton from "../components/Buttons/WaitingRoom/ValidateButton.tsx";
-import GameSettings from "../components/Sections/WaitingRoom/GameSettings.tsx";
-import PlayerList from "../components/Sections/WaitingRoom/PlayerList.tsx";
+import GameSettings from "../components/Sections/WaitingRoom/GameSettings/GameSettings.tsx";
+import PlayerList from "../components/Sections/WaitingRoom/Player/PlayerList.tsx";
 
 const WaitingRoom: React.FC = () => {
     return (

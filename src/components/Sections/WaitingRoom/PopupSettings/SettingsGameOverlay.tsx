@@ -1,13 +1,13 @@
 "use client";
 import * as React from "react";
-import { SettingsHeader } from "./SettingsHeader";
-import { SettingsOption } from "./SettingsOption";
-import { OptionSelector } from "./OptionSelector";
-import TimerSVG from "../../../assets/WaitingRoom/TimerSVG.tsx";
-import ArticleSVG from "../../../assets/WaitingRoom/ArticleSVG.tsx";
-import PlayerSVG from "../../../assets/WaitingRoom/PlayerSVG.tsx";
-import PlanetSVG from "../../../assets/WaitingRoom/PlanetSVG.tsx";
-import CloseSVG from "../../../assets/WaitingRoom/CloseSVG.tsx";
+import { SettingsHeader } from "./SettingsHeader.tsx";
+import { SettingsOption } from "./SettingsOption.tsx";
+import { OptionSelector } from "./OptionSelector.tsx";
+import TimerSVG from "../../../../assets/WaitingRoom/TimerSVG.tsx";
+import ArticleSVG from "../../../../assets/WaitingRoom/ArticleSVG.tsx";
+import PlayerSVG from "../../../../assets/WaitingRoom/PlayerSVG.tsx";
+import PlanetSVG from "../../../../assets/WaitingRoom/PlanetSVG.tsx";
+import CloseSVG from "../../../../assets/WaitingRoom/CloseSVG.tsx";
 
 interface SettingsGameOverlayProps {
     closeModal: () => void;

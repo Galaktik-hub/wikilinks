@@ -2,8 +2,8 @@
 import * as React from "react";
 import { GameSettingsHeader } from "./GameSettingsHeader.tsx";
 import { GameSettingsParameters } from "./GameSettingsParameters.tsx";
-import SettingsGameOverlay from "./SettingsGameOverlay";
-import Container from "../../Container.tsx";
+import SettingsGameOverlay from "../PopupSettings/SettingsGameOverlay.tsx";
+import Container from "../../../Container.tsx";
 
 interface GameSettingsProps {
     isAdmin: boolean;

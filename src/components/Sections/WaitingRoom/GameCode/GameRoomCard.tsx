@@ -3,7 +3,7 @@
 import * as React from "react";
 import { GameCode } from "./GameCode.tsx";
 import { PlayerCount } from "./PlayerCount.tsx";
-import Container from "../../Container.tsx";
+import Container from "../../../Container.tsx";
 
 interface GameRoomCardProps {
     codegame: number;

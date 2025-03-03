@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import CopySVG from "../../../assets/WaitingRoom/CopySVG.tsx";
+import CopySVG from "../../../../assets/WaitingRoom/CopySVG.tsx";
 
 interface GameCodeProps {
     code: number;
