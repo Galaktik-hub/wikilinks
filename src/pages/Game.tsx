@@ -14,7 +14,7 @@ const Game: React.FC = () => {
                 <ObjectivesPanel />
                 <WikiPagePanel />
                 <div
-                    className="flex justify-center items-center p-5 bg-red-500 absolute bottom-0 right-0"
+                    className="flex justify-center items-center p-5 absolute bottom-0 right-0"
                 >
                     <InventaryButton />
                 </div>

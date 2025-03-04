@@ -8,7 +8,7 @@ import ArticleDisplay from "./ArticleDisplay.tsx";
 const ObjectivesPanel: React.FC = () => {
 
     return (
-        <Container className="flex flex-col justify-center w-[360px]">
+        <Container className="flex flex-col justify-center w-full">
             <div className="flex gap-10 justify-between w-full">
                 <h2
                     className="gap-2.5 self-stretch py-1 text-lg font-bold leading-none text-sky-500 whitespace-nowrap"
@@ -19,7 +19,7 @@ const ObjectivesPanel: React.FC = () => {
             </div>
 
             <div className="flex flex-col items-center gap-2 self-center mt-2 w-full text-base text-white">
-                <ArticleDisplay title={"Paris"} className="w-full" />
+                <ArticleDisplay title={"Université Gustave Eiffel"} cutSection={"Voir aussi"} className="w-full" />
             </div>
         </Container>
     );
