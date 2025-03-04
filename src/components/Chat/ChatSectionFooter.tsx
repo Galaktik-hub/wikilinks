@@ -30,7 +30,7 @@ export default function ChatSectionFooter() {
                 }`}
                 onClick={() => setIsFocused(false)}
             />
-            <footer className="fixed bottom-0 left-0 w-full flex flex-col justify-center p-4 bg-black bg-opacity-80 max-w-[412px] h-[10vh] z-[100]">
+            <section className="md:hidden fixed bottom-0 left-0 w-full flex flex-col justify-center p-4 bg-black bg-opacity-80 z-[100]">
                 <div className="flex gap-2 items-center w-full h-full">
                     <ChatInput
                         value={message}
@@ -41,7 +41,7 @@ export default function ChatSectionFooter() {
                     />
                     <SendButton onClick={handleSendMessage} />
                 </div>
-            </footer>
+            </section>
         </>
     );
 }

@@ -5,10 +5,11 @@ import PlayerSettingsOverlay from "./PlayerSettingsOverlay.tsx";
 
 interface PlayerCardProps {
     playerName: string;
-    idAdmin?: boolean;
+    isPlayerAdmin?: boolean; // Indique si ce joueur est admin (affiche la couronne)
+    isHost: boolean; // Indique si l'utilisateur actuel est admin (affiche les options)
 }
 
-export const PlayerCard: React.FC<PlayerCardProps> = ({ playerName, idAdmin = false }) => {
+export const PlayerCard: React.FC<PlayerCardProps> = ({ playerName, isPlayerAdmin = false, isHost }) => {
     const [isPopupOpen, setIsPopupOpen] = React.useState(false);
     const playerCardRef = React.useRef<HTMLDivElement>(null);
 
@@ -42,11 +43,11 @@ export const PlayerCard: React.FC<PlayerCardProps> = ({ playerName, idAdmin = fa
     return (
         <article
             ref={playerCardRef}
-            className="relative flex gap-10 justify-between items-center py-2 pr-1.5 pl-4 w-full bg-gray-700 rounded"
+            className="w-full md:w-[200px] flex justify-between items-center py-2 pr-1.5 pl-4 bg-gray-700 rounded relative"
         >
             <div className="flex gap-1.5 items-center self-stretch py-2 my-auto">
                 <span className="self-stretch my-auto">{playerName}</span>
-                {idAdmin && <CrownIcon className="text-yellow-500" />}
+                {isPlayerAdmin && <CrownIcon className="text-yellow-500" />}
             </div>
             <button
                 onClick={handleMoreClick}
@@ -57,10 +58,8 @@ export const PlayerCard: React.FC<PlayerCardProps> = ({ playerName, idAdmin = fa
 
             {/* Popup Modal */}
             {isPopupOpen && (
-                <div className="absolute bottom-full left-1/2 transform -translate-x-1/5 mb-10 z-50">
-                    <div className="bg-gray-800 rounded-lg shadow-lg p-4">
-                        <PlayerSettingsOverlay muted={false} isAdmin={true} />
-                    </div>
+                <div className="absolute z-10 right-0 -translate-y-[75px]">
+                    <PlayerSettingsOverlay muted={false} isHost={isHost} />
                 </div>
             )}
         </article>

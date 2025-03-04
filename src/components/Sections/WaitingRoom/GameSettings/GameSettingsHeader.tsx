@@ -3,10 +3,10 @@ import EditSVG from "../../../../assets/WaitingRoom/EditSVG.tsx";
 
 interface GameSettingsHeaderProps {
     onEdit: () => void;
-    isAdmin: boolean;
+    isHost: boolean;
 }
 
-export const GameSettingsHeader: React.FC<GameSettingsHeaderProps> = ({ onEdit, isAdmin }) => {
+export const GameSettingsHeader: React.FC<GameSettingsHeaderProps> = ({ onEdit, isHost }) => {
     return (
         <header className="flex gap-10 justify-between items-center w-full">
             <h2
@@ -15,7 +15,7 @@ export const GameSettingsHeader: React.FC<GameSettingsHeaderProps> = ({ onEdit, 
             >
                 Paramètres de la partie
             </h2>
-            {isAdmin && (
+            {isHost && (
                 <button
                     onClick={onEdit}
                     className="flex items-center gap-1.5 px-3.5 py-1.5 text-sm text-center text-white bg-blue-600 rounded-md w-[70px] hover:bg-blue-700 transition"
