@@ -12,7 +12,7 @@ const DeleteButton: React.FC<DeleteButtonProps> = ({ isAdmin }) => {
                 type="button"
                 aria-label={isAdmin ? "Supprimer" : "Quitter"}
             >
-                <span className="z-10">{isAdmin ? "Supprimer" : "Quitter"}</span>
+                <span className="">{isAdmin ? "Supprimer" : "Quitter"}</span>
             </button>
         </div>
     );

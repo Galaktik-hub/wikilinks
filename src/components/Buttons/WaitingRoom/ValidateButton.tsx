@@ -13,7 +13,7 @@ const ValidateButton: React.FC<{ onClick?: () => void; disabled?: boolean }> = (
                 type="button"
                 aria-label="Lancer la partie"
             >
-                <span className="z-10">Lancer la partie</span>
+                <span className="">Lancer la partie</span>
                 <PlaySVG className="ml-2 w-6 h-6 text-white" />
             </button>
         </div>

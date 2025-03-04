@@ -7,6 +7,7 @@ import DeleteButton from "../components/Buttons/WaitingRoom/DeleteButton.tsx";
 import ValidateButton from "../components/Buttons/WaitingRoom/ValidateButton.tsx";
 import GameSettings from "../components/Sections/WaitingRoom/GameSettings/GameSettings.tsx";
 import PlayerList from "../components/Sections/WaitingRoom/Player/PlayerList.tsx";
+import ChatSectionFooter from "../components/Chat/ChatSectionFooter.tsx";
 
 const WaitingRoom: React.FC = () => {
     return (
@@ -18,6 +19,7 @@ const WaitingRoom: React.FC = () => {
                 <PlayerList/>
                 <ValidateButton/>
                 <DeleteButton isAdmin={true}></DeleteButton>
+                <ChatSectionFooter/>
             </div>
         </Layout>
     );
