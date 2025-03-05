@@ -102,8 +102,12 @@ export const TextLoungePanel: React.FC = () => {
                         <div className="flex-grow overflow-y-auto p-4">
                             {messages.length > 0 ? (
                                 messages.map((msg, index) => (
-                                    <div key={index} className="mb-2 p-2 bg-gray-800 rounded-lg">
-                                        <strong>{msg.pseudo}</strong>: {msg.message}
+                                    <div key={index} className="mb-2 p-3 bg-[#12151A] rounded-lg border border-gray-700/50">
+                                        <strong className="text-sky-500" style={{ textShadow: "0 0 10px rgba(14, 165, 233, 0.3)" }}>
+                                            {msg.pseudo}
+                                        </strong>
+                                        <span className="mx-2 text-gray-500">:</span>
+                                        <span className="text-gray-100">{msg.message}</span>
                                     </div>
                                 ))
                             ) : (
@@ -151,8 +155,12 @@ export const TextLoungePanel: React.FC = () => {
                     <div className="h-[50vh] overflow-y-auto p-4">
                         {messages.length > 0 ? (
                             messages.map((msg, index) => (
-                                <div key={index} className="mb-2 p-2 bg-gray-800 rounded-lg">
-                                    <strong>{msg.pseudo}</strong>: {msg.message}
+                                <div key={index} className="mb-2 p-3 bg-[#12151A] rounded-lg border border-gray-700/50">
+                                    <strong className="text-sky-500" style={{ textShadow: "0 0 10px rgba(14, 165, 233, 0.3)" }}>
+                                        {msg.pseudo}
+                                    </strong>
+                                    <span className="mx-2 text-gray-500">:</span>
+                                    <span className="text-gray-100">{msg.message}</span>
                                 </div>
                             ))
                         ) : (
