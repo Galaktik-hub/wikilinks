@@ -5,7 +5,6 @@ import cors from "cors";
 
 const app = express();
 
-// Autorise toutes les origines
 const corsOptions = {
     origin: "*",
     methods: ["GET", "POST"],
@@ -22,9 +21,15 @@ const io = new Server(server, {
 io.on("connection", socket => {
     console.log("Un utilisateur s'est connecté :", socket.id);
 
-    socket.on("sendMessage", message => {
-        console.log(`Message reçu: ${message}`);
-        io.emit("receiveMessage", message);
+    socket.on("joinRoom", ({ pseudo, code }) => {
+        socket.join(code);
+        console.log(`${pseudo} a rejoint la salle ${code}`);
+    });
+
+    socket.on("sendMessage", ({ pseudo, message, code }) => {
+        console.log(`Message reçu de ${pseudo} dans la salle ${code}: ${message}`);
+        // Émettre uniquement dans la salle définie par "code"
+        io.to(code).emit("receiveMessage", { pseudo, message });
     });
 
     socket.on("disconnect", () => {
