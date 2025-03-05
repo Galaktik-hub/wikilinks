@@ -1,10 +1,10 @@
 "use client";
 
 import * as React from "react";
-import InventarySVG from "../../../assets/Game/InventarySVG.tsx";
+import InventorySVG from "../../../assets/Game/InventorySVG.tsx";
 import {useEffect, useState} from "react";
 
-const IventaryButton: React.FC<{ onClick?: () => void; disabled?: boolean }> = ({ onClick, disabled = false }) => {
+const InventoryButton: React.FC<{ onClick?: () => void; disabled?: boolean }> = ({ onClick, disabled = false }) => {
     const [showText, setShowText] = useState(true);
 
     useEffect(() => {
@@ -18,7 +18,7 @@ const IventaryButton: React.FC<{ onClick?: () => void; disabled?: boolean }> = (
             disabled={disabled}
             className="inline-flex gap-2 items-center p-4 bg-blue-700 rounded-lg cursor-pointer h-[50px]"
         >
-            <InventarySVG />
+            <InventorySVG />
             {showText && <span className="text-base text-white max-md:text-base max-sm:text-sm font-['Inter']">
                 Inventaire
             </span>}
@@ -26,4 +26,4 @@ const IventaryButton: React.FC<{ onClick?: () => void; disabled?: boolean }> = (
     );
 };
 
-export default IventaryButton;
+export default InventoryButton;

@@ -11,9 +11,9 @@ const Layout: React.FC<LayoutProps> = ({ header, children }) => {
     const isMobile = useMediaQuery({maxWidth: 767});
     if (isMobile) {
         return (
-            <div className="min-h-screen flex flex-col md:flex-row">
+            <div className="min-h-screen bg-primary flex flex-col md:flex-row">
 
-                <main className="bg-primary md:w-1/2 flex flex-col">
+                <main className="md:w-1/2 flex flex-col">
                     <div className="flex flex-col flex-1">
                         {header}
                         {children}
@@ -23,12 +23,12 @@ const Layout: React.FC<LayoutProps> = ({ header, children }) => {
         )
     } else {
         return (
-            <div className="min-h-screen flex flex-col md:flex-row">
+            <div className="min-h-screen bg-primary flex flex-col md:flex-row">
 
                 <aside className="flex w-1/4 bg-gray-600">
 
                 </aside>
-                <main className="bg-primary w-1/2 flex flex-col">
+                <main className="w-1/2 flex flex-col">
                     <div className="flex flex-col flex-1">
                         {header}
                         {children}
