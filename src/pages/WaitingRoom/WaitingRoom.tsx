@@ -32,6 +32,11 @@ const WaitingRoom: React.FC = () => {
                     <LaunchButton isHost={isHost}/>
                 </section>
             </div>
+
+            {/* Mobile version of the chat */}
+            <div className="md:hidden">
+                <TextLoungePanel />
+            </div>
         </Layout>
     );
 };

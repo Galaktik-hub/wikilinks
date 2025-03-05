@@ -7,7 +7,7 @@ import { ChatInput } from "../../../Chat/ChatInput.tsx";
 import { SendButton } from "../../../Chat/SendButton.tsx";
 import RoomModal from "../../../Modals/WaitingRoom/RoomModal";
 
-const SOCKET_URL = "http://192.168.1.38:3001";
+const SOCKET_URL = "http://localhost:3001";
 
 type ChatMessage = {
     pseudo: string;
@@ -19,6 +19,7 @@ export const TextLoungePanel: React.FC = () => {
     const [roomCode, setRoomCode] = React.useState<string | null>(null);
     const [message, setMessage] = React.useState("");
     const [messages, setMessages] = React.useState<ChatMessage[]>([]);
+    const [isInputFocused, setIsInputFocused] = React.useState(false);
     const messagesEndRef = React.useRef<HTMLDivElement>(null);
     const socket = React.useRef<Socket | null>(null);
 
@@ -86,40 +87,98 @@ export const TextLoungePanel: React.FC = () => {
     }
 
     return (
-        <Container className="min-w-[360px] flex flex-col justify-center items-center whitespace-nowrap h-full">
-            <h2
-                className="gap-2.5 py-1 text-lg font-bold leading-none text-sky-500"
-                style={{ textShadow: "0px 0px 14px #0ea5e9" }}
-            >
-                Salon Textuel
-            </h2>
+        <>
+            {/* Desktop version */}
+            <div className="hidden md:block h-full">
+                <Container className="flex flex-col h-full min-w-[360px]">
+                    <h2
+                        className="gap-2.5 py-1 text-lg font-bold leading-none text-sky-500 text-center mb-2"
+                        style={{ textShadow: "0px 0px 14px #0ea5e9" }}
+                    >
+                        Salon Textuel
+                    </h2>
 
-            {/* Zone d'affichage des messages */}
-            <div className="mt-4 w-full text-base leading-none text-white flex flex-col bg-[#181D25] rounded-lg h-[300px] overflow-y-auto p-4">
-                {messages.length > 0 ? (
-                    messages.map((msg, index) => (
-                        <div key={index} className="mb-2 p-2 bg-gray-800 rounded-lg">
-                            <strong>{msg.pseudo}</strong>: {msg.message}
+                    <div className="flex flex-col flex-grow bg-[#181D25] rounded-lg overflow-hidden">
+                        <div className="flex-grow overflow-y-auto p-4">
+                            {messages.length > 0 ? (
+                                messages.map((msg, index) => (
+                                    <div key={index} className="mb-2 p-2 bg-gray-800 rounded-lg">
+                                        <strong>{msg.pseudo}</strong>: {msg.message}
+                                    </div>
+                                ))
+                            ) : (
+                                <p className="text-gray-400 text-center">Aucun message pour l'instant...</p>
+                            )}
+                            <div ref={messagesEndRef} />
                         </div>
-                    ))
-                ) : (
-                    <p className="text-gray-400 text-center">Aucun message pour l’instant...</p>
-                )}
-                <div ref={messagesEndRef} />
+
+                        <div className="flex items-center w-full p-2 bg-[#12151A] rounded-b-lg gap-2">
+                            <ChatInput
+                                value={message}
+                                onChange={(e) => setMessage(e.target.value)}
+                                onKeyDown={handleKeyDown}
+                                onFocus={() => setIsInputFocused(true)}
+                                onBlur={() => setIsInputFocused(false)}
+                            />
+                            <div className={`transition-all duration-200 ease-in-out ${message.trim() ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}>
+                                <SendButton onClick={handleSendMessage} disabled={!message.trim()} />
+                            </div>
+                        </div>
+                    </div>
+                </Container>
             </div>
 
-            {/* Zone d'entrée du message */}
-            <div className="flex items-center w-full p-2 mt-2 bg-[#181D25] rounded-lg">
-                <ChatInput
-                    value={message}
-                    onChange={(e) => setMessage(e.target.value)}
-                    onKeyDown={handleKeyDown}
-                    onFocus={() => {}}
-                    onBlur={() => {}}
+            {/* Mobile version */}
+            <div className="md:hidden">
+                {/* Overlay that appears when the input is focused */}
+                <div 
+                    className={`fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300 ${
+                        isInputFocused ? 'opacity-100 visible' : 'opacity-0 invisible'
+                    }`}
+                    onClick={() => setIsInputFocused(false)}
                 />
-                <SendButton onClick={handleSendMessage} disabled={!message.trim()} />
+
+                {/* Container for messages that appears when the input is focused */}
+                <div className={`fixed bottom-16 left-0 right-0 bg-[#181D25] transition-transform duration-300 ease-out ${
+                    isInputFocused ? 'translate-y-0' : 'translate-y-full'
+                }`}>
+                    <h2
+                        className="gap-2.5 py-3 text-lg font-bold leading-none text-sky-500 text-center"
+                        style={{ textShadow: "0px 0px 14px #0ea5e9" }}
+                    >
+                        Salon Textuel
+                    </h2>
+                    <div className="h-[50vh] overflow-y-auto p-4">
+                        {messages.length > 0 ? (
+                            messages.map((msg, index) => (
+                                <div key={index} className="mb-2 p-2 bg-gray-800 rounded-lg">
+                                    <strong>{msg.pseudo}</strong>: {msg.message}
+                                </div>
+                            ))
+                        ) : (
+                            <p className="text-gray-400 text-center">Aucun message pour l'instant...</p>
+                        )}
+                        <div ref={messagesEndRef} />
+                    </div>
+                </div>
+
+                {/* Input fixed at the bottom */}
+                <div className="fixed bottom-0 left-0 right-0 p-2 bg-[#12151A] border-t border-gray-700">
+                    <div className="flex items-center gap-2">
+                        <ChatInput
+                            value={message}
+                            onChange={(e) => setMessage(e.target.value)}
+                            onKeyDown={handleKeyDown}
+                            onFocus={() => setIsInputFocused(true)}
+                            onBlur={() => setIsInputFocused(false)}
+                        />
+                        <div className={`transition-all duration-200 ease-in-out ${message.trim() ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}>
+                            <SendButton onClick={handleSendMessage} disabled={!message.trim()} />
+                        </div>
+                    </div>
+                </div>
             </div>
-        </Container>
+        </>
     );
 };
 
