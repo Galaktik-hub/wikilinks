@@ -1,20 +1,22 @@
+"use client";
+
 import * as React from "react";
 
 interface ChatInputProps {
     value: string;
     onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
-    onKeyPress: (e: React.KeyboardEvent) => void;
+    onKeyDown: (e: React.KeyboardEvent<HTMLInputElement>) => void;
     onFocus: () => void;
     onBlur: () => void;
 }
 
-export function ChatInput({ value, onChange, onKeyPress, onFocus, onBlur }: ChatInputProps) {
+export function ChatInput({ value, onChange, onKeyDown, onFocus, onBlur }: ChatInputProps) {
     return (
         <input
             type="text"
             value={value}
             onChange={onChange}
-            onKeyPress={onKeyPress}
+            onKeyDown={onKeyDown}
             onFocus={onFocus}
             onBlur={onBlur}
             placeholder="Écrivez votre message..."

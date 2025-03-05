@@ -19,7 +19,7 @@ export const generateTOC = (html: string): TOCItem[] => {
         let id = header.getAttribute('id');
         if (!id && text) {
             // Génère un id simple à partir du texte
-            id = text.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9\-]/g, '');
+            id = text.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
             header.setAttribute('id', id);
         }
         if (text && id) {

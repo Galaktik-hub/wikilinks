@@ -1,14 +1,14 @@
 "use client";
+
 import React from "react";
-import Layout from "../components/Layout";
-import Title from "../components/Sections/WaitingRoom/TitleParty/Title.tsx";
-import GameRoomCard from "../components/Sections/WaitingRoom/GameCode/GameRoomCard.tsx";
-import DeleteButton from "../components/Buttons/WaitingRoom/DeleteButton.tsx";
-import LaunchButton from "../components/Buttons/WaitingRoom/LaunchButton.tsx";
-import GameSettings from "../components/Sections/WaitingRoom/GameSettings/GameSettings.tsx";
-import PlayerList from "../components/Sections/WaitingRoom/Player/PlayerList.tsx";
-import ChatSectionFooter from "../components/Chat/ChatSectionFooter.tsx";
-import TextLoungePanel from "../components/Sections/WaitingRoom/TextLounge/TextLoungePanel.tsx";
+import Layout from "../../components/Layout.tsx";
+import Title from "../../components/Sections/WaitingRoom/TitleParty/Title.tsx";
+import GameRoomCard from "../../components/Sections/WaitingRoom/GameCode/GameRoomCard.tsx";
+import DeleteButton from "../../components/Buttons/WaitingRoom/DeleteButton.tsx";
+import LaunchButton from "../../components/Buttons/WaitingRoom/LaunchButton.tsx";
+import GameSettings from "../../components/Sections/WaitingRoom/GameSettings/GameSettings.tsx";
+import PlayerList from "../../components/Sections/WaitingRoom/Player/PlayerList.tsx";
+import TextLoungePanel from "../../components/Sections/WaitingRoom/TextLounge/TextLoungePanel.tsx";
 
 const isHost: boolean = false;
 
@@ -31,7 +31,6 @@ const WaitingRoom: React.FC = () => {
                     <DeleteButton isHost={isHost}/>
                     <LaunchButton isHost={isHost}/>
                 </section>
-                <ChatSectionFooter />
             </div>
         </Layout>
     );

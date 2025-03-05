@@ -1,5 +1,5 @@
 import './App.css'
-import WaitingRoom from "./pages/WaitingRoom.tsx";
+import WaitingRoom from "./pages/WaitingRoom/WaitingRoom.tsx";
 
 function App() {
     return (

@@ -1,10 +1,10 @@
 "use client";
 import React from "react";
-import Layout from "../components/Layout";
-import ObjectivesPanel from "../components/Sections/Game/ObjectivePanel.tsx";
-import PlayerProgressPanel from "../components/Sections/Game/PlayerProgressPanel.tsx";
-import WikiPagePanel from "../components/Sections/Game/WikiPagePanel.tsx";
-import InventaryButton from "../components/Buttons/Game/InventaryButton.tsx";
+import Layout from "../../components/Layout.tsx";
+import ObjectivesPanel from "../../components/Sections/Game/ObjectivePanel.tsx";
+import PlayerProgressPanel from "../../components/Sections/Game/PlayerProgressPanel.tsx";
+import WikiPagePanel from "../../components/Sections/Game/WikiPagePanel.tsx";
+import InventaryButton from "../../components/Buttons/Game/InventaryButton.tsx";
 
 const Game: React.FC = () => {
     return (
