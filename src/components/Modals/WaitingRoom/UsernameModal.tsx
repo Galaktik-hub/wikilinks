@@ -9,26 +9,50 @@ interface UsernameModalProps {
 const UsernameModal: React.FC<UsernameModalProps> = ({ onSubmit }) => {
     const [input, setInput] = React.useState("");
 
+    const handleSubmit = () => {
+        if (input.trim()) {
+            onSubmit(input.trim());
+        }
+    };
+
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+        if (e.key === "Enter" && !e.shiftKey) {
+            e.preventDefault();
+            handleSubmit();
+        }
+    };
+
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50">
-            <div className="bg-white p-8 rounded shadow-md">
-                <h2 className="text-xl font-bold mb-4">Choisissez votre pseudo</h2>
-                <input
-                    type="text"
-                    value={input}
-                    onChange={(e) => setInput(e.target.value)}
-                    className="border p-2 w-full"
-                    placeholder="Votre pseudo"
-                />
-                <button
-                    className="mt-4 bg-blue-500 text-white px-4 py-2 rounded"
-                    onClick={() => {
-                        if (input.trim()) {
-                            onSubmit(input.trim());
-                        }
-                    }}
+        <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50">
+            <div className="bg-[#181D25] p-8 rounded-xl shadow-lg border border-gray-700 w-full max-w-md mx-4 transform transition-all">
+                <h2 
+                    className="text-xl font-bold mb-6 text-sky-500 text-center"
+                    style={{ textShadow: "0px 0px 14px #0ea5e9" }}
                 >
-                    Valider
+                    Choisissez votre pseudo
+                </h2>
+                
+                <div className="relative">
+                    <input
+                        type="text"
+                        value={input}
+                        onChange={(e) => setInput(e.target.value)}
+                        onKeyDown={handleKeyDown}
+                        className="w-full px-4 py-3 bg-[#12151A] text-white rounded-lg border border-gray-700 focus:border-sky-500 focus:ring-1 focus:ring-sky-500 transition-all outline-none"
+                        placeholder="Votre pseudo"
+                        autoFocus
+                    />
+                </div>
+
+                <button
+                    className={`mt-6 w-full py-3 rounded-lg font-semibold transition-all duration-200 
+                        ${input.trim() 
+                            ? 'bg-sky-500 hover:bg-sky-600 text-white shadow-lg shadow-sky-500/30' 
+                            : 'bg-gray-700 text-gray-400 cursor-not-allowed'}`}
+                    onClick={handleSubmit}
+                    disabled={!input.trim()}
+                >
+                    Rejoindre
                 </button>
             </div>
         </div>
