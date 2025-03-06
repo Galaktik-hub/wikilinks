@@ -1,6 +1,6 @@
 "use client";
 import * as React from "react";
-import {useModalContext} from "../../../Modals/ModalProvider.tsx";
+import { useModalContext } from "../../../Modals/ModalProvider.tsx";
 
 export interface InventoryItemProps {
     count: number;
@@ -10,19 +10,20 @@ export interface InventoryItemProps {
     color?: string;
 }
 
-const InventoryItem: React.FC<InventoryItemProps & { Icon: React.FC<{ color?: string; className?: string }> }> = ({
-        count,
-        onConfirm,
-        definition,
-        name,
-        color = "#3b82f6",
-        Icon,
-    }) => {
+const InventoryItem: React.FC<
+    InventoryItemProps & { Icon: React.FC<{ color?: string; className?: string }> }
+> = ({ count, onConfirm, definition, name, color = "#3b82f6", Icon }) => {
     const { openModal, closeModal } = useModalContext();
-    const isDisabled = count === 0;
+    const [remaining, setRemaining] = React.useState(count);
+
+    // Met à jour remaining si la prop count change
+    React.useEffect(() => {
+        setRemaining(count);
+    }, [count]);
+
+    const isDisabled = remaining === 0;
     const itemColor = isDisabled ? "#374151" : color;
     const countColor = isDisabled ? "#374151" : "#ffffff";
-    const [remaining, setRemaining] = React.useState(count);
 
     const handleClick = () => {
         if (isDisabled) return;
@@ -31,23 +32,29 @@ const InventoryItem: React.FC<InventoryItemProps & { Icon: React.FC<{ color?: st
             type: "confirmation",
             content: {
                 message: definition,
-                cancelButton: { label: "Annuler", onClick: () => closeModal },
-                okButton: { label: "Utiliser", onClick: () => {
-                    onConfirm();
-                    closeModal();
-                    setRemaining(remaining => remaining - 1);
-                } },
+                cancelButton: { label: "Annuler", onClick: () => closeModal() },
+                okButton: {
+                    label: "Utiliser",
+                    onClick: () => {
+                        onConfirm();
+                        closeModal();
+                        setRemaining((prev) => prev - 1);
+                    },
+                },
             },
         });
     };
 
     return (
         <article
-            className={`relative flex flex-col justify-center items-center p-2.5 bg-gray-800 rounded-lg border w-[102px] gap-1`}
+            className="relative flex flex-col justify-center items-center p-2.5 bg-gray-800 rounded-lg border w-[102px] gap-1"
             style={{ borderColor: itemColor }}
         >
             <Icon color={itemColor} className="" />
-            <h3 className="flex flex-col justify-center w-full text-base text-center whitespace-nowrap" style={{ color: itemColor }}>
+            <h3
+                className="flex flex-col justify-center w-full text-base text-center whitespace-nowrap"
+                style={{ color: itemColor }}
+            >
                 <span className="flex-1 shrink self-stretch w-full basis-0">{name}</span>
             </h3>
             <button
@@ -56,18 +63,19 @@ const InventoryItem: React.FC<InventoryItemProps & { Icon: React.FC<{ color?: st
                 style={{
                     color: itemColor,
                     borderColor: itemColor,
-                    ...(isDisabled ? { cursor: "default" } : { backgroundColor: "rgba(14,165,233,0.2)" })
+                    ...(isDisabled
+                        ? { cursor: "default" }
+                        : { backgroundColor: "rgba(14,165,233,0.2)" }),
                 }}
             >
                 {isDisabled ? "Aucun" : "Voir"}
             </button>
-
             <span
                 className="absolute top-0 right-0 self-start p-1.5 text-sm text-center whitespace-nowrap"
                 style={{ color: countColor }}
             >
-                x{remaining}
-            </span>
+        x{remaining}
+      </span>
         </article>
     );
 };
