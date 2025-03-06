@@ -1,8 +1,9 @@
 "use client";
 
 import * as React from "react";
-import {useModalContext} from "../ModalProvider.tsx";
-import {useEffect, useRef, useState} from "react";
+import { createPortal } from "react-dom";
+import { useModalContext } from "../ModalProvider.tsx";
+import { useEffect, useRef, useState } from "react";
 
 interface RoomModalProps {
     onSubmit: (pseudo: string, code: string) => void;
@@ -15,12 +16,24 @@ const RoomModal: React.FC<RoomModalProps> = ({ onSubmit, shouldOpen }) => {
     const { openModal, updateModal, closeModal } = useModalContext();
     const [pseudo, setPseudo] = useState("");
     const [code, setCode] = useState("");
+    const [showPopup, setShowPopup] = useState(false);
     const isOpened = useRef(false);
     const lastContentRef = useRef<any>(null);
 
+    //TEST DE POPUP D'ERREUR
+    const handleSubmit = () => {
+        if (code === "000000") {
+            setShowPopup(true);
+            setTimeout(() => setShowPopup(false), 2000);
+
+        } else {
+            onSubmit(pseudo.trim(), code.trim());
+            closeModal();
+        }
+    };
+
     useEffect(() => {
         if (shouldOpen) {
-            // Construire le contenu du modal
             const newContent = {
                 inputFields: [
                     {
@@ -40,14 +53,7 @@ const RoomModal: React.FC<RoomModalProps> = ({ onSubmit, shouldOpen }) => {
                 ],
                 submitButton: {
                     label: "Rejoindre",
-                    onClick: () => {
-                        if (pseudo.trim() && /^\d{6}$/.test(code.trim())) {
-                            onSubmit(pseudo.trim(), code.trim());
-                            closeModal();
-                        } else {
-                            alert("Veuillez entrer un pseudo et un code valide à 6 chiffres.");
-                        }
-                    },
+                    onClick: handleSubmit,
                     disabled: !(pseudo.trim() && /^\d{6}$/.test(code.trim())),
                 },
                 isValid: pseudo.trim() && /^\d{6}$/.test(code.trim()),
@@ -77,7 +83,20 @@ const RoomModal: React.FC<RoomModalProps> = ({ onSubmit, shouldOpen }) => {
         }
     }, [shouldOpen, pseudo, code, openModal, updateModal, closeModal, onSubmit]);
 
-    return null;
+    return (
+        <>
+            {/* Popup d'erreur s'affiche si le code est "000000". */}
+            {showPopup &&
+                createPortal(
+                    <div className="fixed inset-0 flex items-center justify-center z-[9999]">
+                        <div className="bg-red-600 text-white py-3 px-6 rounded-lg shadow-xl text-lg font-semibold">
+                            Code de la partie invalide
+                        </div>
+                    </div>,
+                    document.body
+                )}
+        </>
+    );
 };
 
 export default RoomModal;
