@@ -74,20 +74,15 @@ export const TextLoungePanel: React.FC = () => {
         [handleSendMessage]
     );
 
-    // Si le pseudo ou le code n'est pas défini, on affiche le modal
-    if (!username || !roomCode) {
-        return (
+    return (
+        <>
             <RoomModal
                 onSubmit={(pseudo, code) => {
                     setUsername(pseudo);
                     setRoomCode(code);
                 }}
+                shouldOpen={!username || !roomCode}
             />
-        );
-    }
-
-    return (
-        <>
             {/* Desktop version */}
             <div className="hidden md:block h-full">
                 <Container className="flex flex-col h-full">

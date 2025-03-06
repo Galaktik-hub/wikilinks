@@ -9,9 +9,6 @@ interface InventoryPanelProps {
     gpsCount: number;
     retourCount: number;
     mineCount: number;
-    onGpsClick?: () => void;
-    onRetourClick?: () => void;
-    onMineClick?: () => void;
 }
 
 const InventoryPanel: React.FC<InventoryPanelProps> = (props) => (
@@ -20,9 +17,9 @@ const InventoryPanel: React.FC<InventoryPanelProps> = (props) => (
             <InventorySVG className="w-[50px] h-[50px]"/>
         </div>
         <div className="bg-gray-800 rounded-lg flex justify-center items-center gap-5 p-2.5">
-            <GpsItem count={props.gpsCount} definition={""} name={""} {...props} />
-            <RetourItem count={props.retourCount} definition={""} name={""} {...props} />
-            <MineItem count={props.mineCount} definition={""} name={""} {...props} />
+            <GpsItem count={props.gpsCount} onConfirm={() => console.log("gps")} definition={""} name={""} {...props} />
+            <RetourItem count={props.retourCount} onConfirm={() => console.log("retour")} definition={""} name={""} {...props} />
+            <MineItem count={props.mineCount} onConfirm={() => console.log("mine")} definition={""} name={""} {...props} />
         </div>
     </div>
 );

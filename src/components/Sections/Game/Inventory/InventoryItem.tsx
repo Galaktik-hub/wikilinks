@@ -1,29 +1,44 @@
 "use client";
 import * as React from "react";
+import {useModalContext} from "../../../Modals/ModalProvider.tsx";
 
 export interface InventoryItemProps {
     count: number;
-    onClick?: () => void;
+    onConfirm: () => void;
     definition: string;
     name: string;
     color?: string;
 }
 
 const InventoryItem: React.FC<InventoryItemProps & { Icon: React.FC<{ color?: string; className?: string }> }> = ({
-                                                                                                                      count,
-                                                                                                                      onClick,
-                                                                                                                      definition,
-                                                                                                                      name,
-                                                                                                                      color = "#3b82f6",
-                                                                                                                      Icon,
-                                                                                                                  }) => {
+        count,
+        onConfirm,
+        definition,
+        name,
+        color = "#3b82f6",
+        Icon,
+    }) => {
+    const { openModal, closeModal } = useModalContext();
     const isDisabled = count === 0;
     const itemColor = isDisabled ? "#374151" : color;
     const countColor = isDisabled ? "#374151" : "#ffffff";
+    const [remaining, setRemaining] = React.useState(count);
+
     const handleClick = () => {
-        if (onClick) onClick();
-        console.log("Action du bonus :", definition);
-        // Future: afficher une popup en utilisant "definition"
+        if (isDisabled) return;
+        openModal({
+            title: `Utiliser l'artefact ${name}`,
+            type: "confirmation",
+            content: {
+                message: definition,
+                cancelButton: { label: "Annuler", onClick: () => closeModal },
+                okButton: { label: "Utiliser", onClick: () => {
+                    onConfirm();
+                    closeModal();
+                    setRemaining(remaining => remaining - 1);
+                } },
+            },
+        });
     };
 
     return (
@@ -44,14 +59,14 @@ const InventoryItem: React.FC<InventoryItemProps & { Icon: React.FC<{ color?: st
                     ...(isDisabled ? { cursor: "default" } : { backgroundColor: "rgba(14,165,233,0.2)" })
                 }}
             >
-                {isDisabled ? "Aucun" : "Utiliser"}
+                {isDisabled ? "Aucun" : "Voir"}
             </button>
 
             <span
                 className="absolute top-0 right-0 self-start p-1.5 text-sm text-center whitespace-nowrap"
                 style={{ color: countColor }}
             >
-                x{count}
+                x{remaining}
             </span>
         </article>
     );

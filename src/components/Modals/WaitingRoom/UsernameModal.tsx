@@ -1,62 +1,73 @@
 "use client";
 
 import * as React from "react";
+import {useModalContext} from "../ModalProvider.tsx";
+import {useEffect, useRef, useState} from "react";
 
 interface UsernameModalProps {
-    onSubmit: (username: string) => void;
+    onSubmit: (pseudo: string) => void;
+    shouldOpen: boolean;
 }
 
-const UsernameModal: React.FC<UsernameModalProps> = ({ onSubmit }) => {
-    const [input, setInput] = React.useState("");
+const UsernameModal: React.FC<UsernameModalProps> = ({ onSubmit, shouldOpen }) => {
+    const { openModal, updateModal, closeModal } = useModalContext();
+    const [pseudo, setPseudo] = useState("");
+    const isOpened = useRef(false);
+    const lastContentRef = useRef<any>(null);
 
-    const handleSubmit = () => {
-        if (input.trim()) {
-            onSubmit(input.trim());
+    useEffect(() => {
+        if (shouldOpen) {
+            // Construire le contenu du modal
+            const newContent = {
+                inputFields: [
+                    {
+                        id: "pseudo",
+                        value: pseudo,
+                        onChange: setPseudo,
+                        placeholder: "Votre pseudo",
+                        autoFocus: true,
+                    },
+                ],
+                submitButton: {
+                    label: "Rejoindre",
+                    onClick: () => {
+                        if (pseudo.trim()) {
+                            onSubmit(pseudo.trim());
+                            closeModal();
+                        } else {
+                            alert("Veuillez entrer un pseudo et un code valide à 6 chiffres.");
+                        }
+                    },
+                    disabled: !(pseudo.trim()),
+                },
+                isValid: pseudo.trim(),
+            };
+
+            // Comparaison simple pour éviter de mettre à jour si le contenu n'a pas changé
+            if (JSON.stringify(newContent) !== JSON.stringify(lastContentRef.current)) {
+                lastContentRef.current = newContent;
+                if (!isOpened.current) {
+                    isOpened.current = true;
+                    openModal({
+                        title: "Rejoindre un salon",
+                        type: "form",
+                        content: newContent,
+                    });
+                } else {
+                    updateModal({
+                        content: newContent,
+                    });
+                }
+            }
+        } else {
+            if (isOpened.current) {
+                closeModal();
+                isOpened.current = false;
+            }
         }
-    };
+    }, [shouldOpen, pseudo, openModal, updateModal, closeModal, onSubmit]);
 
-    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-        if (e.key === "Enter" && !e.shiftKey) {
-            e.preventDefault();
-            handleSubmit();
-        }
-    };
-
-    return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50">
-            <div className="bg-[#181D25] p-8 rounded-xl shadow-lg border border-gray-700 w-full max-w-md mx-4 transform transition-all">
-                <h2 
-                    className="text-xl font-bold mb-6 text-sky-500 text-center"
-                    style={{ textShadow: "0px 0px 14px #0ea5e9" }}
-                >
-                    Choisissez votre pseudo
-                </h2>
-                
-                <div className="relative">
-                    <input
-                        type="text"
-                        value={input}
-                        onChange={(e) => setInput(e.target.value)}
-                        onKeyDown={handleKeyDown}
-                        className="w-full px-4 py-3 bg-[#12151A] text-white rounded-lg border border-gray-700 focus:border-sky-500 focus:ring-1 focus:ring-sky-500 transition-all outline-none"
-                        placeholder="Votre pseudo"
-                        autoFocus
-                    />
-                </div>
-
-                <button
-                    className={`mt-6 w-full py-3 rounded-lg font-semibold transition-all duration-200 
-                        ${input.trim() 
-                            ? 'bg-sky-500 hover:bg-sky-600 text-white shadow-lg shadow-sky-500/30' 
-                            : 'bg-gray-700 text-gray-400 cursor-not-allowed'}`}
-                    onClick={handleSubmit}
-                    disabled={!input.trim()}
-                >
-                    Rejoindre
-                </button>
-            </div>
-        </div>
-    );
+    return null;
 };
 
 export default UsernameModal;
