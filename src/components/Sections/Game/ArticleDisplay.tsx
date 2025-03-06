@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { removeClasses, generateTOC, TOCItem, removeParagraphsWithoutRealLinks } from "../../../utlis/Game/TOCutils.ts";
+import { removeClasses, generateTOC, TOCItem, removeParagraphsWithoutRealLinks } from "../../../utils/Game/TOCutils.ts";
 import TOC from "./TOC.tsx";
 
 interface ArticleDisplayProps {

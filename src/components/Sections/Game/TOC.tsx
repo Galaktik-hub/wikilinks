@@ -1,5 +1,5 @@
 import React from 'react';
-import {TOCItem} from "../../../utlis/Game/TOCutils.ts";
+import {TOCItem} from "../../../utils/Game/TOCutils.ts";
 
 interface TOCProps {
     items: TOCItem[];
