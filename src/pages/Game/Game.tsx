@@ -1,8 +1,8 @@
 "use client";
 import React from "react";
 import Layout from "../../components/Layout";
-import ObjectivesPanel from "../../components/Sections/Game/ObjectivePanel.tsx";
-import PlayerProgressPanel from "../../components/Sections/Game/PlayerProgressPanel.tsx";
+import ObjectivesPanel from "../../components/Sections/Game/CollapsiblePanel/ObjectivePanel.tsx";
+import PlayerProgressPanel from "../../components/Sections/Game/CollapsiblePanel/PlayerProgressPanel.tsx";
 import WikiPagePanel from "../../components/Sections/Game/WikiPagePanel.tsx";
 import InventoryButton from "../../components/Buttons/Game/InventoryButton.tsx";
 import InventoryPanel from "../../components/Sections/Game/Inventory/InventoryPanel.tsx";
