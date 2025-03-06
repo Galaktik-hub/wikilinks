@@ -90,7 +90,7 @@ export const TextLoungePanel: React.FC = () => {
         <>
             {/* Desktop version */}
             <div className="hidden md:block h-full">
-                <Container className="flex flex-col h-full min-w-[360px]">
+                <Container className="flex flex-col h-full">
                     <h2
                         className="gap-2.5 py-1 text-lg font-bold leading-none text-sky-500 text-center mb-2"
                         style={{ textShadow: "0px 0px 14px #0ea5e9" }}

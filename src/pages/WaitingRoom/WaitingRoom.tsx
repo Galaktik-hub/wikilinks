@@ -27,7 +27,7 @@ const WaitingRoom: React.FC = () => {
                         <TextLoungePanel />
                     </div>
                 </section>
-                <section className="flex flex-wrap-reverse justify-center gap-x-6">
+                <section className="w-full flex flex-wrap-reverse justify-center gap-x-6">
                     <DeleteButton isHost={isHost}/>
                     <LaunchButton isHost={isHost}/>
                 </section>

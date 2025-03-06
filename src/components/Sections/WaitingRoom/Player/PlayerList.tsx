@@ -10,7 +10,7 @@ type PlayerListProps = {
 
 export const PlayerList: React.FC<PlayerListProps> = ({ isHost }) => {
     return (
-        <Container className="min-w-[360px] whitespace-nowrap">
+        <Container className="whitespace-nowrap">
             <h2
                 className="gap-2.5 self-start py-1 text-lg font-bold leading-none text-sky-500 whitespace-nowrap"
                 style={{ textShadow: "0px 0px 14px #0ea5e9"}}

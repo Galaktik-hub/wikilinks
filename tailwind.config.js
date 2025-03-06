@@ -16,6 +16,9 @@ export default {
               'righteous': ['Righteous', 'serif'],
               'inter': ['Inter', 'serif'],
           },
+          screens: {
+              'xl-custom': '1200px',
+          },
       },
   },
   plugins: [],

@@ -25,16 +25,16 @@ const Layout: React.FC<LayoutProps> = ({ header, children }) => {
         return (
             <div className="min-h-screen bg-primary flex flex-col md:flex-row">
 
-                <aside className="flex w-1/4 bg-gray-600">
+                <aside className="flex md:w-[15%] xl-custom:w-1/4 bg-gray-600">
 
                 </aside>
-                <main className="w-1/2 flex flex-col">
+                <main className="w-full md:w-[70%] xl-custom:w-1/2 flex flex-col">
                     <div className="flex flex-col flex-1">
                         {header}
                         {children}
                     </div>
                 </main>
-                <aside className="flex w-1/4 bg bg-gray-600">
+                <aside className="flex md:w-[15%] xl-custom:w-1/4 bg-gray-600">
 
                 </aside>
             </div>

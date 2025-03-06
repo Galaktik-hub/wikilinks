@@ -22,7 +22,7 @@ const GameSettings: React.FC<GameSettingsProps> = ({ isHost }) => {
     };
 
     return (
-        <Container className="min-w-[360px] whitespace-nowrap">
+        <Container className="whitespace-nowrap">
             <GameSettingsHeader onEdit={handleEdit} isHost={isHost} />
             <GameSettingsParameters
                 timeLimit={2}
