@@ -84,7 +84,7 @@ export const TextLoungePanel: React.FC = () => {
                 shouldOpen={!username || !roomCode}
             />
             {/* Desktop version */}
-            <div className="hidden md:block h-full">
+            <div className="hidden xl-custom:block w-full h-full">
                 <Container className="flex flex-col h-full">
                     <h2
                         className="gap-2.5 py-1 text-lg font-bold leading-none text-sky-500 text-center mb-2"
@@ -128,7 +128,7 @@ export const TextLoungePanel: React.FC = () => {
             </div>
 
             {/* Mobile version */}
-            <div className="md:hidden">
+            <div className="xl-custom:hidden w-full z-50">
                 {/* Overlay that appears when the input is focused */}
                 <div 
                     className={`fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300 ${

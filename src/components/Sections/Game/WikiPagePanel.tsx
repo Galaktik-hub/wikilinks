@@ -19,7 +19,7 @@ const ObjectivesPanel: React.FC = () => {
             </div>
 
             <div className="flex flex-col items-center gap-2 self-center mt-2 w-full text-base text-white">
-                <ArticleDisplay title={"Université Gustave Eiffel"} cutSection={"Voir aussi"} className="w-full" />
+                <ArticleDisplay title={"Paris"} cutSection={"Voir aussi"} className="w-full" />
             </div>
         </Container>
     );

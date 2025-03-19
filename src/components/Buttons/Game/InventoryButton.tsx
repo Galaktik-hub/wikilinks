@@ -19,7 +19,7 @@ const InventoryButton: React.FC<{ onClick?: () => void; disabled?: boolean }> = 
             className="inline-flex gap-2 items-center p-4 bg-blue-700 rounded-lg cursor-pointer h-[50px]"
         >
             <InventorySVG />
-            {showText && <span className="text-base text-white max-md:text-base max-sm:text-sm font-['Inter']">
+            {showText && <span className="text-base text-white max-md:text-base max-sm:text-sm">
                 Inventaire
             </span>}
         </button>

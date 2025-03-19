@@ -21,7 +21,7 @@ const PlayerProgressItem: React.FC<PlayerProgressBarProps> = ({
     return (
         <button
             onClick={onDetailsClick}
-            className="w-full max-w-[360px]"
+            className="w-full"
         >
             <div className="flex gap-10 justify-between items-center py-1 w-full ">
                 <div className="flex gap-2.5 items-center self-stretch my-auto">

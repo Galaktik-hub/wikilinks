@@ -81,10 +81,10 @@ const ArticleDisplay: React.FC<ArticleDisplayProps> = ({ title, cutSection, clas
                     }
 
                     // Nettoyage des classes et suppression des paragraphes sans liens "réels"
-                    let cleanedHTML = removeClasses(mainContent.innerHTML);
-                    cleanedHTML = removeParagraphsWithoutRealLinks(cleanedHTML);
-                    setContent(cleanedHTML);
-                    setTocItems(generateTOC(cleanedHTML));
+                    const cleanedHTML = removeClasses(mainContent.innerHTML);
+                    const finalHTML = removeParagraphsWithoutRealLinks(cleanedHTML);
+                    setContent(finalHTML);
+                    setTocItems(generateTOC(finalHTML));
                 } else {
                     const cleaned = removeClasses(htmlContent);
                     const final = removeParagraphsWithoutRealLinks(cleaned);

@@ -4,7 +4,7 @@ import React from "react";
 import Layout from "../../components/Layout.tsx";
 import Title from "../../components/Sections/WaitingRoom/TitleParty/Title.tsx";
 import GameRoomCard from "../../components/Sections/WaitingRoom/GameCode/GameRoomCard.tsx";
-import DeleteButton from "../../components/Buttons/WaitingRoom/DeleteButton.tsx";
+import ExitButton from "../../components/Buttons/WaitingRoom/ExitButton.tsx";
 import LaunchButton from "../../components/Buttons/WaitingRoom/LaunchButton.tsx";
 import GameSettings from "../../components/Sections/WaitingRoom/GameSettings/GameSettings.tsx";
 import PlayerList from "../../components/Sections/WaitingRoom/Player/PlayerList.tsx";
@@ -23,18 +23,18 @@ const WaitingRoom: React.FC = () => {
                         <GameSettings isHost={isHost}/>
                         <PlayerList isHost={isHost}/>
                     </div>
-                    <div className="hidden md:flex w-full flex-col gap-6">
+                    <div className="hidden xl-custom:flex w-full flex-col gap-6">
                         <TextLoungePanel />
                     </div>
                 </section>
                 <section className="w-full flex flex-wrap-reverse justify-center gap-x-6">
-                    <DeleteButton isHost={isHost}/>
+                    <ExitButton isHost={isHost}/>
                     <LaunchButton isHost={isHost}/>
                 </section>
             </div>
 
             {/* Mobile version of the chat */}
-            <div className="md:hidden">
+            <div className="xl-custom:hidden">
                 <TextLoungePanel />
             </div>
         </Layout>

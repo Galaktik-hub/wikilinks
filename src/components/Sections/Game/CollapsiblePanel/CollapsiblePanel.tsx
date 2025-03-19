@@ -23,7 +23,7 @@ const CollapsiblePanel: React.FC<CollapsiblePanelProps> = ({ title, children, co
     };
 
     return (
-        <Container className="flex flex-col justify-center w-[360px]">
+        <Container className="flex flex-col justify-center w-full">
             {isMobile ? (
                 <div className="flex gap-10 justify-between w-full">
                     <button
