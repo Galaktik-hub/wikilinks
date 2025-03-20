@@ -1,14 +1,15 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Home from "./pages/Home/Home";
-// import Test from "./pages/test/Test";
+import WaitingRoom from "./pages/WaitingRoom/WaitingRoom.tsx";
+import Game from "./pages/Game/Game.tsx";
 
 const AppRoutes = () => {
     return (
         <Router>
             <Routes>
                 <Route path="/" element={<Home />} />
-                {/* Exemple */}
-                {/*<Route path="/test" element={<Test />} />*/}
+                <Route path="/room" element={<WaitingRoom />} />
+                <Route path="/game" element={<Game />} />
             </Routes>
         </Router>
     );
