@@ -1,7 +1,12 @@
+import './App.css'
 import AppRoutes from "./route";
 
 function App() {
-    return <AppRoutes />;
+    return (
+        <ModalProvider>
+            <AppRoutes />
+        </ModalProvider>
+    )
 }
 
 export default App;
