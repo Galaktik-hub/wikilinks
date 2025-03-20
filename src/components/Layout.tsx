@@ -60,5 +60,4 @@ const Layout: React.FC<LayoutProps> = ({ header, children, leftColumn, rightColu
     }
 };
 
-
 export default Layout;

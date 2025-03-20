@@ -1,11 +1,10 @@
 import './App.css'
-import WaitingRoom from "./pages/WaitingRoom/WaitingRoom.tsx";
-import {ModalProvider} from "./components/Modals/ModalProvider.tsx";
+import AppRoutes from "./route";
 
 function App() {
     return (
         <ModalProvider>
-            <WaitingRoom />
+            <AppRoutes />
         </ModalProvider>
     )
 }
