@@ -1,17 +1,16 @@
 "use client";
 
 import * as React from "react";
-import { io, Socket } from "socket.io-client";
 import Container from "../../../Container.tsx";
 import { ChatInput } from "../../../Chat/ChatInput.tsx";
 import { SendButton } from "../../../Chat/SendButton.tsx";
 import RoomModal from "../../../Modals/WaitingRoom/RoomModal";
 
-const SOCKET_URL = "http://localhost:3001";
+const WS_URL = "ws://localhost:2025";
 
 type ChatMessage = {
-    pseudo: string;
-    message: string;
+    sender: string;
+    content: string;
 };
 
 export const TextLoungePanel: React.FC = () => {
@@ -20,49 +19,77 @@ export const TextLoungePanel: React.FC = () => {
     const [message, setMessage] = React.useState("");
     const [messages, setMessages] = React.useState<ChatMessage[]>([]);
     const [isInputFocused, setIsInputFocused] = React.useState(false);
+    const [showError, setShowError] = React.useState(false);
     const messagesEndRef = React.useRef<HTMLDivElement>(null);
-    const socket = React.useRef<Socket | null>(null);
+    const ws = React.useRef<WebSocket | null>(null);
 
     // Connexion au serveur
     React.useEffect(() => {
-        socket.current = io(SOCKET_URL);
+        if (username) {
+            ws.current = new WebSocket(WS_URL);
 
-        socket.current.on("connect", () => {
-            console.log("Connecté au serveur WebSocket", socket.current?.id);
-            if (username && roomCode && socket.current) {
-                socket.current.emit("joinRoom", { pseudo: username, code: roomCode });
-            }
-        });
+            ws.current.onopen = () => {
+                console.log("Connecté au serveur WebSocket");
+                if (ws.current) {
+                    // Si un code est fourni, on rejoint la salle, sinon on en crée une
+                    ws.current.send(JSON.stringify({
+                        kind: roomCode ? 'join_room' : 'create_room',
+                        room_id: roomCode || '',
+                        user_name: username
+                    }));
+                }
+            };
 
-        socket.current.on("connect_error", (err: Error) => {
-            console.log("Erreur de connexion WebSocket:", err);
-        });
+            ws.current.onmessage = (event) => {
+                const data = JSON.parse(event.data);
+                console.log("Message reçu:", data);
 
-        socket.current.on("receiveMessage", (data: ChatMessage) => {
-            console.log("Message reçu: ", data);
-            setMessages((prev) => [...prev, data]);
-            setTimeout(() => {
-                messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-            }, 100);
-        });
+                switch (data.kind) {
+                    case 'message_received':
+                        setMessages(prev => [...prev, {
+                            sender: data.sender,
+                            content: data.content
+                        }]);
+                        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+                        break;
+                    case 'room_created':
+                    case 'room_joined':
+                        setRoomCode(data.room_id);
+                        break;
+                    case 'error':
+                        if (data.message === "Room not found") {
+                            setShowError(true);
+                            setTimeout(() => {
+                                setShowError(false);
+                                setUsername(null);
+                            }, 2000);
+                        } else {
+                            setMessages(prev => [...prev, {
+                                sender: 'Système',
+                                content: `Erreur: ${data.message}`
+                            }]);
+                        }
+                        break;
+                }
+            };
 
-        return () => {
-            socket.current?.disconnect();
-        };
-    }, [roomCode, username]);
-
-    React.useEffect(() => {
-        if (username && roomCode && socket.current && socket.current.connected) {
-            socket.current.emit("joinRoom", { pseudo: username, code: roomCode });
+            return () => {
+                if (ws.current) {
+                    ws.current.close();
+                }
+            };
         }
     }, [username, roomCode]);
 
     const handleSendMessage = React.useCallback(() => {
-        if (socket.current && message.trim() && username && roomCode) {
-            socket.current.emit("sendMessage", { pseudo: username, message: message.trim(), code: roomCode });
+        if (ws.current && message.trim() && username) {
+            ws.current.send(JSON.stringify({
+                kind: 'send_message',
+                content: message.trim()
+            }));
             setMessage("");
         }
-    }, [message, username, roomCode]);
+    }, [message, username]);
 
     const handleKeyDown = React.useCallback(
         (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -74,6 +101,19 @@ export const TextLoungePanel: React.FC = () => {
         [handleSendMessage]
     );
 
+    const MessageBubble = React.useCallback(({ msg, index }: { msg: ChatMessage; index: number }) => (
+        <div key={index}
+            className={`mb-2 p-3 rounded-lg border border-gray-700/50 ${msg.sender === 'Système' ? 'bg-yellow-950/50' :
+                    msg.sender === username ? 'bg-sky-950/50' : 'bg-[#12151A]'
+                }`}>
+            <strong className="text-sky-500" style={{ textShadow: "0 0 10px rgba(14, 165, 233, 0.3)" }}>
+                {msg.sender}
+            </strong>
+            <span className="mx-2 text-gray-500">:</span>
+            <span className="text-gray-100">{msg.content}</span>
+        </div>
+    ), [username]);
+
     return (
         <>
             <RoomModal
@@ -81,29 +121,22 @@ export const TextLoungePanel: React.FC = () => {
                     setUsername(pseudo);
                     setRoomCode(code);
                 }}
-                shouldOpen={!username || !roomCode}
+                shouldOpen={!username}
+                showError={showError}
             />
             {/* Desktop version */}
             <div className="hidden xl-custom:block w-full h-full">
                 <Container className="flex flex-col h-full">
-                    <h2
-                        className="gap-2.5 py-1 text-lg font-bold leading-none text-sky-500 text-center mb-2"
-                        style={{ textShadow: "0px 0px 14px #0ea5e9" }}
-                    >
-                        Salon Textuel
+                    <h2 className="gap-2.5 py-1 text-lg font-bold leading-none text-sky-500 text-center mb-2"
+                        style={{ textShadow: "0px 0px 14px #0ea5e9" }}>
+                        {roomCode ? `Salon Textuel - ${roomCode}` : 'Salon Textuel'}
                     </h2>
 
                     <div className="flex flex-col flex-grow bg-[#181D25] rounded-lg overflow-hidden">
                         <div className="flex-grow overflow-y-auto p-4">
                             {messages.length > 0 ? (
                                 messages.map((msg, index) => (
-                                    <div key={index} className="mb-2 p-3 bg-[#12151A] rounded-lg border border-gray-700/50">
-                                        <strong className="text-sky-500" style={{ textShadow: "0 0 10px rgba(14, 165, 233, 0.3)" }}>
-                                            {msg.pseudo}
-                                        </strong>
-                                        <span className="mx-2 text-gray-500">:</span>
-                                        <span className="text-gray-100">{msg.message}</span>
-                                    </div>
+                                    <MessageBubble key={index} msg={msg} index={index} />
                                 ))
                             ) : (
                                 <p className="text-gray-400 text-center">Aucun message pour l'instant...</p>
@@ -130,17 +163,15 @@ export const TextLoungePanel: React.FC = () => {
             {/* Mobile version */}
             <div className="xl-custom:hidden w-full z-50">
                 {/* Overlay that appears when the input is focused */}
-                <div 
-                    className={`fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300 ${
-                        isInputFocused ? 'opacity-100 visible' : 'opacity-0 invisible'
-                    }`}
+                <div
+                    className={`fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300 ${isInputFocused ? 'opacity-100 visible' : 'opacity-0 invisible'
+                        }`}
                     onClick={() => setIsInputFocused(false)}
                 />
 
                 {/* Container for messages that appears when the input is focused */}
-                <div className={`fixed bottom-16 left-0 right-0 bg-[#181D25] transition-transform duration-300 ease-out ${
-                    isInputFocused ? 'translate-y-0' : 'translate-y-full'
-                }`}>
+                <div className={`fixed bottom-16 left-0 right-0 bg-[#181D25] transition-transform duration-300 ease-out ${isInputFocused ? 'translate-y-0' : 'translate-y-full'
+                    }`}>
                     <h2
                         className="gap-2.5 py-3 text-lg font-bold leading-none text-sky-500 text-center"
                         style={{ textShadow: "0px 0px 14px #0ea5e9" }}
@@ -150,13 +181,7 @@ export const TextLoungePanel: React.FC = () => {
                     <div className="h-[50vh] overflow-y-auto p-4">
                         {messages.length > 0 ? (
                             messages.map((msg, index) => (
-                                <div key={index} className="mb-2 p-3 bg-[#12151A] rounded-lg border border-gray-700/50">
-                                    <strong className="text-sky-500" style={{ textShadow: "0 0 10px rgba(14, 165, 233, 0.3)" }}>
-                                        {msg.pseudo}
-                                    </strong>
-                                    <span className="mx-2 text-gray-500">:</span>
-                                    <span className="text-gray-100">{msg.message}</span>
-                                </div>
+                                <MessageBubble key={index} msg={msg} index={index} />
                             ))
                         ) : (
                             <p className="text-gray-400 text-center">Aucun message pour l'instant...</p>
