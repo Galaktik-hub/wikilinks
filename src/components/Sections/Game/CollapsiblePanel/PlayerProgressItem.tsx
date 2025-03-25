@@ -1,26 +1,37 @@
 "use client";
 import * as React from "react";
+import {useModalContext} from "../../../Modals/ModalProvider.tsx";
+import {TimelineStep} from "../../../Modals/ModalProps.ts";
 
 interface PlayerProgressBarProps {
-    playerName?: string;
-    percentage?: number;
-    onDetailsClick?: () => void;
+    playerName: string;
+    percentage: number;
+    history: TimelineStep[];
 }
 
 const PlayerProgressItem: React.FC<PlayerProgressBarProps> = ({
-                                                                 playerName = "Joueur 1",
-                                                                 percentage = 75,
-                                                                 onDetailsClick,
-                                                             }) => {
-    // Ensure percentage is between 0 and 100
+        playerName,
+        percentage,
+        history,
+    }) => {
     const normalizedPercentage = Math.min(Math.max(percentage, 0), 100);
-
-    // Calculate width for progress bar (in pixels based on percentage)
     const progressWidth = `${normalizedPercentage}%`;
+    const { openModal } = useModalContext();
+
+    const handleClick = () => {
+        openModal({
+            title: `Historique de ${playerName}`,
+            type: "timeline",
+            content: {
+                username: playerName,
+                timelineSteps: history,
+            },
+        });
+    };
 
     return (
         <button
-            onClick={onDetailsClick}
+            onClick={handleClick}
             className="w-full"
         >
             <div className="flex gap-10 justify-between items-center py-1 w-full ">
