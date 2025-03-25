@@ -93,15 +93,16 @@ export const CreateOrJoinGame: React.FC = () => {
     return (
         <section className="flex flex-wrap gap-4 justify-center items-start">
             <LobbyCard
-                inputPlaceholder="Enter your username"
-                buttonText="Create a game"
-                buttonIcon="https://cdn.builder.io/api/v1/image/assets/e6ab143a25b248bb973e7a530dd82ce8/68378a4475fab4eb50cca3b19270fec43cf502ba0270d9a6912d1d072d019a5e?placeholderIfAbsent=true"
+                inputPlaceholder="Saisissez votre pseudo"
+                buttonText="Créer une partie"
+                buttonIcon={true}
                 onSubmit={handleCreateGame}
                 error={null}
             />
             <LobbyCard
-                inputPlaceholder="Enter the game code"
-                buttonText={isCheckingRoom ? "Checking..." : "Join the game"}
+                inputPlaceholder="Entrez le code de la partie"
+                buttonText={isCheckingRoom ? "Chargement..." : "Rejoindre la partie"}
+                maxLength={6}
                 onSubmit={handleJoinGame}
                 error={error}
             />

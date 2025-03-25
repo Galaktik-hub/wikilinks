@@ -38,7 +38,7 @@ const DailyChallengeSection: React.FC<DailyChallengeSectionProps> = ({
         return (
             <div
                 className="font-inter bg-gradient-to-br from-[#EA580C] to-[#DC2626] rounded-2xl p-8 text-white mx-2.5 my-8 relative overflow-hidden">
-                <div className="flex flex-row justify-between items-center z-10 relative">
+                <div className="flex flex-row justify-between items-center relative">
                     <div className="flex flex-col gap-3 max-w-[60%]">
                         <h2 className="font-inter text-2xl md:text-3xl font-bold">Découvrez les défis quotidiens</h2>
                         <p className="font-inter font-light text-base md:text-lg">Affrontez les joueurs du monde entier à travers des défis

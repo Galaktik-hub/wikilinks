@@ -5,12 +5,14 @@ import React from "react";
 interface HomeInputProps {
     placeholder: string;
     value: string;
+    maxLength?: number;
     onChange: (value: string) => void;
 }
 
 export const Input: React.FC<HomeInputProps> = ({
     placeholder,
     value,
+    maxLength,
     onChange,
 }) => {
     return (
@@ -21,6 +23,7 @@ export const Input: React.FC<HomeInputProps> = ({
             value={value}
             onChange={(e) => onChange(e.target.value)}
             aria-label={placeholder}
+            maxLength={maxLength}
         />
     );
 };

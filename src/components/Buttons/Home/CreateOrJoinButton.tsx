@@ -3,13 +3,13 @@ import PlusSVG from "../../../assets/Cards/PlusSVG.tsx";
 
 interface CreateOrJoinButtonProps {
     text: string;
-    icon?: string;
+    icon?: boolean;
     onClick: () => void;
 }
 
 export const CreateOrJoinButton: React.FC<CreateOrJoinButtonProps> = ({
     text,
-    icon,
+    icon = false,
     onClick,
 }) => {
     return (

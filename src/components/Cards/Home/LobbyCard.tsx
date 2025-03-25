@@ -8,7 +8,8 @@ import Container from "../../Container.tsx";
 interface LobbyCardProps {
     inputPlaceholder: string;
     buttonText: string;
-    buttonIcon?: string;
+    buttonIcon?: boolean;
+    maxLength?: number;
     onSubmit: (value: string) => void;
     error?: string | null;
 }
@@ -16,7 +17,8 @@ interface LobbyCardProps {
 export const LobbyCard: React.FC<LobbyCardProps> = ({
     inputPlaceholder,
     buttonText,
-    buttonIcon,
+    buttonIcon = false,
+    maxLength,
     onSubmit,
     error
 }) => {
@@ -32,6 +34,7 @@ export const LobbyCard: React.FC<LobbyCardProps> = ({
                 placeholder={inputPlaceholder}
                 value={inputValue}
                 onChange={setInputValue}
+                maxLength={maxLength}
             />
             {error && (
                 <div className="text-red-500 text-sm mt-1 mb-2">{error}</div>

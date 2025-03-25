@@ -34,7 +34,7 @@ const Banner: React.FC = () => {
             <div className="absolute inset-0 z-5 bg-blue-700 bg-opacity-60" />
 
             {/* Content */}
-            <div className="relative z-10 md:flex md:justify-around md:items-center">
+            <div className="relative md:flex md:justify-around md:items-center">
                 <div className="text-white text-lg md:text-2xl mb-8 md:mb-0 font-inter px-8 md:ml-2 md:px-0 md:max-w-2xl md:flex-1">
                     Affrontez vos amis à travers les pages de{' '}
                     <span className="font-bold">Wikipédia</span> en vous aidant des {' '}
