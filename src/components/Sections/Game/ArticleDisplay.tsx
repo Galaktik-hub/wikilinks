@@ -59,7 +59,7 @@ const ArticleDisplay: React.FC<ArticleDisplayProps> = ({ cutSection, className }
                         const children = Array.from(mainContent.children);
                         const cutSectionLower = cutSection.trim().toLowerCase();
                         const index = children.findIndex(child => {
-                            let headerElement: HTMLElement | null = null;
+                            let headerElement: HTMLElement | null;
                             if (child.matches('h2')) {
                                 headerElement = child as HTMLElement;
                             } else {

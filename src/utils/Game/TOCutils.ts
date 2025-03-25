@@ -41,6 +41,15 @@ export const generateTOC = (html: string): TOCItem[] => {
 export const removeParagraphsWithoutRealLinks = (html: string): string => {
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, 'text/html');
+    // On enlève les liens foot notes des titres
+    const headers = doc.querySelectorAll('h2');
+    headers.forEach(header => {
+        header.querySelectorAll('sup').forEach(sup => {
+            if (sup.querySelector('a[href^="#cite_note-"]')) {
+                sup.remove();
+            }
+        });
+    });
     const paragraphs = doc.querySelectorAll('p');
     paragraphs.forEach(paragraph => {
         const anchors = paragraph.querySelectorAll('a');
