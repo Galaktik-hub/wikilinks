@@ -2,6 +2,10 @@ import React, { createContext, useContext, useEffect, useRef, useState } from 'r
 
 const WS_URL = "ws://localhost:2025";
 
+// Clés pour le stockage temporaire (navigation)
+const TEMP_USERNAME_KEY = 'temp_chat_username';
+const TEMP_ROOMCODE_KEY = 'temp_chat_roomcode';
+
 export type ChatMessage = {
     sender: string;
     content: string;
@@ -21,12 +25,38 @@ export type ChatContextType = {
 export const ChatContext = createContext<ChatContextType | null>(null);
 
 export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const [username, setUsername] = useState<string | null>(null);
-    const [roomCode, setRoomCode] = useState<string | null>(null);
+    // Initialiser avec les valeurs temporaires si elles existent
+    const [username, _setUsername] = useState<string | null>(() => {
+        const saved = sessionStorage.getItem(TEMP_USERNAME_KEY);
+        return saved ? JSON.parse(saved) : null;
+    });
+    const [roomCode, _setRoomCode] = useState<string | null>(() => {
+        const saved = sessionStorage.getItem(TEMP_ROOMCODE_KEY);
+        return saved ? JSON.parse(saved) : null;
+    });
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [isConnected, setIsConnected] = useState(false);
     const ws = useRef<WebSocket | null>(null);
     const shouldConnect = useRef(false);
+
+    // Wrapper pour sauvegarder dans le sessionStorage
+    const setUsername = (newUsername: string | null) => {
+        if (newUsername) {
+            sessionStorage.setItem(TEMP_USERNAME_KEY, JSON.stringify(newUsername));
+        } else {
+            sessionStorage.removeItem(TEMP_USERNAME_KEY);
+        }
+        _setUsername(newUsername);
+    };
+
+    const setRoomCode = (newRoomCode: string | null) => {
+        if (newRoomCode) {
+            sessionStorage.setItem(TEMP_ROOMCODE_KEY, JSON.stringify(newRoomCode));
+        } else {
+            sessionStorage.removeItem(TEMP_ROOMCODE_KEY);
+        }
+        _setRoomCode(newRoomCode);
+    };
 
     const connectToWebSocket = () => {
         if (!username || ws.current?.readyState === WebSocket.OPEN) return;
@@ -101,8 +131,10 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         if (ws.current) {
             ws.current.close();
         }
-        setUsername(null);
-        setRoomCode(null);
+        sessionStorage.removeItem(TEMP_USERNAME_KEY);
+        sessionStorage.removeItem(TEMP_ROOMCODE_KEY);
+        _setUsername(null);
+        _setRoomCode(null);
         setMessages([]);
         setIsConnected(false);
     };
