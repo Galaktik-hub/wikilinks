@@ -9,10 +9,10 @@ interface HomeInputProps {
 }
 
 export const Input: React.FC<HomeInputProps> = ({
-                                                          placeholder,
-                                                          value,
-                                                          onChange,
-                                                      }) => {
+    placeholder,
+    value,
+    onChange,
+}) => {
     return (
         <input
             type="text"

@@ -2,7 +2,7 @@ import React, { createContext, useContext, useEffect, useRef, useState } from 'r
 
 const WS_URL = "ws://localhost:2025";
 
-// Clés pour le stockage temporaire (navigation)
+// Keys for temporary storage (navigation)
 const TEMP_USERNAME_KEY = 'temp_chat_username';
 const TEMP_ROOMCODE_KEY = 'temp_chat_roomcode';
 
@@ -20,12 +20,13 @@ export type ChatContextType = {
     setRoomCode: (roomCode: string | null) => void;
     sendMessage: (content: string) => void;
     disconnect: () => void;
+    checkRoomExists: (roomCode: string) => Promise<boolean>;
 };
 
 export const ChatContext = createContext<ChatContextType | null>(null);
 
 export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    // Initialiser avec les valeurs temporaires si elles existent
+    // Initialize with temporary values if they exist
     const [username, _setUsername] = useState<string | null>(() => {
         const saved = sessionStorage.getItem(TEMP_USERNAME_KEY);
         return saved ? JSON.parse(saved) : null;
@@ -39,7 +40,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
     const ws = useRef<WebSocket | null>(null);
     const shouldConnect = useRef(false);
 
-    // Wrapper pour sauvegarder dans le sessionStorage
+    // Wrapper to save in sessionStorage
     const setUsername = (newUsername: string | null) => {
         if (newUsername) {
             sessionStorage.setItem(TEMP_USERNAME_KEY, JSON.stringify(newUsername));
@@ -65,7 +66,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         shouldConnect.current = true;
 
         ws.current.onopen = () => {
-            console.log("Connecté au serveur WebSocket");
+            console.log("Connected to WebSocket server");
             setIsConnected(true);
             if (ws.current && shouldConnect.current) {
                 ws.current.send(JSON.stringify({
@@ -77,7 +78,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         };
 
         ws.current.onclose = () => {
-            console.log("Déconnecté du serveur WebSocket");
+            console.log("Disconnected from WebSocket server");
             setIsConnected(false);
             if (shouldConnect.current) {
                 setTimeout(connectToWebSocket, 1000);
@@ -86,7 +87,7 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         ws.current.onmessage = (event) => {
             const data = JSON.parse(event.data);
-            console.log("Message reçu:", data);
+            console.log("Message received:", data);
 
             if (!shouldConnect.current) return;
 
@@ -167,19 +168,69 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
     };
 
+    const checkRoomExists = (roomCodeToCheck: string): Promise<boolean> => {
+        return new Promise((resolve, reject) => {
+            // Create a temporary WebSocket connection to check if the room exists
+            const tempWs = new WebSocket(WS_URL);
+
+            // Set a timeout to avoid infinite waiting
+            const timeoutId = setTimeout(() => {
+                if (tempWs.readyState === WebSocket.OPEN) {
+                    tempWs.close();
+                }
+                reject(new Error("Timeout: unable to connect to server"));
+            }, 5000);
+
+            tempWs.onopen = () => {
+                // Try to join the room with a temporary name to check if it exists
+                tempWs.send(JSON.stringify({
+                    kind: 'join_room',
+                    room_id: roomCodeToCheck,
+                    user_name: '_check_' // Temporary name for verification
+                }));
+            };
+
+            tempWs.onmessage = (event) => {
+                clearTimeout(timeoutId);
+                const data = JSON.parse(event.data);
+
+                // If we receive room_joined, the room exists
+                if (data.kind === 'room_joined') {
+                    tempWs.close();
+                    resolve(true);
+                }
+                // If we receive an error "Room not found", the room doesn't exist
+                else if (data.kind === 'error' && data.message === "Room not found") {
+                    tempWs.close();
+                    resolve(false);
+                }
+                // Other errors
+                else if (data.kind === 'error') {
+                    tempWs.close();
+                    reject(new Error(data.message || "Error checking room existence"));
+                }
+            };
+
+            tempWs.onerror = () => {
+                clearTimeout(timeoutId);
+                tempWs.close();
+                reject(new Error("Error connecting to server"));
+            };
+        });
+    };
+
     return (
-        <ChatContext.Provider
-            value={{
-                username,
-                roomCode,
-                messages,
-                isConnected,
-                setUsername,
-                setRoomCode,
-                sendMessage,
-                disconnect
-            }}
-        >
+        <ChatContext.Provider value={{
+            username,
+            roomCode,
+            messages,
+            isConnected,
+            setUsername,
+            setRoomCode,
+            sendMessage,
+            disconnect,
+            checkRoomExists
+        }}>
             {children}
         </ChatContext.Provider>
     );
