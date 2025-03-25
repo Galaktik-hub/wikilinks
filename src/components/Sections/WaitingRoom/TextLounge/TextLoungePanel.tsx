@@ -33,10 +33,9 @@ export const TextLoungePanel: React.FC = () => {
 
     const MessageBubble = React.useCallback(({ msg, index }: { msg: ChatMessage; index: number }) => (
         <div key={index}
-            className={`mb-2 p-3 rounded-lg border border-gray-700/50 ${
-                msg.sender === 'system' ? 'bg-yellow-950/50' :
-                msg.sender === chat?.username ? 'bg-sky-950/50' : 'bg-[#12151A]'
-            }`}>
+            className={`mb-2 p-3 rounded-lg border border-gray-700/50 ${msg.sender === 'system' ? 'bg-yellow-950/50' :
+                    msg.sender === chat?.username ? 'bg-sky-950/50' : 'bg-[#12151A]'
+                }`}>
             <strong className="text-sky-500" style={{ textShadow: "0 0 10px rgba(14, 165, 233, 0.3)" }}>
                 {msg.sender}
             </strong>
@@ -77,14 +76,15 @@ export const TextLoungePanel: React.FC = () => {
                             <div ref={messagesEndRef} />
                         </div>
 
-                        <div className="flex items-center w-full p-2 bg-[#12151A] rounded-b-lg gap-2">
-                            <ChatInput
-                                value={message}
-                                onChange={(e) => setMessage(e.target.value)}
-                                onKeyDown={handleKeyDown}
-                                disabled={!chat?.isConnected}
-                            />
-                            <div className={`transition-all duration-200 ease-in-out ${message.trim() ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}>
+                        <div className="p-4 border-t border-gray-700/50">
+                            <div className="flex items-center gap-2">
+                                <ChatInput
+                                    value={message}
+                                    onChange={(e) => setMessage(e.target.value)}
+                                    onKeyDown={handleKeyDown}
+                                    placeholder="Écrivez un message..."
+                                    disabled={!chat?.isConnected}
+                                />
                                 <SendButton onClick={handleSendMessage} disabled={!chat?.isConnected || !message.trim()} />
                             </div>
                         </div>
@@ -96,23 +96,22 @@ export const TextLoungePanel: React.FC = () => {
             <div className="xl-custom:hidden w-full z-50">
                 {/* Overlay that appears when the input is focused */}
                 <div
-                    className={`fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300 ${
-                        isInputFocused ? 'opacity-100 visible' : 'opacity-0 invisible'
-                    }`}
+                    className={`fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300 ${isInputFocused ? 'opacity-100 visible' : 'opacity-0 invisible'
+                        }`}
                     onClick={() => setIsInputFocused(false)}
                 />
 
-                {/* Container for messages that appears when the input is focused */}
-                <div className={`fixed bottom-16 left-0 right-0 bg-[#181D25] transition-transform duration-300 ease-out ${
-                    isInputFocused ? 'translate-y-0' : 'translate-y-full'
-                }`}>
+                {/* Chat panel that slides up from bottom */}
+                <div className={`fixed bottom-16 left-0 right-0 bg-[#181D25] transition-transform duration-300 ease-out ${isInputFocused ? 'translate-y-0' : 'translate-y-full'
+                    }`}>
                     <h2
                         className="gap-2.5 py-3 text-lg font-bold leading-none text-sky-500 text-center"
                         style={{ textShadow: "0px 0px 14px #0ea5e9" }}
                     >
-                        Salon Textuel
+                        {chat?.roomCode ? `Salon Textuel - ${chat.roomCode}` : 'Salon Textuel'}
                     </h2>
-                    <div className="h-[50vh] overflow-y-auto p-4">
+
+                    <div className="max-h-[50vh] overflow-y-auto p-4">
                         {chat?.messages.length ? (
                             chat.messages.map((msg, index) => (
                                 <MessageBubble key={index} msg={msg} index={index} />
@@ -124,18 +123,18 @@ export const TextLoungePanel: React.FC = () => {
                     </div>
                 </div>
 
-                {/* Input fixed at the bottom */}
-                <div className="fixed bottom-0 left-0 right-0 p-2 bg-[#12151A] border-t border-gray-700">
+                {/* Chat input at bottom of screen - always visible */}
+                <div className="fixed bottom-0 left-0 right-0 p-4 bg-[#181D25] border-t border-gray-700/50">
                     <div className="flex items-center gap-2">
                         <ChatInput
                             value={message}
                             onChange={(e) => setMessage(e.target.value)}
                             onKeyDown={handleKeyDown}
+                            onFocus={() => setIsInputFocused(true)}
+                            placeholder="Écrivez un message..."
                             disabled={!chat?.isConnected}
                         />
-                        <div className={`transition-all duration-200 ease-in-out ${message.trim() ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}>
-                            <SendButton onClick={handleSendMessage} disabled={!chat?.isConnected || !message.trim()} />
-                        </div>
+                        <SendButton onClick={handleSendMessage} disabled={!chat?.isConnected || !message.trim()} />
                     </div>
                 </div>
             </div>
