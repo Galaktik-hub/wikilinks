@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "dev:host": "vite --host",
+    "dev:full": "vite --host && npx ts-node chatserver/src/server.ts",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
