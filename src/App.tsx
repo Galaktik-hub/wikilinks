@@ -1,12 +1,16 @@
 import './App.css'
+import '@mantine/core/styles.css';
 import AppRoutes from "./route";
 import {ModalProvider} from "./components/Modals/ModalProvider.tsx";
+import { MantineProvider } from '@mantine/core';
 
 function App() {
     return (
-        <ModalProvider>
-            <AppRoutes />
-        </ModalProvider>
+        <MantineProvider>
+            <ModalProvider>
+                <AppRoutes />
+            </ModalProvider>
+        </MantineProvider>
     )
 }
 

@@ -1,50 +1,9 @@
 "use client";
 import * as React from "react";
 import CloseSVG from "../../assets/WaitingRoom/CloseSVG.tsx";
-
-// Interface pour l'input dans le formulaire
-export interface InputField {
-    id: string;
-    value: string;
-    onChange: (value: string) => void;
-    onKeyDown: React.KeyboardEventHandler<HTMLInputElement>;
-    placeholder: string;
-    type?: string;
-    maxLength?: number;
-    autoFocus?: boolean;
-}
-
-// Interface pour les boutons
-export interface ButtonField {
-    label: string;
-    onClick: () => void;
-    className?: string;
-    disabled?: boolean; // Utilisé pour le formulaire si invalide
-}
-
-// Interface pour le ModalForm (formulaire)
-interface ModalFormProps {
-    inputFields: InputField[];
-    submitButton: ButtonField;
-    isValid: boolean; // Indique si tous les inputs sont valides
-}
-
-// Interface pour le ModalConfirmation (confirmation avec deux boutons)
-interface ModalConfirmationProps {
-    message: string;
-    cancelButton: ButtonField;
-    okButton: ButtonField;
-}
-
-// Interface générique pour ModalProps
-interface ModalProps {
-    isOpen: boolean;
-    onClose: () => void;
-    title: string;
-    description?: string;
-    type: "form" | "confirmation"; // Indique quel type de modal afficher
-    content: ModalFormProps | ModalConfirmationProps; // Dynamique en fonction du type
-}
+import { Timeline, Text } from "@mantine/core";
+import {ModalProps, ModalFormProps, ModalConfirmationProps, ModalTimelineProps, formatContent} from "./ModalProps.ts";
+import {timelineConfig} from "./TimelineConfig.tsx";
 
 const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, description, type, content }) => {
     if (!isOpen) return null;
@@ -57,11 +16,12 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, description, type
                     <h2 className="text-xl font-bold text-sky-500 text-center" style={{ textShadow: "0px 0px 14px #0ea5e9" }}>
                         {title}
                     </h2>
-                    <button onClick={onClose} className="absolute right-0 text-gray-400 hover:text-white transition-all">
-                        <CloseSVG onClick={() => isOpen = false} />
-                    </button>
+                    {type !== "form" ? (
+                        <button onClick={onClose} className="absolute right-0 text-gray-400 hover:text-white transition-all">
+                            <CloseSVG onClick={() => isOpen = false} />
+                        </button>
+                    ) : null}
                 </div>
-
 
                 {description && <p className="text-white text-center mb-6">{description}</p>}
 
@@ -95,7 +55,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, description, type
                             {(content as ModalFormProps).submitButton.label}
                         </button>
                     </div>
-                ) : (
+                ) : type === "confirmation" ? (
                     // Modal avec message de confirmation
                     <div className="text-white text-center">
                         <p className="mb-4">{(content as ModalConfirmationProps).message}</p>
@@ -114,7 +74,37 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, description, type
                             </button>
                         </div>
                     </div>
-                )}
+                ) : type === "timeline" ? (
+                    // Type "timeline"
+                    <div className="overflow-auto text-white pt-2 pb-2 max-h-[400px]">
+                        <Timeline
+                            active={(content as ModalTimelineProps).timelineSteps.length}
+                            bulletSize={24}
+                            lineWidth={2}
+                        >
+                            {(content as ModalTimelineProps).timelineSteps.map((step) => {
+                                const config = timelineConfig[step.type];
+                                const stepContent =
+                                    config.content && step.data
+                                        ? formatContent(
+                                            config.content,
+                                            (content as ModalTimelineProps).username,
+                                            step.data
+                                        )
+                                        : null;
+                                return (
+                                    <Timeline.Item
+                                        key={step.id}
+                                        bullet={config.icon}
+                                        color={config.color}
+                                        title={config.title}>
+                                        {stepContent && <Text c="dimmed" size="sm">{stepContent}</Text>}
+                                    </Timeline.Item>
+                                );
+                            })}
+                        </Timeline>
+                    </div>
+                ) : null }
             </div>
         </div>
     );
