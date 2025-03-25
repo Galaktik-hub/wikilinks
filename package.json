@@ -6,11 +6,12 @@
   "scripts": {
     "dev": "vite",
     "dev:host": "vite --host",
-    "dev:full": "vite --host && npx ts-node chatserver/src/server.ts",
+    "dev:full": "concurrently \"vite --host\" \"npx ts-node chatserver/src/server.ts\"",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "clean-install": "rimraf node_modules package-lock.json .next && npm install"
+    "clean-install": "rimraf node_modules package-lock.json .next && npm install",
+    "clean-install:full": "rimraf node_modules package-lock.json .next chatserver/node_modules chatserver/package-lock.json chatserver/.next && npm install && cd chatserver && npm install"
   },
   "dependencies": {
     "cors": "^2.8.5",
@@ -26,6 +27,7 @@
     "@types/react-dom": "^18.3.5",
     "@vitejs/plugin-react": "^4.3.4",
     "autoprefixer": "^10.4.20",
+    "concurrently": "^9.1.2",
     "eslint": "^9.17.0",
     "eslint-plugin-react-hooks": "^5.0.0",
     "eslint-plugin-react-refresh": "^0.4.16",
