@@ -1,21 +1,21 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { removeClasses, generateTOC, TOCItem, removeParagraphsWithoutRealLinks } from "../../../utils/Game/TOCutils.ts";
 import TOC from "./TOC.tsx";
+import parse, {domToReact, HTMLReactParserOptions, Element, DOMNode} from 'html-react-parser';
+import { useWikiNavigation } from '../../../context/Game/WikiNavigationContext';
+import WikiLink from '../../Hypertext/Game/WikiLink';
 
 interface ArticleDisplayProps {
-    title: string;
-    // Dès qu'on trouve la section cutSection, on supprime ce header et tout ce qui suit.
     cutSection?: string;
     className?: string;
 }
 
-const ArticleDisplay: React.FC<ArticleDisplayProps> = ({ title, cutSection, className }) => {
-    const [currentTitle, setCurrentTitle] = useState(title);
+const ArticleDisplay: React.FC<ArticleDisplayProps> = ({ cutSection, className }) => {
+    const { currentTitle } = useWikiNavigation();
     const [content, setContent] = useState('');
     const [tocItems, setTocItems] = useState<TOCItem[]>([]);
     const [mainImage, setMainImage] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
-    const contentRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         const fetchArticle = async () => {
@@ -29,7 +29,7 @@ const ArticleDisplay: React.FC<ArticleDisplayProps> = ({ title, cutSection, clas
                 try {
                     data = JSON.parse(textResponse);
                 } catch (jsonError) {
-                    throw new Error("La réponse n'est pas au format JSON attendu.");
+                    throw new Error("La réponse n'est pas au format JSON attendu : " + jsonError);
                 }
                 if (data.error) {
                     throw new Error(data.error.info || 'Erreur inconnue');
@@ -100,33 +100,39 @@ const ArticleDisplay: React.FC<ArticleDisplayProps> = ({ title, cutSection, clas
         fetchArticle();
     }, [currentTitle, cutSection]);
 
-    // Gestion des clics sur les liens internes pour recharger l'article dans le même composant
-    useEffect(() => {
-        const handleLinkClick = (e: MouseEvent) => {
-            const target = e.target as HTMLElement;
-            const anchor = target.closest('a');
-            if (anchor) {
-                const href = anchor.getAttribute('href');
-                if (href && (href.startsWith('/wiki/') || href.includes('fr.wikipedia.org/wiki/'))) {
-                    e.preventDefault();
-                    const wikiPrefix = '/wiki/';
-                    let newTitle = '';
-                    if (href.startsWith(wikiPrefix)) {
-                        newTitle = decodeURIComponent(href.substring(wikiPrefix.length));
+    // Transformation des liens internes en composant WikiLink
+    const options: HTMLReactParserOptions = {
+        replace: (domNode) => {
+            if (domNode instanceof Element && domNode.name === 'a') {
+                const href = domNode.attribs.href;
+                if (href) {
+                    // Cas des liens internes
+                    if (href.startsWith('/wiki/') || href.includes('wikipedia.org/wiki/')) {
+                        const wikiPrefix = '/wiki/';
+                        let newTitle = '';
+                        if (href.startsWith(wikiPrefix)) {
+                            newTitle = decodeURIComponent(href.substring(wikiPrefix.length));
+                        } else {
+                            const parts = href.split('/wiki/');
+                            if (parts[1]) newTitle = decodeURIComponent(parts[1]);
+                        }
+                        return (
+                            <WikiLink title={newTitle}>
+                                {domToReact(Array.from(domNode.children) as DOMNode[], options)}
+                            </WikiLink>
+                        );
                     } else {
-                        const parts = href.split('/wiki/');
-                        if (parts[1]) newTitle = decodeURIComponent(parts[1]);
+                        // Pour les liens externes, on peut soit renvoyer un span, soit un <a> sans href
+                        return (
+                            <span style={{ cursor: 'default', textDecoration: 'underline' }}>
+                              {domToReact(Array.from(domNode.children) as DOMNode[], options)}
+                            </span>
+                        );
                     }
-                    if (newTitle && newTitle !== currentTitle) setCurrentTitle(newTitle);
                 }
             }
-        };
-        const container = contentRef.current;
-        if (container) container.addEventListener('click', handleLinkClick);
-        return () => {
-            if (container) container.removeEventListener('click', handleLinkClick);
-        };
-    }, [currentTitle]);
+        }
+    };
 
     if (error) return <p>Erreur : {error}</p>;
     if (!content) return <p>Chargement...</p>;
@@ -137,7 +143,9 @@ const ArticleDisplay: React.FC<ArticleDisplayProps> = ({ title, cutSection, clas
                 <img src={mainImage} alt={currentTitle} className="article-image" />
             )}
             {tocItems.length > 0 && <TOC items={tocItems} />}
-            <div ref={contentRef} dangerouslySetInnerHTML={{ __html: content }} />
+            <div>
+                {parse(content, options)}
+            </div>
         </div>
     );
 };

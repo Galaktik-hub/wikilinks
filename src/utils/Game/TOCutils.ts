@@ -15,8 +15,13 @@ export const generateTOC = (html: string): TOCItem[] => {
     // On récupère les titres h2 et h3 pour le sommaire
     const headers = doc.querySelectorAll('h2');
     headers.forEach((header) => {
-        const text = header.textContent?.trim() || '';
+        let text = header.textContent?.trim() || '';
         let id = header.getAttribute('id');
+        // On supprime la partie du texte entre crochet
+        const openBracketIndex = text.indexOf('[');
+        if (openBracketIndex !== -1) {
+            text = text.slice(0, openBracketIndex).trim();
+        }
         if (!id && text) {
             // Génère un id simple à partir du texte
             id = text.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
@@ -46,6 +51,12 @@ export const removeParagraphsWithoutRealLinks = (html: string): string => {
         if (!hasRealLink) {
             paragraph.remove();
         }
+        // On supprime tous les [cite_note]
+        paragraph.querySelectorAll('sup').forEach(sup => {
+            if (sup.querySelector('a[href^="#cite_note-"]')) {
+                sup.remove();
+            }
+        });
     });
     return doc.body.innerHTML;
 };
