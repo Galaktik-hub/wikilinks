@@ -61,7 +61,7 @@ export const TextLoungePanel: React.FC = () => {
                 <Container className="flex flex-col h-full">
                     <h2 className="gap-2.5 py-1 text-lg font-bold leading-none text-sky-500 text-center mb-2"
                         style={{ textShadow: "0px 0px 14px #0ea5e9" }}>
-                        {chat?.roomCode ? `Salon Textuel - ${chat.roomCode}` : 'Salon Textuel'}
+                        Salon Textuel
                     </h2>
 
                     <div className="flex flex-col flex-grow bg-[#181D25] rounded-lg overflow-hidden">
@@ -108,7 +108,7 @@ export const TextLoungePanel: React.FC = () => {
                         className="gap-2.5 py-3 text-lg font-bold leading-none text-sky-500 text-center"
                         style={{ textShadow: "0px 0px 14px #0ea5e9" }}
                     >
-                        {chat?.roomCode ? `Salon Textuel - ${chat.roomCode}` : 'Salon Textuel'}
+                        Salon Textuel
                     </h2>
 
                     <div className="max-h-[50vh] overflow-y-auto p-4">
