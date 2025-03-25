@@ -1,12 +1,15 @@
 import './App.css'
 import AppRoutes from "./route";
-import {ModalProvider} from "./components/Modals/ModalProvider.tsx";
+import { ModalProvider } from "./components/Modals/ModalProvider.tsx";
+import { ChatProvider } from "./contexts/ChatContext";
 
 function App() {
     return (
-        <ModalProvider>
-            <AppRoutes />
-        </ModalProvider>
+        <ChatProvider>
+            <ModalProvider>
+                <AppRoutes />
+            </ModalProvider>
+        </ChatProvider>
     )
 }
 
