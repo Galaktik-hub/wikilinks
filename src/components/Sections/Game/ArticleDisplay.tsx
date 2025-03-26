@@ -62,9 +62,15 @@ const ArticleDisplay: React.FC<ArticleDisplayProps> = ({ className }) => {
             if (err instanceof Error) setError(err.message);
             else setError("Une erreur inconnue s'est produite.");
         }
+
         // Reset le scroll de la page
         const content = document.querySelector('main');
         if (content) content.scrollTop = 0;
+        // Supprime le hash de l'URL
+        if (window.history.pushState) {
+            const newUrl = window.location.pathname + window.location.search;
+            window.history.pushState(null, "", newUrl);
+        }
     }, [currentTitle]);
 
     useEffect(() => {
