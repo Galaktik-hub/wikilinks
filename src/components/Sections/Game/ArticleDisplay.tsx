@@ -1,21 +1,22 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { removeClasses, generateTOC, TOCItem, removeParagraphsWithoutRealLinks } from "../../../utils/Game/TOCutils.ts";
+import { generateTOC, TOCItem } from "../../../utils/Game/TOCutils.ts";
 import TOC from "./TOC.tsx";
 import parse, { domToReact, HTMLReactParserOptions, Element, DOMNode } from 'html-react-parser';
 import { useWikiNavigation } from '../../../context/Game/WikiNavigationContext';
 import WikiLink from '../../Hypertext/Game/WikiLink';
+import {cleanHTMLContent} from "../../../utils/Game/ArticleCleaningUtils.ts";
 
 interface ArticleDisplayProps {
-    cutSection?: string;
     className?: string;
 }
 
-const ArticleDisplay: React.FC<ArticleDisplayProps> = ({ cutSection, className }) => {
+const ArticleDisplay: React.FC<ArticleDisplayProps> = ({ className }) => {
     const { currentTitle } = useWikiNavigation();
     const [content, setContent] = useState('');
     const [tocItems, setTocItems] = useState<TOCItem[]>([]);
     const [mainImage, setMainImage] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
+    const sectionsToRemove = ["Voir aussi", "Notes et références"];
 
     const fetchArticle = useCallback(async () => {
         try {
@@ -47,54 +48,21 @@ const ArticleDisplay: React.FC<ArticleDisplayProps> = ({ cutSection, className }
             }
             setMainImage(imageUrl);
 
+            // Sélection du contenu principal
             const mainContent = doc.querySelector('.mw-parser-output');
+            let finalHTML = '';
             if (mainContent) {
-                // Suppression des liens "modifier" et des images restantes
-                mainContent.querySelectorAll('.mw-editsection').forEach(el => el.remove());
-                mainContent.querySelectorAll('img').forEach(img => img.remove());
-
-                // Coupure brutale à partir de la section cutSection, si définie
-                if (cutSection) {
-                    const children = Array.from(mainContent.children);
-                    const cutSectionLower = cutSection.trim().toLowerCase();
-                    const index = children.findIndex(child => {
-                        let headerElement: HTMLElement | null;
-                        if (child.matches('h2')) {
-                            headerElement = child as HTMLElement;
-                        } else {
-                            headerElement = child.querySelector('h2');
-                        }
-                        if (headerElement) {
-                            const headerText = headerElement.textContent;
-                            if (headerText && headerText.trim().toLowerCase() === cutSectionLower) {
-                                return true;
-                            }
-                        }
-                        return false;
-                    });
-                    if (index !== -1) {
-                        for (let i = index; i < children.length; i++) {
-                            children[i].remove();
-                        }
-                    }
-                }
-
-                // Nettoyage des classes et suppression des paragraphes sans liens "réels"
-                const cleanedHTML = removeClasses(mainContent.innerHTML);
-                const finalHTML = removeParagraphsWithoutRealLinks(cleanedHTML);
-                setContent(finalHTML);
-                setTocItems(generateTOC(finalHTML));
+                finalHTML = cleanHTMLContent(mainContent, sectionsToRemove);
             } else {
-                const cleaned = removeClasses(htmlContent);
-                const final = removeParagraphsWithoutRealLinks(cleaned);
-                setContent(final);
-                setTocItems(generateTOC(final));
+                finalHTML = cleanHTMLContent(doc.body, sectionsToRemove);
             }
+            setContent(finalHTML);
+            setTocItems(generateTOC(finalHTML));
         } catch (err) {
             if (err instanceof Error) setError(err.message);
             else setError("Une erreur inconnue s'est produite.");
         }
-    }, [currentTitle, cutSection]);
+    }, [currentTitle]);
 
     useEffect(() => {
         fetchArticle();
@@ -142,6 +110,7 @@ const ArticleDisplay: React.FC<ArticleDisplayProps> = ({ cutSection, className }
             {mainImage && (
                 <img src={mainImage} alt={currentTitle} className="article-image" />
             )}
+            <h1 className="text-center text-white my-4">{currentTitle.replace(/_/g, " ")}</h1>
             {tocItems.length > 0 && <TOC items={tocItems} />}
             <div>
                 {parse(content, options)}

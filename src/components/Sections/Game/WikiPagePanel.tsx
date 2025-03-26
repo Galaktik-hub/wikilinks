@@ -19,7 +19,7 @@ const ObjectivesPanel: React.FC = () => {
             </div>
 
             <WikiNavigationProvider className="flex flex-col items-center gap-2 self-center mt-2 w-full text-base text-white">
-                <ArticleDisplay cutSection={"Voir aussi"} className="w-full" />
+                <ArticleDisplay className="w-full" />
             </WikiNavigationProvider>
         </Container>
     );
