@@ -49,7 +49,7 @@ const DailyChallengeSection: React.FC<DailyChallengeSectionProps> = ({
                         </div>
                     </div>
 
-                    <div className="flex items-center justify-center">
+                    <div className="flex items-center justify-center z-10">
                         <a className="font-righteous text-xl cursor-pointer inline-flex items-center justify-center gap-2 px-8 py-4 bg-[#10B981] rounded-full text-white font-normal hover:bg-[#0D9668] transition-colors min-w-[180px]"
                            onClick={() => {
                                console.log("Download clicked");

@@ -9,7 +9,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, description, type
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center  ">
+        <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50">
             <div className="bg-[#181D25] p-8 rounded-xl shadow-lg border border-gray-700 w-full max-w-md mx-4 transform transition-all flex flex-col gap-5">
 
                 <div className="relative flex justify-center items-center w-full">

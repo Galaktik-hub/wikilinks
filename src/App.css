@@ -41,7 +41,7 @@
     }
     ul {
         list-style: initial;
-        margin: initial;
+        margin-left: 1rem;
         padding: initial;
     }
 }
@@ -59,7 +59,6 @@
     font-size: 1.3rem;
 }
 .toc ul {
-    list-style: none;
     padding-left: 10px;
 }
 .toc li {
