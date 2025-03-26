@@ -4,9 +4,10 @@ import * as React from "react";
 import Container from "../../Container.tsx";
 import ArticleDisplay from "./ArticleDisplay.tsx";
 import { WikiNavigationProvider } from "../../../context/Game/WikiNavigationContext.tsx";
+import { preventCtrlF } from "../../../functions/preventCtrlF.ts";
 
 const ObjectivesPanel: React.FC = () => {
-
+    preventCtrlF();
     return (
         <Container className="flex flex-col justify-center w-full">
             <div className="flex gap-10 justify-between w-full">
