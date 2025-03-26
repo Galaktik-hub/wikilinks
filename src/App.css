@@ -51,3 +51,7 @@
 .toc li {
     margin-bottom: 0.25rem;
 }
+
+.mantine-Timeline-itemTitle {
+    color: white;
+}
