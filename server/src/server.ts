@@ -1,216 +1,123 @@
-import { WebSocket, WebSocketServer, RawData } from 'ws';
-import { randomInt } from "node:crypto";
+// server.ts
+import { WebSocketServer, WebSocket, RawData } from 'ws';
+import { createGameSession, addPlayer, getGameSession, removePlayer, endGameSession, GameSession } from './gameSession';
 
-interface Room {
-    id: string;
-    members: Map<string, { ws: WebSocket, role: 'creator' | 'client' }>;
-    bots: Map<string, Bot>;
+interface ClientContext {
+    currentRoomId: string | null; // Si vous utilisez aussi les salles, sinon null
+    currentUserName: string | null;
+    currentGameSessionId: string | null;
 }
 
-abstract class Bot {
-    constructor(public name: string, protected sendMessage: (content: string, destination: string | null) => void) {}
-    abstract notifyMemberJoin(name: string): void;
-    abstract notifyMemberLeave(name: string): void;
-    abstract notifyReceivedMessage(sender: string, content: string): boolean;
-}
-
-class UpperCaseBot extends Bot {
-    notifyMemberJoin(name: string): void {
-    }
-    notifyMemberLeave(name: string): void {
-    }
-    notifyReceivedMessage(sender: string, content: string): boolean {
-        console.log(`UpperCaseBot (${this.name}) received message from ${sender}: ${content}`);
-        if (content.startsWith('/upper')) {
-            const response = `${content.replace('/upper', '').toUpperCase()}`;
-            console.log(`UpperCaseBot (${this.name}) intercepts message, sending private response: ${response}`);
-            this.sendMessage(response, sender);
-            return true;
-        }
-        return false;
-    }
-}
-
-class JoinLeaveBot extends Bot {
-    notifyMemberJoin(name: string | null): void {
-        console.log(`JoinLeaveBot (${this.name}) notified of member join: ${name}`);
-        this.sendMessage(`User ${name} has joined the room.`, null);
-    }
-    notifyMemberLeave(name: string | null): void {
-        console.log(`JoinLeaveBot (${this.name}) notified of member leave: ${name}`);
-        this.sendMessage(`User ${name} has left the room.`, null);
-    }
-    notifyReceivedMessage(sender: string, content: string): boolean {
-        return false;
-    }
-}
-
-const BOTS = [UpperCaseBot, JoinLeaveBot];
-const rooms: Map<string, Room> = new Map();
+// Structure pour associer une game session à ses connexions (par nom d'utilisateur)
+const gameSessionConnections: Map<string, Map<string, WebSocket>> = new Map();
 
 const wss = new WebSocketServer({ port: 2025 });
 console.log("WebSocket server is running on ws://localhost:2025");
 
 wss.on('connection', (ws: WebSocket) => {
     console.log('New client connected');
-    let currentRoomId: string | null = null;
-    let currentUserName: string | null = null;
+    const context: ClientContext = {
+        currentRoomId: null,
+        currentUserName: null,
+        currentGameSessionId: null,
+    };
 
     ws.on('message', (data: RawData) => {
-        console.log('Received raw data:', data.toString());
         try {
             const message = JSON.parse(data.toString());
-            console.log('Parsed message:', message);
+            console.log('Received message:', message);
+
+            // Switch principal qui réparti les différentes requêtes reçus
             switch (message.kind) {
-                case 'create_room': {
-                    console.log(`Creating room requested by ${message.user_name}`);
-                    // const roomId = randomUUID();
-                    const roomId = randomInt(100000, 999999).toString();
-                    currentRoomId = roomId;
-                    currentUserName = message.user_name;
-                    const room: Room = { id: roomId, members: new Map(), bots: new Map() };
-                    room.members.set(message.user_name, { ws, role: 'creator' });
-                    console.log(`Room ${roomId} created by ${message.user_name}`);
-
-                    // Initialisation des bots
-                    BOTS.forEach(BotClass => {
-                        const botInstance = new BotClass(`Bot-${BotClass.name}`, (content: string, destination: string | null) => {
-                            console.log(`Bot sending message to ${destination ? destination : 'all'}: ${content}`);
-                            if (destination) {
-                                const member = room.members.get(destination);
-                                if (member) {
-                                    member.ws.send(JSON.stringify({ kind: 'message_received', content: `${content}`, sender: botInstance.name }));
-                                }
-                            } else {
-                                room.members.forEach(member => {
-                                    member.ws.send(JSON.stringify({ kind: 'message_received', content: `${content}`, sender: botInstance.name }));
-                                });
-                            }
-                        });
-                        room.bots.set(botInstance.name, botInstance);
-                        console.log(`Bot ${botInstance.name} initialized in room ${roomId}`);
-                    });
-                    rooms.set(roomId, room);
-                    ws.send(JSON.stringify({ kind: 'room_created', room_id: roomId }));
-                    console.log(`Room creation confirmation sent with room_id: ${roomId}`);
-                    break;
-                }
-                case 'join_room': {
-                    console.log(`${message.user_name} requests to join room ${message.room_id}`);
-                    const room = rooms.get(message.room_id);
-                    if (!room) {
-                        console.log(`Room ${message.room_id} not found`);
-                        ws.send(JSON.stringify({ kind: 'error', message: 'Room not found' }));
-                        ws.close();
+                // Création d'une partie (game session)
+                case 'create_game_session': {
+                    if (
+                        message.timeLimit == null ||
+                        message.numberOfArticles == null ||
+                        message.maxPlayers == null ||
+                        !message.type ||
+                        !message.leader
+                    ) {
+                        ws.send(JSON.stringify({ kind: 'error', message: 'Paramètres manquants pour la création de partie' }));
                         return;
                     }
-                    currentRoomId = message.room_id;
-                    currentUserName = message.user_name;
-                    room.members.set(message.user_name, { ws, role: 'client' });
-                    console.log(`${message.user_name} joined room ${message.room_id} as client`);
-
-                    // Appel du JoinLeaveBot pour notifier l'arrivée
-                    room.bots.forEach(bot => {
-                        if (bot instanceof JoinLeaveBot) {
-                            bot.notifyMemberJoin(message.user_name);
-                        }
+                    const session: GameSession = createGameSession({
+                        timeLimit: message.timeLimit,
+                        numberOfArticles: message.numberOfArticles,
+                        maxPlayers: message.maxPlayers,
+                        type: message.type,
+                        leader: message.leader
                     });
-
-                    ws.send(JSON.stringify({ kind: 'room_joined', room_id: message.room_id, room_description: "Description not managed", users: Array.from(room.members.keys()) }));
-                    console.log(`Room join confirmation sent to ${message.user_name}`);
+                    context.currentGameSessionId = session.id;
+                    context.currentUserName = message.leader;
+                    // Initialiser la map pour cette session et y ajouter la connexion du leader
+                    gameSessionConnections.set(session.id, new Map([[message.leader, ws]]));
+                    ws.send(JSON.stringify({ kind: 'game_session_created', session }));
+                    console.log(`Game session ${session.id} créée par ${message.leader}`);
                     break;
                 }
-                case 'send_message': {
-                    console.log(`${currentUserName} is sending message: ${message.content}`);
-                    if (!currentRoomId || !currentUserName) {
-                        console.log('User not in a room, cannot send message');
-                        ws.send(JSON.stringify({ kind: 'error', message: 'Not in a room' }));
+                // Rejoindre une partie existante
+                case 'join_game_session': {
+                    if (!message.sessionId || !message.playerName) {
+                        ws.send(JSON.stringify({ kind: 'error', message: 'Paramètres manquants pour rejoindre la partie' }));
                         return;
                     }
-                    const room = rooms.get(currentRoomId);
-                    if (!room) return;
-                    let intercepted = false;
-                    room.bots.forEach(bot => {
-                        if (bot.notifyReceivedMessage(currentUserName!, message.content)) {
-                            intercepted = true;
-                        }
-                    });
-                    if (!intercepted) {
-                        // Diffusion à tous les membres, y compris l'émetteur
-                        room.members.forEach((member, userName) => {
-                            console.log(`Forwarding message to ${userName}`);
-                            member.ws.send(JSON.stringify({ kind: 'message_received', content: message.content, sender: currentUserName }));
-                        });
-                    } else {
-                        console.log('Message intercepted by bot(s), not forwarded to any member');
+                    const session = getGameSession(message.sessionId);
+                    if (!session) {
+                        ws.send(JSON.stringify({ kind: 'error', message: 'Partie non trouvée' }));
+                        return;
                     }
+                    if (!addPlayer(message.sessionId, message.playerName)) {
+                        ws.send(JSON.stringify({ kind: 'error', message: 'Impossible de rejoindre la partie (capacité maximale atteinte)' }));
+                        return;
+                    }
+                    context.currentGameSessionId = message.sessionId;
+                    context.currentUserName = message.playerName;
+                    // Ajouter la connexion dans la map correspondante
+                    if (!gameSessionConnections.has(message.sessionId)) {
+                        gameSessionConnections.set(message.sessionId, new Map());
+                    }
+                    gameSessionConnections.get(message.sessionId)!.set(message.playerName, ws);
+                    ws.send(JSON.stringify({ kind: 'game_session_joined', session }));
+                    console.log(`${message.playerName} a rejoint la game session ${message.sessionId}`);
                     break;
                 }
-                case 'disconnect': {
-                    console.log(`${currentUserName} requested disconnect`);
-                    if (currentRoomId && currentUserName) {
-                        const room = rooms.get(currentRoomId);
-                        if (room) {
-                            room.members.delete(currentUserName);
-                            console.log(`User ${currentUserName} removed from room ${currentRoomId}`);
-                            // Appel du JoinLeaveBot pour notifier le départ
-                            room.bots.forEach(bot => {
-                                if (bot instanceof JoinLeaveBot) {
-                                    bot.notifyMemberLeave(currentUserName);
-                                }
-                            });
-                        }
-                    }
-                    ws.close();
-                    break;
-                }
-                case 'close_room': {
-                    console.log(`${currentUserName} requested to close the room`);
-                    if (currentRoomId && currentUserName) {
-                        const room = rooms.get(currentRoomId);
-                        if (room) {
-                            const user = room.members.get(currentUserName);
-                            if (user && user.role === 'creator') {
-                                room.members.forEach((member, userName) => {
-                                    console.log(`Notifying ${userName} that room is closed`);
-                                    member.ws.send(JSON.stringify({ kind: 'room_closed', message: 'La room a été fermée par le créateur' }));
-                                    member.ws.close();
-                                });
-                                rooms.delete(currentRoomId);
-                                console.log(`Room ${currentRoomId} closed by creator`);
-                            } else {
-                                console.log('Only the creator can close the room');
-                                ws.send(JSON.stringify({ kind: 'error', message: 'Only the creator can close the room' }));
-                            }
-                        }
-                    }
-                    break;
-                }
+                // Autres cas de gestion...
                 default: {
-                    console.log('Invalid message kind received:', message.kind);
-                    ws.send(JSON.stringify({ kind: 'error', message: 'Invalid message kind' }));
-                    ws.close();
+                    ws.send(JSON.stringify({ kind: 'error', message: 'Type de message inconnu' }));
                 }
             }
         } catch (e) {
             console.error('Error processing message:', e);
-            ws.send(JSON.stringify({ kind: 'error', message: 'Invalid message format' }));
+            ws.send(JSON.stringify({ kind: 'error', message: 'Format de message invalide' }));
         }
     });
 
     ws.on('close', () => {
-        console.log(`Connection closed for user ${currentUserName}`);
-        if (currentRoomId && currentUserName) {
-            const room = rooms.get(currentRoomId);
-            if (room) {
-                room.members.delete(currentUserName);
-                console.log(`User ${currentUserName} removed from room ${currentRoomId} on close`);
-                // Appel du JoinLeaveBot pour notifier le départ
-                room.bots.forEach(bot => {
-                    if (bot instanceof JoinLeaveBot) {
-                        bot.notifyMemberLeave(currentUserName);
+        console.log(`Connection closed for user ${context.currentUserName}`);
+        if (context.currentGameSessionId && context.currentUserName) {
+            const session = getGameSession(context.currentGameSessionId);
+            const connections = gameSessionConnections.get(context.currentGameSessionId);
+            if (session && connections) {
+                if (session.leader === context.currentUserName) {
+                    console.log(`Le leader ${context.currentUserName} s'est déconnecté. Clôture de la session ${context.currentGameSessionId}.`);
+                    connections.forEach((clientWs) => {
+                        if (clientWs.readyState === WebSocket.OPEN) {
+                            clientWs.send(JSON.stringify({
+                                kind: 'redirect_home',
+                                message: 'Le leader a quitté la partie. Retour à l\'accueil.'
+                            }));
+                            clientWs.close();
+                        }
+                    });
+                    endGameSession(context.currentGameSessionId);
+                    gameSessionConnections.delete(context.currentGameSessionId);
+                } else {
+                    if (removePlayer(context.currentGameSessionId, context.currentUserName)) {
+                        console.log(`Le joueur ${context.currentUserName} a été retiré de la session ${context.currentGameSessionId}`);
+                        connections.delete(context.currentUserName);
                     }
-                });
+                }
             }
         }
     });
