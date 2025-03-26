@@ -1,14 +1,17 @@
 import './App.css'
 import '@mantine/core/styles.css';
 import AppRoutes from "./route";
-import {ModalProvider} from "./components/Modals/ModalProvider.tsx";
 import { MantineProvider } from '@mantine/core';
+import { ModalProvider } from "./components/Modals/ModalProvider.tsx";
+import { ChatProvider } from "./contexts/ChatContext";
 
 function App() {
     return (
         <MantineProvider>
             <ModalProvider>
-                <AppRoutes />
+                <ChatProvider>
+                    <AppRoutes />
+                </ChatProvider>
             </ModalProvider>
         </MantineProvider>
     )

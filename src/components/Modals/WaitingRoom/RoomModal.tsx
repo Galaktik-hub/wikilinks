@@ -1,35 +1,31 @@
 "use client";
 
 import * as React from "react";
-import { createPortal } from "react-dom";
 import { useModalContext } from "../ModalProvider.tsx";
 import { useEffect, useRef, useState } from "react";
 
 interface RoomModalProps {
     onSubmit: (pseudo: string, code: string) => void;
     shouldOpen: boolean;
+    showError?: boolean;
 }
 
-// CE FICHIER EST TEMPORAIRE, A UTILISER POUR TESTER LA FONCTIONNALITÉ DE "CHAMBRES WEBSOCKET"
-
-const RoomModal: React.FC<RoomModalProps> = ({ onSubmit, shouldOpen }) => {
+const RoomModal: React.FC<RoomModalProps> = ({ onSubmit, shouldOpen, showError = false }) => {
     const { openModal, updateModal, closeModal } = useModalContext();
     const [pseudo, setPseudo] = useState("");
     const [code, setCode] = useState("");
-    const [showPopup, setShowPopup] = useState(false);
+    const [localShowError, setLocalShowError] = useState(false);
     const isOpened = useRef(false);
     const lastContentRef = useRef<any>(null);
 
-    //TEST DE POPUP D'ERREUR
     const handleSubmit = () => {
-        if (code === "000000") {
-            setShowPopup(true);
-            setTimeout(() => setShowPopup(false), 2000);
-
-        } else {
-            onSubmit(pseudo.trim(), code.trim());
-            closeModal();
+        if (code.trim() === "000000") {
+            setLocalShowError(true);
+            setTimeout(() => setLocalShowError(false), 2000);
+            return;
         }
+        onSubmit(pseudo.trim(), code.trim());
+        closeModal();
     };
 
     useEffect(() => {
@@ -47,30 +43,31 @@ const RoomModal: React.FC<RoomModalProps> = ({ onSubmit, shouldOpen }) => {
                         id: "code",
                         value: code,
                         onChange: setCode,
-                        placeholder: "Code de salle (6 chiffres)",
+                        placeholder: "Code de salle (optionnel)",
                         maxLength: 6,
                     },
                 ],
                 submitButton: {
-                    label: "Rejoindre",
+                    label: code.trim() ? "Rejoindre" : "Créer une salle",
                     onClick: handleSubmit,
-                    disabled: !(pseudo.trim() && /^\d{6}$/.test(code.trim())),
+                    disabled: !pseudo.trim(),
                 },
-                isValid: pseudo.trim() && /^\d{6}$/.test(code.trim()),
+                isValid: pseudo.trim(),
+                errorMessage: (showError || localShowError) ? "Code de salle invalide" : undefined,
             };
 
-            // Comparaison simple pour éviter de mettre à jour si le contenu n'a pas changé
             if (JSON.stringify(newContent) !== JSON.stringify(lastContentRef.current)) {
                 lastContentRef.current = newContent;
                 if (!isOpened.current) {
                     isOpened.current = true;
                     openModal({
-                        title: "Rejoindre un salon",
+                        title: code.trim() ? "Rejoindre un salon" : "Créer un salon",
                         type: "form",
                         content: newContent,
                     });
                 } else {
                     updateModal({
+                        title: code.trim() ? "Rejoindre un salon" : "Créer un salon",
                         content: newContent,
                     });
                 }
@@ -81,22 +78,9 @@ const RoomModal: React.FC<RoomModalProps> = ({ onSubmit, shouldOpen }) => {
                 isOpened.current = false;
             }
         }
-    }, [shouldOpen, pseudo, code, openModal, updateModal, closeModal, onSubmit]);
+    }, [shouldOpen, pseudo, code, showError, localShowError, openModal, updateModal, closeModal, onSubmit]);
 
-    return (
-        <>
-            {/* Popup d'erreur s'affiche si le code est "000000". */}
-            {showPopup &&
-                createPortal(
-                    <div className="fixed inset-0 flex items-center justify-center z-[9999]">
-                        <div className="bg-red-600 text-white py-3 px-6 rounded-lg shadow-xl text-lg font-semibold">
-                            Code de la partie invalide
-                        </div>
-                    </div>,
-                    document.body
-                )}
-        </>
-    );
+    return null;
 };
 
 export default RoomModal;

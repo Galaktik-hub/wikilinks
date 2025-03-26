@@ -8,16 +8,20 @@ import Container from "../../Container.tsx";
 interface LobbyCardProps {
     inputPlaceholder: string;
     buttonText: string;
-    buttonIcon?: string;
+    buttonIcon?: boolean;
+    maxLength?: number;
     onSubmit: (value: string) => void;
+    error?: string | null;
 }
 
 export const LobbyCard: React.FC<LobbyCardProps> = ({
-                                                        inputPlaceholder,
-                                                        buttonText,
-                                                        buttonIcon,
-                                                        onSubmit,
-                                                    }) => {
+    inputPlaceholder,
+    buttonText,
+    buttonIcon = false,
+    maxLength,
+    onSubmit,
+    error
+}) => {
     const [inputValue, setInputValue] = React.useState("");
 
     const handleSubmit = () => {
@@ -30,7 +34,11 @@ export const LobbyCard: React.FC<LobbyCardProps> = ({
                 placeholder={inputPlaceholder}
                 value={inputValue}
                 onChange={setInputValue}
+                maxLength={maxLength}
             />
+            {error && (
+                <div className="text-red-500 text-sm mt-1 mb-2">{error}</div>
+            )}
             <CreateOrJoinButton text={buttonText} icon={buttonIcon} onClick={handleSubmit} />
         </Container>
     );

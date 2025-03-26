@@ -3,15 +3,15 @@ import PlusSVG from "../../../assets/Cards/PlusSVG.tsx";
 
 interface CreateOrJoinButtonProps {
     text: string;
-    icon?: string;
+    icon?: boolean;
     onClick: () => void;
 }
 
 export const CreateOrJoinButton: React.FC<CreateOrJoinButtonProps> = ({
-                                                            text,
-                                                            icon,
-                                                            onClick,
-                                                        }) => {
+    text,
+    icon = false,
+    onClick,
+}) => {
     return (
         <button
             className="flex gap-1.5 justify-center items-center py-4 mt-2 w-full bg-sky-500 rounded-lg min-h-12 shadow-[0px_0px_6px_rgba(29,151,216,0.5)] max-md:px-5 hover:shadow-[0px_0px_15px_rgba(29,151,216,1)]"
