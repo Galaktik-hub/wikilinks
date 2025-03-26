@@ -6,12 +6,12 @@
   "scripts": {
     "dev": "vite",
     "dev:host": "vite --host",
-    "dev:full": "concurrently \"vite --host\" \"npx ts-node chatserver/src/server.ts\"",
+    "dev:full": "concurrently \"vite --host\" \"npx ts-node server/src/server.ts\"",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
     "clean-install": "rimraf node_modules package-lock.json .next && npm install",
-    "clean-install:full": "rimraf node_modules package-lock.json .next chatserver/node_modules chatserver/package-lock.json chatserver/.next && npm install && cd chatserver && npm install"
+    "clean-install:full": "rimraf node_modules package-lock.json .next server/node_modules server/package-lock.json server/.next && npm install && cd server && npm install"
   },
   "dependencies": {
     "@mantine/core": "^7.17.2",
