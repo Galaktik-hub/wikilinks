@@ -16,9 +16,10 @@ const DailyChallengeSection: React.FC<DailyChallengeSectionProps> = ({
                                                                          playerCount
                                                                      }) => {
     const isMobile = useMediaQuery({maxWidth: 767});
+    const isAndroid = () => /Android/.test(navigator.userAgent);
 
-    if (isMobile) {
-        // Display the daily challenge for mobile
+    if (isMobile && isAndroid()) {
+        // Display the daily challenge for mobile only if it's on Android
         return (
             <div
                 className="font-inter bg-gradient-to-br from-[#EA580C] to-[#DC2626] rounded-2xl p-6 text-white flex flex-col gap-4 w-[90%] md:w-[600px] mx-auto my-8">
@@ -38,7 +39,7 @@ const DailyChallengeSection: React.FC<DailyChallengeSectionProps> = ({
         return (
             <div
                 className="font-inter bg-gradient-to-br from-[#EA580C] to-[#DC2626] rounded-2xl p-8 text-white mx-2.5 my-8 relative overflow-hidden">
-                <div className="flex flex-row justify-between items-center relative">
+                <div className="flex flex-wrap justify-between items-center relative">
                     <div className="flex flex-col gap-3 max-w-[60%]">
                         <h2 className="font-inter text-2xl md:text-3xl font-bold">Découvrez les défis quotidiens</h2>
                         <p className="font-inter font-light text-base md:text-lg">Affrontez les joueurs du monde entier à travers des défis

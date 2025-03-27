@@ -68,3 +68,13 @@
 .mantine-Timeline-itemTitle {
     color: white;
 }
+
+/* Style global pour la scrollbar */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: #1D97D8 #111827;
+}
+*::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
+}

@@ -54,6 +54,11 @@ export const CreateOrJoinGame: React.FC = () => {
             setTimeout(() => setError(null), 3000);
             return;
         }
+        if (!/^\d+$/.test(roomCode)) {
+            setError("Room code must contain only digits");
+            setTimeout(() => setError(null), 3000);
+            return;
+        }
 
         // Check if the room exists
         setIsCheckingRoom(true);

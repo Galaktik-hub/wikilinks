@@ -27,7 +27,7 @@ const WaitingRoom: React.FC = () => {
                         <GameSettings isHost={isHost} />
                         <PlayerList isHost={isHost} />
                     </div>
-                    <div className="hidden xl-custom:flex w-full flex-col gap-6">
+                    <div className="hidden xl-custom:flex w-full max-h-[633px] flex-col gap-6">
                         <TextLoungePanel />
                     </div>
                 </section>

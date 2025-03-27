@@ -10,7 +10,7 @@ export const TextLoungePanel: React.FC = () => {
     const chat = useContext(ChatContext);
     const [message, setMessage] = React.useState("");
     const [isInputFocused, setIsInputFocused] = React.useState(false);
-    const messagesEndRef = React.useRef<HTMLDivElement>(null);
+    const messagesRef = React.useRef<HTMLDivElement[]>([]);
 
     const handleSendMessage = () => {
         if (message.trim() && chat?.sendMessage) {
@@ -26,15 +26,34 @@ export const TextLoungePanel: React.FC = () => {
         }
     };
 
+    // Function to scroll to bottom
+    const scrollToBottom = () => {
+        messagesRef.current.forEach(element => {
+            if (element) {
+                element.scrollTo({
+                    top: element.scrollHeight,
+                    behavior: 'smooth'
+                });
+            }
+        });
+    };
+
     // Scroll to bottom when new messages arrive
     React.useEffect(() => {
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+        scrollToBottom();
     }, [chat?.messages]);
+
+    // Function to add references to the list
+    const addToRefs = (el: HTMLDivElement | null) => {
+        if (el && !messagesRef.current.includes(el)) {
+            messagesRef.current.push(el);
+        }
+    };
 
     const MessageBubble = React.useCallback(({ msg, index }: { msg: ChatMessage; index: number }) => (
         <div key={index}
             className={`mb-2 p-3 rounded-lg border border-gray-700/50 ${msg.sender === 'system' ? 'bg-yellow-950/50' :
-                    msg.sender === chat?.username ? 'bg-sky-950/50' : 'bg-[#12151A]'
+                msg.sender === chat?.username ? 'bg-sky-950/50' : 'bg-[#12151A]'
                 }`}>
             <strong className="text-sky-500" style={{ textShadow: "0 0 10px rgba(14, 165, 233, 0.3)" }}>
                 {msg.sender}
@@ -64,8 +83,11 @@ export const TextLoungePanel: React.FC = () => {
                         Salon Textuel
                     </h2>
 
-                    <div className="flex flex-col flex-grow bg-[#181D25] rounded-lg overflow-hidden">
-                        <div className="flex-grow overflow-y-auto p-4">
+                    <div className="flex flex-col flex-grow bg-[#181D25] rounded-lg h-full overflow-hidden">
+                        <div
+                            className="flex-grow overflow-auto p-4 scroll-smooth"
+                            ref={addToRefs}
+                        >
                             {chat?.messages.length ? (
                                 chat.messages.map((msg, index) => (
                                     <MessageBubble key={index} msg={msg} index={index} />
@@ -73,7 +95,6 @@ export const TextLoungePanel: React.FC = () => {
                             ) : (
                                 <p className="text-gray-400 text-center">Aucun message pour l'instant...</p>
                             )}
-                            <div ref={messagesEndRef} />
                         </div>
 
                         <div className="p-4 border-t border-gray-700/50">
@@ -111,7 +132,10 @@ export const TextLoungePanel: React.FC = () => {
                         Salon Textuel
                     </h2>
 
-                    <div className="max-h-[50vh] overflow-y-auto p-4">
+                    <div
+                        className="max-h-[50vh] overflow-auto p-4 scroll-smooth"
+                        ref={addToRefs}
+                    >
                         {chat?.messages.length ? (
                             chat.messages.map((msg, index) => (
                                 <MessageBubble key={index} msg={msg} index={index} />
@@ -119,7 +143,6 @@ export const TextLoungePanel: React.FC = () => {
                         ) : (
                             <p className="text-gray-400 text-center">Aucun message pour l'instant...</p>
                         )}
-                        <div ref={messagesEndRef} />
                     </div>
                 </div>
 
