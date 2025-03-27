@@ -1,4 +1,5 @@
 import { randomInt } from "node:crypto";
+import { Player } from "./player";
 
 export type GameType = 'public' | 'private';
 
@@ -8,8 +9,8 @@ export interface GameSession {
     numberOfArticles: number;
     maxPlayers: number;
     type: GameType;
-    leader: string;
-    players: Set<string>;
+    leader: Player;
+    players: Set<Player>;
 }
 
 const gameSessions: Map<string, GameSession> = new Map();
@@ -23,7 +24,7 @@ export function createGameSession(params: {
     numberOfArticles: number,
     maxPlayers: number,
     type: GameType,
-    leader: string
+    leader: Player
 }): GameSession {
     let id: string;
     do {
@@ -48,22 +49,22 @@ export function createGameSession(params: {
  * Adds a player to a game, if the capacity is not reached
  * Returns true if success, else false
  */
-export function addPlayer(sessionId: string, playerName: string): boolean {
+export function addPlayer(sessionId: string, player: Player): boolean {
     const session = gameSessions.get(sessionId);
     if (!session) return false;
     if (session.players.size >= session.maxPlayers) return false;
-    session.players.add(playerName);
+    session.players.add(player);
     return true;
 }
 
 /**
  * Removes a player from the game.
  */
-export function removePlayer(sessionId: string, playerName: string): boolean {
+export function removePlayer(sessionId: string, player: Player): boolean {
     const session = gameSessions.get(sessionId);
     if (!session) return false;
-    if (playerName === session.leader) return false;
-    return session.players.delete(playerName);
+    if (player.equals(session.leader)) return false;
+    return session.players.delete(player);
 }
 
 /**
