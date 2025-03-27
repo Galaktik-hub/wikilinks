@@ -1,19 +1,30 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { LobbyCard } from "./LobbyCard.tsx";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import UsernameModal from "../../Modals/WaitingRoom/UsernameModal";
 import { ChatContext } from "../../../contexts/ChatContext";
-import { useContext } from "react";
 
 export const CreateOrJoinGame: React.FC = () => {
     const navigate = useNavigate();
+    const location = useLocation();
     const chat = useContext(ChatContext);
     const [showUsernameModal, setShowUsernameModal] = useState(false);
     const [tempRoomCode, setTempRoomCode] = useState("");
+    const [roomCodeInput, setRoomCodeInput] = useState(""); // État pour le champ d'entrée
     const [error, setError] = useState<string | null>(null);
     const [isCheckingRoom, setIsCheckingRoom] = useState(false);
+
+    useEffect(() => {
+        const urlParams = new URLSearchParams(location.search);
+        const roomCode = urlParams.get("code");
+
+        if (roomCode) {
+            setRoomCodeInput(roomCode); // Remplit le champ d'entrée avec le code
+            handleJoinGame(roomCode); // Vérifie et rejoint la salle
+        }
+    }, [location.search]);
 
     // Function to create a game with just a username
     const handleCreateGame = (username: string) => {
@@ -51,7 +62,7 @@ export const CreateOrJoinGame: React.FC = () => {
         try {
             // Use the context function to check if the room exists
             const roomExists = await chat?.checkRoomExists(roomCode);
-            
+
             if (roomExists) {
                 // The room exists, open the modal for the username
                 setTempRoomCode(roomCode);
@@ -96,6 +107,8 @@ export const CreateOrJoinGame: React.FC = () => {
                 inputPlaceholder="Saisissez votre pseudo"
                 buttonText="Créer une partie"
                 buttonIcon={true}
+                value=""
+                onChange={() => {}}
                 onSubmit={handleCreateGame}
                 error={null}
             />
@@ -105,6 +118,8 @@ export const CreateOrJoinGame: React.FC = () => {
                 maxLength={6}
                 onSubmit={handleJoinGame}
                 error={error}
+                value={roomCodeInput} // Utilisez l'état pour la valeur du champ
+                onChange={(e) => setRoomCodeInput(e.target.value)} // Mettez à jour l'état lorsque l'utilisateur tape
             />
 
             {/* Modal to ask for username when joining a game */}
