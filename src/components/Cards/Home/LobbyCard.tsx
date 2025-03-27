@@ -10,7 +10,9 @@ interface LobbyCardProps {
     buttonText: string;
     buttonIcon?: boolean;
     maxLength?: number;
+    value: string | null;
     onSubmit: (value: string) => void;
+    onChange: (e: React.ChangeEvent<HTMLInputElement>) => void | null;
     error?: string | null;
 }
 
