@@ -3,7 +3,7 @@
 import * as React from "react";
 import Container from "../../Container.tsx";
 import ArticleDisplay from "./ArticleDisplay.tsx";
-import { WikiNavigationProvider } from "../../../context/Game/WikiNavigationContext.tsx";
+import { WikiNavigationProvider } from "../../../context/WikiNavigationContext.tsx";
 import { preventCtrlF } from "../../../functions/preventCtrlF.ts";
 
 const ObjectivesPanel: React.FC = () => {

@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { LobbyCard } from "./LobbyCard.tsx";
 import { useNavigate } from "react-router-dom";
 import UsernameModal from "../../Modals/WaitingRoom/UsernameModal";
-import { ChatContext } from "../../../contexts/ChatContext";
+import { ChatContext } from "../../../context/ChatContext";
 import { useContext } from "react";
 
 export const CreateOrJoinGame: React.FC = () => {

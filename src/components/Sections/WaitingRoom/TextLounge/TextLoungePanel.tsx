@@ -4,7 +4,7 @@ import { ChatInput } from "../../../Chat/ChatInput.tsx";
 import { SendButton } from "../../../Chat/SendButton.tsx";
 import RoomModal from "../../../Modals/WaitingRoom/RoomModal";
 import { useContext } from "react";
-import { ChatContext, ChatMessage } from "../../../../contexts/ChatContext";
+import { ChatContext, ChatMessage } from "../../../../context/ChatContext";
 
 export const TextLoungePanel: React.FC = () => {
     const chat = useContext(ChatContext);

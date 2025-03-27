@@ -26,6 +26,7 @@ wss.on('connection', (ws: WebSocket) => {
             const message = JSON.parse(data.toString());
             console.log('Received message:', message);
 
+            // Main switch to dispatch messages
             switch (message.kind) {
                 case 'create_game_session': {
                     if (
