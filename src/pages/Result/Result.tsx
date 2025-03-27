@@ -1,0 +1,54 @@
+"use client";
+
+import React from "react";
+import Layout from "../../components/Layout.tsx";
+import Container from "../../components/Container.tsx";
+import Podium from "../../components/Sections/Result/Podium/Podium.tsx";
+import TextLoungePanel from "../../components/Sections/WaitingRoom/TextLounge/TextLoungePanel.tsx";
+import Leaderboard from "../../components/Sections/Result/LeaderBoard/LeaderBoard.tsx";
+
+export interface ResultProps {
+    rank: number;
+    name: string;
+    score: number;
+}
+
+const players: ResultProps[] = [
+    { rank: 1, name: "Alex", score: 2450 },
+    { rank: 2, name: "Maria", score: 2280 },
+    { rank: 3, name: "John", score: 2150 },
+    { rank: 4, name: "Joueur 4", score: 2000 },
+];
+
+// Si moins de 3 joueurs, on fournit uniquement ceux nécessaires
+const podiumPlayers =
+    players.length >= 3 ? [players[0], players[1], players[2]] : [players[0], players[1]];
+
+const Result: React.FC = () => {
+    return (
+        <Layout header={<div />}>
+            <div className="flex flex-col w-full overflow-hidden items-center justify-center p-4 gap-6 max-md:mb-16">
+                <Container className="w-full h-full flex items-center justify-center text-xl font-bold text-white">
+                    Résultats
+                </Container>
+                <section className="w-full flex gap-6">
+                    <div className="w-full flex flex-col gap-6">
+                        <Podium players={podiumPlayers} />
+                        <Leaderboard players={players} />
+                    </div>
+                    <div className="hidden xl-custom:flex w-full max-h-[633px] flex-col gap-6">
+                        <TextLoungePanel />
+                    </div>
+                </section>
+                <section className="w-full flex flex-wrap-reverse justify-center gap-x-6">
+                    {/* Button Retour au lobby */}
+                </section>
+            </div>
+            <div className="xl-custom:hidden">
+                <TextLoungePanel />
+            </div>
+        </Layout>
+    );
+};
+
+export default Result;
