@@ -25,11 +25,11 @@ export class UpperCaseBot extends Bot {
 export class JoinLeaveBot extends Bot {
     notifyMemberJoin(name: string | null): void {
         console.log(`JoinLeaveBot (${this.name}) notified of member join: ${name}`);
-        this.sendMessage(`User ${name} has joined the room.`, null);
+        this.sendMessage(`${name} a rejoint le salon.`, null);
     }
     notifyMemberLeave(name: string | null): void {
         console.log(`JoinLeaveBot (${this.name}) notified of member leave: ${name}`);
-        this.sendMessage(`User ${name} has left the room.`, null);
+        this.sendMessage(`${name} a quitté le salon.`, null);
     }
     notifyReceivedMessage(sender: string, content: string): boolean {
         return false;
