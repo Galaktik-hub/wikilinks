@@ -83,7 +83,7 @@ export const TextLoungePanel: React.FC = () => {
                         Salon Textuel
                     </h2>
 
-                    <div className="flex flex-col flex-grow bg-[#181D25] rounded-lg max-h-[600px] overflow-hidden">
+                    <div className="flex flex-col flex-grow bg-[#181D25] rounded-lg h-full overflow-hidden">
                         <div
                             className="flex-grow overflow-auto p-4 scroll-smooth"
                             ref={addToRefs}
