@@ -9,6 +9,7 @@ import ExitButton from "../../components/Buttons/WaitingRoom/ExitButton.tsx";
 import TextLoungePanel from "../../components/Sections/WaitingRoom/TextLounge/TextLoungePanel.tsx";
 import {useMediaQuery} from "react-responsive";
 import InventoryButton from "../../components/Buttons/Game/InventoryButton.tsx";
+import Header from "../../components/Header/Header.tsx";
 
 const Game: React.FC = () => {
     const isMobile = useMediaQuery({ maxWidth: 767 });
@@ -25,7 +26,7 @@ const Game: React.FC = () => {
 
     return (
         <Layout
-            header={<div />}
+            header={<Header />}
             leftColumn={isDesktop ? desktopLeft : null}
             rightColumn={isDesktop ? <TextLoungePanel /> : null}
         >

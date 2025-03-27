@@ -10,6 +10,7 @@ import GameSettings from "../../components/Sections/WaitingRoom/GameSettings/Gam
 import PlayerList from "../../components/Sections/WaitingRoom/Player/PlayerList.tsx";
 import TextLoungePanel from "../../components/Sections/WaitingRoom/TextLounge/TextLoungePanel.tsx";
 import {useChat} from "../../contexts/ChatContext.tsx";
+import Header from "../../components/Header/Header.tsx";
 
 const isHost: boolean = false;
 
@@ -17,7 +18,7 @@ const WaitingRoom: React.FC = () => {
     const { roomCode , username } = useChat();
 
     return (
-        <Layout header={<div />}>
+        <Layout header={<Header />}>
             <div className="flex flex-col w-full overflow-hidden items-center justify-center p-4 gap-6 max-md:mb-16">
                 <Title playerName={username!} />
                 <section className="w-full flex gap-6">

@@ -15,14 +15,14 @@ const ExitButton: React.FC<DeleteButtonProps> = ({ isHost, onClick }) => {
     }, [onClick]);
 
     return (
-        <div className="flex justify-center">
+        <div className="flex gap-1 justify-center items-center">
             <button
-                className="w-full flex items-center justify-center text-xl font-bold text-white bg-red-600 rounded-lg shadow-[0px_0px_10px_rgba(185,39,16,0.5)] hover:shadow-[0px_0px_15px_rgba(185,39,16,1)] transition-colors pt-1.5 pb-1.5 pr-10 pl-10"
+                className="w-full flex items-center justify-center text-xl font-bold text-white bg-red-600 rounded-lg shadow-[0px_0px_10px_rgba(185,39,16,0.5)] hover:shadow-[0px_0px_15px_rgba(185,39,16,1)] transition-colors py-3 px-10"
                 type="button"
                 aria-label={isHost ? "Supprimer" : "Quitter"}
                 onClick={handleClick}
             >
-                <span className="">{isHost ? "Supprimer" : "Quitter"}</span>
+                <span className="text-center text-xl">{isHost ? "Supprimer" : "Quitter"}</span>
                 {!isHost ? <ExitSVG className="ml-2 w-6 h-6 text-white" /> : null}
             </button>
         </div>

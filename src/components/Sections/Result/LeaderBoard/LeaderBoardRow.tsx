@@ -18,9 +18,9 @@ const LeaderboardRow: React.FC<ResultProps> = ({ rank, name, score }) => {
 
     return (
         <tr className="text-white">
-            <td className={`text-sm text-center ${getRankColor(rank)}`}>#{rank}</td>
-            <td className="text-sm text-center">{name}</td>
-            <td className="text-sm text-center">{score}</td>
+            <td className={`text-lg text-center ${getRankColor(rank)} py-2`}>#{rank}</td>
+            <td className="text-lg text-center py-2">{name}</td>
+            <td className="text-lg text-center py-2">{score}</td>
         </tr>
     );
 };

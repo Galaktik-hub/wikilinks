@@ -13,21 +13,42 @@ const Leaderboard: React.FC<LeaderboardProps> = ({ players }) => {
         <Container>
             <table className="w-full text-white">
                 <thead>
-                <tr className="text-center">
-                    <th className="text-sm">Rang</th>
-                    <th className="text-sm">Joueur</th>
-                    <th className="text-sm">Score</th>
-                </tr>
+                    <tr className="text-center border-b-2 border-gray-700 my-2">
+                        <th className="py-2">
+                            <h2
+                                className="py-1 text-lg font-bold leading-none text-sky-500 whitespace-nowrap"
+                                style={{ textShadow: "0px 0px 14px #0ea5e9" }}
+                            >
+                                Rang
+                            </h2>
+                        </th>
+                        <th className="py-2">
+                            <h2
+                                className="py-1 text-lg font-bold leading-none text-sky-500 whitespace-nowrap"
+                                style={{ textShadow: "0px 0px 14px #0ea5e9" }}
+                            >
+                                Joueur
+                            </h2>
+                        </th>
+                        <th className="py-2">
+                            <h2
+                                className="py-1 text-lg font-bold leading-none text-sky-500 whitespace-nowrap"
+                                style={{ textShadow: "0px 0px 14px #0ea5e9" }}
+                            >
+                                Score
+                            </h2>
+                        </th>
+                    </tr>
                 </thead>
                 <tbody>
-                {players.map((player) => (
-                    <LeaderboardRow
-                        key={player.rank}
-                        rank={player.rank}
-                        name={player.name}
-                        score={player.score}
-                    />
-                ))}
+                    {players.map((player) => (
+                        <LeaderboardRow
+                            key={player.rank}
+                            rank={player.rank}
+                            name={player.name}
+                            score={player.score}
+                        />
+                    ))}
                 </tbody>
             </table>
         </Container>

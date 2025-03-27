@@ -11,20 +11,20 @@ type LaunchButtonProps = {
 
 const LaunchButton: React.FC<LaunchButtonProps> = ({ onClick, disabled = false, isHost }) => {
     return (
-        <div className="flex justify-center">
+        <div className="flex gap-1 justify-center items-center">
             <button
                 onClick={isHost ? onClick : undefined}
                 disabled={!isHost || disabled}
-                className={`w-full flex items-center justify-center text-xl font-bold rounded-lg transition-colors pt-1.5 pb-1.5 pr-5 pl-5
+                className={`w-full flex items-center justify-center text-xl font-bold rounded-lg transition-colors py-3 px-10
                     ${
                     isHost
                         ? "text-white bg-green-600 shadow-[0px_0px_10px_rgba(16,185,64,0.5)] hover:shadow-[0px_0px_15px_rgba(16,185,64,1)]"
                         : "text-gray-400 bg-gray-700 cursor-not-allowed"
                 }`}
                 type="button"
-                aria-label={isHost ? "Lancer la partie" : "En attente de l'hôte"}
+                aria-label={isHost ? "Lancer la partie" : "En attente de l'hôte..."}
             >
-                <span>{isHost ? "Lancer la partie" : "En attente de l'hôte..."}</span>
+                <span className="text-center text-xl">{isHost ? "Lancer la partie" : "En attente de l'hôte..."}</span>
                 {isHost && <PlaySVG className="ml-2 w-6 h-6 text-white" />}
             </button>
         </div>
