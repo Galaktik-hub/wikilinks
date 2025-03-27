@@ -1,10 +1,10 @@
-import React, { createContext, useContext, useEffect, useRef, useState } from 'react';
-
-const WS_URL = "ws://localhost:2025";
+import React, { createContext, useContext, useEffect, useState } from 'react';
+import { useWebSocket } from './WebSocketProvider';
 
 // Keys for temporary storage (navigation)
 const TEMP_USERNAME_KEY = 'temp_chat_username';
 const TEMP_ROOMCODE_KEY = 'temp_chat_roomcode';
+const TEMP_MESSAGES_KEY = 'temp_chat_messages';
 
 export type ChatMessage = {
     sender: string;
@@ -35,10 +35,13 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const saved = sessionStorage.getItem(TEMP_ROOMCODE_KEY);
         return saved ? JSON.parse(saved) : null;
     });
-    const [messages, setMessages] = useState<ChatMessage[]>([]);
-    const [isConnected, setIsConnected] = useState(false);
-    const ws = useRef<WebSocket | null>(null);
-    const shouldConnect = useRef(false);
+    const [messages, setMessages] = useState<ChatMessage[]>(() => {
+        const saved = sessionStorage.getItem(TEMP_MESSAGES_KEY);
+        return saved ? JSON.parse(saved) : [];
+    });
+
+    // Use the WebSocket context
+    const { isConnected, sendMessage: wsSendMessage, lastMessage, connect, disconnect: wsDisconnect } = useWebSocket();
 
     // Wrapper to save in sessionStorage
     const setUsername = (newUsername: string | null) => {
@@ -59,119 +62,107 @@ export const ChatProvider: React.FC<{ children: React.ReactNode }> = ({ children
         _setRoomCode(newRoomCode);
     };
 
-    const connectToWebSocket = () => {
-        if (!username || ws.current?.readyState === WebSocket.OPEN) return;
-
-        ws.current = new WebSocket(WS_URL);
-        shouldConnect.current = true;
-
-        ws.current.onopen = () => {
-            console.log("Connected to WebSocket server");
-            setIsConnected(true);
-            if (ws.current && shouldConnect.current) {
-                ws.current.send(JSON.stringify({
+    // Connect to WebSocket when username and roomCode are set
+    useEffect(() => {
+        if (username && (roomCode !== null || roomCode === "")) {
+            connect();
+            if (isConnected) {
+                wsSendMessage({
                     kind: roomCode ? 'join_room' : 'create_room',
                     room_id: roomCode || '',
                     user_name: username
-                }));
+                });
             }
-        };
+        }
+    }, [username, roomCode, isConnected]);
 
-        ws.current.onclose = () => {
-            console.log("Disconnected from WebSocket server");
-            setIsConnected(false);
-            if (shouldConnect.current) {
-                setTimeout(connectToWebSocket, 1000);
-            }
-        };
+    // Handle WebSocket messages
+    useEffect(() => {
+        if (!lastMessage) return;
 
-        ws.current.onmessage = (event) => {
-            const data = JSON.parse(event.data);
-            console.log("Message received:", data);
-
-            if (!shouldConnect.current) return;
-
-            switch (data.kind) {
-                case 'message_received':
-                    setMessages(prev => [...prev, {
-                        sender: data.sender,
-                        content: data.content
-                    }]);
-                    break;
-                case 'room_created':
-                case 'room_joined':
-                    setRoomCode(data.room_id);
-                    break;
-                case 'room_closed':
-                    setMessages(prev => [...prev, {
+        switch (lastMessage.kind) {
+            case 'message_received':
+                setMessages(prev => {
+                    const newMessages = [...prev, {
+                        sender: lastMessage.sender,
+                        content: lastMessage.content
+                    }];
+                    sessionStorage.setItem(TEMP_MESSAGES_KEY, JSON.stringify(newMessages));
+                    return newMessages;
+                });
+                break;
+            case 'room_created':
+            case 'room_joined':
+                setRoomCode(lastMessage.room_id);
+                break;
+            case 'room_closed':
+                setMessages(prev => {
+                    const newMessages = [...prev, {
                         sender: 'system',
-                        content: data.message
-                    }]);
-                    cleanupChat();
-                    break;
-                case 'error':
-                    if (data.message === "Room not found") {
-                        setMessages(prev => [...prev, {
+                        content: lastMessage.message
+                    }];
+                    sessionStorage.setItem(TEMP_MESSAGES_KEY, JSON.stringify(newMessages));
+                    return newMessages;
+                });
+                cleanupChat();
+                break;
+            case 'error':
+                if (lastMessage.message === "Room not found") {
+                    setMessages(prev => {
+                        const newMessages = [...prev, {
                             sender: 'system',
                             content: "Room not found"
-                        }]);
-                        cleanupChat();
-                    } else {
-                        setMessages(prev => [...prev, {
+                        }];
+                        sessionStorage.setItem(TEMP_MESSAGES_KEY, JSON.stringify(newMessages));
+                        return newMessages;
+                    });
+                    cleanupChat();
+                } else {
+                    setMessages(prev => {
+                        const newMessages = [...prev, {
                             sender: 'system',
-                            content: `Error: ${data.message}`
-                        }]);
-                    }
-                    break;
-            }
-        };
-    };
+                            content: `Error: ${lastMessage.message}`
+                        }];
+                        sessionStorage.setItem(TEMP_MESSAGES_KEY, JSON.stringify(newMessages));
+                        return newMessages;
+                    });
+                }
+                break;
+        }
+    }, [lastMessage]);
 
     const cleanupChat = () => {
-        shouldConnect.current = false;
-        if (ws.current) {
-            ws.current.close();
-        }
+        wsDisconnect();
         sessionStorage.removeItem(TEMP_USERNAME_KEY);
         sessionStorage.removeItem(TEMP_ROOMCODE_KEY);
+        sessionStorage.removeItem(TEMP_MESSAGES_KEY);
         _setUsername(null);
         _setRoomCode(null);
         setMessages([]);
-        setIsConnected(false);
     };
 
-    useEffect(() => {
-        connectToWebSocket();
-        return () => {
-            shouldConnect.current = false;
-            if (ws.current) {
-                ws.current.close();
-            }
-        };
-    }, [username, roomCode]);
-
     const sendMessage = (content: string) => {
-        if (ws.current && isConnected && content.trim()) {
-            ws.current.send(JSON.stringify({
+        if (isConnected && content.trim()) {
+            wsSendMessage({
                 kind: 'send_message',
                 content: content.trim()
-            }));
+            });
         }
     };
 
     const disconnect = () => {
-        if (ws.current) {
-            ws.current.send(JSON.stringify({
+        if (isConnected) {
+            wsSendMessage({
                 kind: 'disconnect'
-            }));
+            });
             cleanupChat();
         }
     };
 
     const checkRoomExists = (roomCodeToCheck: string): Promise<boolean> => {
         return new Promise((resolve, reject) => {
-            // Create a temporary WebSocket connection to check if the room exists
-            const tempWs = new WebSocket(WS_URL);
+            // Create a new WebSocket instance for checking
+            const tempWs = new WebSocket("ws://localhost:2025");
 
             // Set a timeout to avoid infinite waiting
             const timeoutId = setTimeout(() => {
