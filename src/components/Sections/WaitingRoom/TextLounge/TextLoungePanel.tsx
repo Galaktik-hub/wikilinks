@@ -64,8 +64,8 @@ export const TextLoungePanel: React.FC = () => {
                         Salon Textuel
                     </h2>
 
-                    <div className="flex flex-col flex-grow bg-[#181D25] rounded-lg overflow-hidden">
-                        <div className="flex-grow overflow-y-auto p-4">
+                    <div className="flex flex-col flex-grow bg-[#181D25] rounded-lg max-h-[600px] overflow-hidden">
+                        <div className="flex-grow overflow-auto p-4">
                             {chat?.messages.length ? (
                                 chat.messages.map((msg, index) => (
                                     <MessageBubble key={index} msg={msg} index={index} />
@@ -111,7 +111,7 @@ export const TextLoungePanel: React.FC = () => {
                         Salon Textuel
                     </h2>
 
-                    <div className="max-h-[50vh] overflow-y-auto p-4">
+                    <div className="max-h-[50vh] overflow-auto p-4">
                         {chat?.messages.length ? (
                             chat.messages.map((msg, index) => (
                                 <MessageBubble key={index} msg={msg} index={index} />
