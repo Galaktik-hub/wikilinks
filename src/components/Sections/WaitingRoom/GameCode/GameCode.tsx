@@ -54,7 +54,7 @@ export const GameCode: React.FC<GameCodeProps> = ({ code }) => {
 
     return (
         <div className="relative w-full">
-            <section className="flex gap-4 justify-between items-center py-4 w-full">
+            <section className="flex gap-4 justify-between items-center py-2 w-full">
                 <h2 className="text-gray-400 text-lg">Code</h2>
                 <div className="flex gap-2">
                     {/* Bouton copier le code (copie le lien d'invitation) */}

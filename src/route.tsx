@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Home from "./pages/Home/Home";
 import WaitingRoom from "./pages/WaitingRoom/WaitingRoom.tsx";
 import Game from "./pages/Game/Game.tsx";
+import Result from "./pages/Result/Result.tsx";
 
 const AppRoutes = () => {
     return (
@@ -10,6 +11,7 @@ const AppRoutes = () => {
                 <Route path="/" element={<Home />} />
                 <Route path="/room" element={<WaitingRoom />} />
                 <Route path="/game" element={<Game />} />
+                <Route path="/result" element={<Result />} />
             </Routes>
         </Router>
     );
