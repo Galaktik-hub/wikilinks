@@ -12,8 +12,6 @@ export default {
               bluePrimary: "var(--bluePrimary)",
               blueSecondary: "var(--blueSecondary)",
               darkBg: "var(--dark-background)",
-
-              dynamic: "var(--dynamic-color)",
           },
           fontFamily: {
               'martian-mono': ['Martian mono', 'serif'],
