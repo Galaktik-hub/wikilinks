@@ -31,8 +31,8 @@ export const OptionSelector: React.FC<OptionSelectorProps> = ({
                     key={option.value}
                     className={`w-[50px] text-center py-1 rounded-md transition-colors ${
                         selectedValue === option.value
-                            ? "text-sky-500 font-semibold"
-                            : "hover:text-sky-500 font-normal"
+                            ? "text-bluePrimary font-semibold"
+                            : "hover:text-bluePrimary font-normal"
                     }`}
                     onClick={() => handleClick(option.value)}
                 >

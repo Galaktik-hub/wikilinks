@@ -7,9 +7,11 @@ export default {
   theme: {
       extend: {
           colors: {
-              'primary': '#111827',
-
-              'button-primary': '#1D97D8',
+              background: "var(--background)",
+              bgSecondary: "var(--bgSecondary)",
+              bluePrimary: "var(--bluePrimary)",
+              blueSecondary: "var(--blueSecondary)",
+              darkBg: "var(--dark-background)",
           },
           fontFamily: {
               'martian-mono': ['Martian mono', 'serif'],

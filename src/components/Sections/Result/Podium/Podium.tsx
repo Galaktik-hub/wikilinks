@@ -7,12 +7,9 @@ interface PodiumProps {
 
 const Podium: React.FC<PodiumProps> = ({ players }) => {
     return (
-        <div className="flex flex-col gap-2 justify-center p-5 bg-gray-800 rounded-lg border-2 border-blue-700">
+        <div className="card-container flex flex-col gap-2 justify-center">
             <div className="flex justify-center w-full">
-                <h2
-                    className="py-1 text-lg font-bold leading-none text-sky-500 whitespace-nowrap"
-                    style={{ textShadow: "0px 0px 14px #0ea5e9" }}
-                >
+                <h2 className="blue-title-effect">
                     Podium
                 </h2>
             </div>

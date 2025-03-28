@@ -41,7 +41,7 @@ export const GameCode: React.FC<GameCodeProps> = ({ code }) => {
                 ),
                 cancelButton: { label: "Annuler", onClick: () => closeModal() },
                 okButton: {
-                    label: "Ok",
+                    label: "OK",
                     onClick: () => {
                         closeModal();
                     },
@@ -49,8 +49,6 @@ export const GameCode: React.FC<GameCodeProps> = ({ code }) => {
             },
         });
     };
-
-
 
     return (
         <div className="relative w-full">
@@ -60,7 +58,7 @@ export const GameCode: React.FC<GameCodeProps> = ({ code }) => {
                     {/* Bouton copier le code (copie le lien d'invitation) */}
                     <button
                         onClick={handleCopy}
-                        className="flex gap-2 items-center bg-blue-600 hover:bg-blue-700 transition-colors duration-300 text-white py-2 px-4 rounded focus:outline-none"
+                        className="flex gap-2 items-center bg-blueSecondary hover:bg-blue-900  transition-colors duration-300 text-white py-2 px-4 rounded focus:outline-none"
                         aria-label={`Copier le code de jeu ${code}`}
                     >
                         <span className="font-bold">{code}</span>
