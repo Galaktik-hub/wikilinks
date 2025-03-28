@@ -10,10 +10,10 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, description, type
 
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex items-center justify-center z-50">
-            <div className="bg-[#181D25] p-8 rounded-xl shadow-lg border border-gray-700 w-full max-w-md mx-4 transform transition-all flex flex-col gap-5">
+            <div className="bg-darkBg p-8 rounded-xl shadow-lg border border-gray-700 w-full max-w-md mx-4 transform transition-all flex flex-col gap-5">
 
                 <div className="relative flex justify-center items-center w-full">
-                    <h2 className="text-xl font-bold text-sky-500 text-center" style={{ textShadow: "0px 0px 14px #0ea5e9" }}>
+                    <h2 className="blue-title-effect text-xl">
                         {title}
                     </h2>
                     {type !== "form" ? (
@@ -36,7 +36,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, description, type
                                     value={field.value}
                                     onChange={(e) => field.onChange(e.target.value)}
                                     onKeyDown={field.onKeyDown}
-                                    className="w-full px-4 py-3 bg-[#12151A] text-white rounded-lg border border-gray-700 focus:border-sky-500 focus:ring-1 focus:ring-sky-500 transition-all outline-none"
+                                    className="w-full px-4 py-3 bg-[#12151A] text-white rounded-lg border border-gray-700 focus:border-bluePrimary focus:ring-1 focus:ring-bluePrimary transition-all outline-none"
                                     placeholder={field.placeholder}
                                     autoFocus={field.autoFocus}
                                     maxLength={field.maxLength}
@@ -50,7 +50,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, description, type
                             className={`w-full py-2 rounded-lg transition-all 
                                 ${((content as ModalFormProps).submitButton.disabled || !(content as ModalFormProps).isValid) 
                                     ? "bg-gray-700 text-gray-400 cursor-not-allowed" 
-                                    : "bg-blue-600 hover:bg-blue-700 text-white"}`}
+                                    : "bg-blueSecondary hover:bg-blue-900 text-white"}`}
                         >
                             {(content as ModalFormProps).submitButton.label}
                         </button>
@@ -68,7 +68,7 @@ const Modal: React.FC<ModalProps> = ({ isOpen, onClose, title, description, type
                             </button>
                             <button
                                 onClick={(content as ModalConfirmationProps).okButton.onClick}
-                                className="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg"
+                                className="bg-blueSecondary hover:bg-blue-900 text-white py-2 px-4 rounded-lg"
                             >
                                 {(content as ModalConfirmationProps).okButton.label}
                             </button>

@@ -7,12 +7,11 @@ export interface InventoryItemProps {
     onConfirm: () => void;
     definition: string;
     name: string;
-    color?: string;
 }
 
 const InventoryItem: React.FC<
     InventoryItemProps & { Icon: React.FC<{ color?: string; className?: string }> }
-> = ({ count, onConfirm, definition, name, color = "#3b82f6", Icon }) => {
+> = ({ count, onConfirm, definition, name, Icon }) => {
     const { openModal, closeModal } = useModalContext();
     const [remaining, setRemaining] = React.useState(count);
 
@@ -22,7 +21,7 @@ const InventoryItem: React.FC<
     }, [count]);
 
     const isDisabled = remaining === 0;
-    const itemColor = isDisabled ? "#374151" : color;
+    const itemColor = isDisabled ? "#374151" : "var(--bluePrimary)";
     const countColor = isDisabled ? "#374151" : "#ffffff";
 
     const handleClick = () => {
@@ -47,7 +46,7 @@ const InventoryItem: React.FC<
 
     return (
         <article
-            className="relative flex flex-col justify-center items-center p-2.5 bg-gray-800 rounded-lg border w-[102px] gap-1"
+            className="relative flex flex-col justify-center items-center p-2.5 rounded-lg border w-[100px] gap-1"
             style={{ borderColor: itemColor }}
         >
             <Icon color={itemColor} className="" />
@@ -74,8 +73,8 @@ const InventoryItem: React.FC<
                 className="absolute top-0 right-0 self-start p-1.5 text-sm text-center whitespace-nowrap"
                 style={{ color: countColor }}
             >
-        x{remaining}
-      </span>
+                x{remaining}
+            </span>
         </article>
     );
 };

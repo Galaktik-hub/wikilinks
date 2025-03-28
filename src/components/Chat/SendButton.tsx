@@ -16,7 +16,7 @@ export function SendButton({ onClick, disabled }: SendButtonProps) {
             className={`flex gap-2.5 items-center self-stretch px-2 py-3 my-auto w-8 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 ${
                 disabled
                     ? "bg-gray-400 cursor-not-allowed"
-                    : "bg-blue-600 hover:bg-blue-700 focus:ring-blue-500"
+                    : "bg-blueSecondary hover:bg-blue-900 focus:ring-bluePrimary"
             }`}
             aria-label="Send message"
         >

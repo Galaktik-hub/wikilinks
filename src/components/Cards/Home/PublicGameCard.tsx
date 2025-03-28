@@ -24,7 +24,7 @@ export const PublicGameCard: React.FC<PublicGameCardProps> = ({
 
     if (isMobile) {
         return (
-            <article className="flex flex-col justify-center items-center shrink p-4 bg-gray-800 rounded-xl gap-4 min-w-60 w-[360px]">
+            <article className="flex flex-col justify-center items-center shrink p-4 bg-bgSecondary rounded-xl gap-4 min-w-60 w-[360px]">
                 <div className="flex gap-10 justify-between items-center w-full text-white">
                     <h3 className="self-stretch my-auto text-base font-bold leading-none w-[125px]">
                         Partie de {hostName}
@@ -46,7 +46,7 @@ export const PublicGameCard: React.FC<PublicGameCardProps> = ({
                 </div>
                 <button
                     onClick={onJoin}
-                    className="flex-1 shrink w-full gap-2.5 py-2.5 my-auto text-base text-center text-white whitespace-nowrap bg-blue-600 rounded-lg basis-0"
+                    className="flex-1 shrink w-full gap-2.5 py-2.5 my-auto text-base text-center text-white whitespace-nowrap bg-blueSecondary hover:bg-blue-900 transition rounded-lg basis-0"
                 >
                     Rejoindre
                 </button>
@@ -54,7 +54,7 @@ export const PublicGameCard: React.FC<PublicGameCardProps> = ({
         );
     } else {
         return (
-            <article className="flex flex-col justify-center items-center gap-2.5 shrink p-4 bg-gray-800 rounded-xl min-w-60 w-[300px]">
+            <article className="flex flex-col justify-center items-center gap-2.5 shrink p-4 bg-bgSecondary rounded-xl min-w-60 w-[300px]">
                 <div className="flex gap-10 justify-between items-center w-full text-white">
                     <h3 className="self-stretch my-auto text-base font-bold leading-none w-[125px]">
                         Partie de {hostName}
@@ -75,7 +75,7 @@ export const PublicGameCard: React.FC<PublicGameCardProps> = ({
                     </div>
                     <button
                         onClick={onJoin}
-                        className="flex-1 shrink gap-2.5 py-2.5 my-auto text-base text-center text-white whitespace-nowrap bg-blue-600 rounded-lg basis-0"
+                        className="flex-1 shrink gap-2.5 py-2.5 my-auto text-base text-center text-white whitespace-nowrap bg-blueSecondary hover:bg-blue-900 transition rounded-lg basis-0"
                     >
                         Rejoindre
                     </button>

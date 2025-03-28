@@ -2,7 +2,6 @@
 
 import React from "react";
 import Layout from "../../components/Layout.tsx";
-import Title from "../../components/Sections/WaitingRoom/TitleParty/Title.tsx";
 import GameRoomCard from "../../components/Sections/WaitingRoom/GameCode/GameRoomCard.tsx";
 import ExitButton from "../../components/Buttons/WaitingRoom/ExitButton.tsx";
 import LaunchButton from "../../components/Buttons/WaitingRoom/LaunchButton.tsx";
@@ -12,7 +11,7 @@ import TextLoungePanel from "../../components/Sections/WaitingRoom/TextLounge/Te
 import {useChat} from "../../contexts/ChatContext.tsx";
 import Header from "../../components/Header/Header.tsx";
 
-const isHost: boolean = false;
+const isHost: boolean = true;
 
 const WaitingRoom: React.FC = () => {
     const { roomCode , username } = useChat();
@@ -20,7 +19,9 @@ const WaitingRoom: React.FC = () => {
     return (
         <Layout header={<Header />}>
             <div className="flex flex-col w-full overflow-hidden items-center justify-center p-4 gap-6 max-md:mb-16">
-                <Title playerName={username!} />
+                <div className="title-block">
+                    Partie de {username}
+                </div>
                 <section className="w-full flex gap-6">
                     <div className="w-full flex flex-col gap-6">
                         {/* Conversion du roomCode en nombre avant de le passer en prop */}
@@ -28,7 +29,7 @@ const WaitingRoom: React.FC = () => {
                         <GameSettings isHost={isHost} />
                         <PlayerList isHost={isHost} />
                     </div>
-                    <div className="hidden xl-custom:flex w-full max-h-[633px] flex-col gap-6">
+                    <div className="hidden xl-custom:flex w-full flex-col gap-6">
                         <TextLoungePanel />
                     </div>
                 </section>

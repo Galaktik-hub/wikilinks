@@ -2,13 +2,12 @@
 
 import React from "react";
 import { Input } from "../../Inputs/Home/Input.tsx";
-import { CreateOrJoinButton } from "../../Buttons/Home/CreateOrJoinButton.tsx";
-import Container from "../../Container.tsx";
+import MainButton from "../../Buttons/MainButton.tsx";
 
 interface LobbyCardProps {
     inputPlaceholder: string;
     buttonText: string;
-    buttonIcon?: boolean;
+    icon?: React.ReactNode;
     maxLength?: number;
     value: string | null;
     onSubmit: (value: string) => void;
@@ -19,7 +18,7 @@ interface LobbyCardProps {
 export const LobbyCard: React.FC<LobbyCardProps> = ({
     inputPlaceholder,
     buttonText,
-    buttonIcon = false,
+    icon,
     maxLength,
     onSubmit,
     error
@@ -31,7 +30,7 @@ export const LobbyCard: React.FC<LobbyCardProps> = ({
     };
 
     return (
-        <Container className="min-w-60 w-[360px]">
+        <div className="card-container flex flex-col gap-4 min-w-60 w-[360px]">
             <Input
                 placeholder={inputPlaceholder}
                 value={inputValue}
@@ -41,7 +40,14 @@ export const LobbyCard: React.FC<LobbyCardProps> = ({
             {error && (
                 <div className="text-red-500 text-sm mt-1 mb-2">{error}</div>
             )}
-            <CreateOrJoinButton text={buttonText} icon={buttonIcon} onClick={handleSubmit} />
-        </Container>
+            <MainButton
+                color="14, 165, 233"
+                className="bg-bluePrimary w-full"
+                onClick={handleSubmit}
+            >
+                {icon}
+                <span className="text-center font-bold text-white">{buttonText}</span>
+            </MainButton>
+        </div>
     );
 };

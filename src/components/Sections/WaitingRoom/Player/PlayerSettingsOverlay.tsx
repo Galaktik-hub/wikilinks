@@ -1,7 +1,6 @@
 "use client";
 
 import * as React from "react";
-import Container from "../../../Container.tsx";
 import VolumeButton from "../../../Buttons/WaitingRoom/VolumeButton.tsx";
 import ExcludeButton from "../../../Buttons/WaitingRoom/ExcludeButton.tsx";
 
@@ -12,20 +11,18 @@ interface PlayerSettingsOverlayProps {
 
 export const PlayerSettingsOverlay: React.FC<PlayerSettingsOverlayProps> = ({ isHost }) => {
     return (
-        <Container className="whitespace-nowrap p-2"> {}
-            <div className="flex justify-center items-center gap-2.5 w-full">
-                <div className="flex flex-col justify-between items-center">
-                    <VolumeButton />
-                    <p className="w-full text-center text-cyan-400">Muet</p>
-                </div>
-                {isHost && (
-                    <div className="flex flex-col justify-between items-center w-[60px]">
-                        <ExcludeButton />
-                        <p className="w-full text-center text-red-500">Exclure</p>
-                    </div>
-                )}
+        <div className="card-container flex justify-center items-center gap-2.5">
+            <div className="flex flex-col justify-between items-center">
+                <VolumeButton />
+                <p className="w-full text-center text-cyan-400">Muet</p>
             </div>
-        </Container>
+            {isHost && (
+                <div className="flex flex-col justify-between items-center w-[60px]">
+                    <ExcludeButton />
+                    <p className="w-full text-center text-red-500">Exclure</p>
+                </div>
+            )}
+        </div>
     );
 };
 

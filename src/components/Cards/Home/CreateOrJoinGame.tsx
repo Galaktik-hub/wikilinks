@@ -5,6 +5,7 @@ import { LobbyCard } from "./LobbyCard.tsx";
 import { useNavigate, useLocation } from "react-router-dom";
 import UsernameModal from "../../Modals/WaitingRoom/UsernameModal";
 import { ChatContext } from "../../../contexts/ChatContext";
+import {IconPlus} from "@tabler/icons-react";
 
 export const CreateOrJoinGame: React.FC = () => {
     const navigate = useNavigate();
@@ -111,7 +112,7 @@ export const CreateOrJoinGame: React.FC = () => {
             <LobbyCard
                 inputPlaceholder="Saisissez votre pseudo"
                 buttonText="Créer une partie"
-                buttonIcon={true}
+                icon={<IconPlus size = {18} color = "white"/>}
                 value=""
                 onChange={() => {}}
                 onSubmit={handleCreateGame}

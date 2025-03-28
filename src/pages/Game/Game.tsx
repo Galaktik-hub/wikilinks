@@ -39,7 +39,7 @@ const Game: React.FC = () => {
                 )}
                 <WikiPagePanel />
                 {(isMobile || isIntermediate) && (
-                    <ExitButton isHost={true} />
+                    <ExitButton isHost={false} />
                 )}
             </div>
             {isDesktop && (

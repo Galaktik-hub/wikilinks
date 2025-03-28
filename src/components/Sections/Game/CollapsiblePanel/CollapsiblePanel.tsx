@@ -3,7 +3,6 @@
 import * as React from "react";
 import { useState } from "react";
 import { useMediaQuery } from "react-responsive";
-import Container from "../../../Container.tsx";
 import UpSVG from "../../../../assets/Game/UpSVG.tsx";
 
 interface CollapsiblePanelProps {
@@ -23,7 +22,7 @@ const CollapsiblePanel: React.FC<CollapsiblePanelProps> = ({ title, children, co
     };
 
     return (
-        <Container className="flex flex-col justify-center w-full">
+        <div className="card-container flex flex-col justify-center">
             {isMobile ? (
                 <div className="flex gap-10 justify-between w-full">
                     <button
@@ -32,10 +31,7 @@ const CollapsiblePanel: React.FC<CollapsiblePanelProps> = ({ title, children, co
                         aria-controls={contentId}
                         className="flex justify-between w-full"
                     >
-                        <h2
-                            className="py-1 text-lg font-bold leading-none text-sky-500 whitespace-nowrap"
-                            style={{ textShadow: "0px 0px 14px #0ea5e9" }}
-                        >
+                        <h2 className="blue-title-effect">
                             {title}
                         </h2>
                         <span
@@ -49,10 +45,7 @@ const CollapsiblePanel: React.FC<CollapsiblePanelProps> = ({ title, children, co
                 </div>
             ) : (
                 <div className="flex justify-center w-full">
-                    <h2
-                        className="py-1 text-lg font-bold text-sky-500 text-center whitespace-nowrap leading-none"
-                        style={{ textShadow: "0px 0px 14px #0ea5e9" }}
-                    >
+                    <h2 className="blue-title-effect">
                         {title}
                     </h2>
                 </div>
@@ -66,7 +59,7 @@ const CollapsiblePanel: React.FC<CollapsiblePanelProps> = ({ title, children, co
                     {children}
                 </div>
             )}
-        </Container>
+        </div>
     );
 };
 

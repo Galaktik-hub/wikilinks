@@ -2,7 +2,6 @@
 
 import React from "react";
 import Layout from "../../components/Layout.tsx";
-import Container from "../../components/Container.tsx";
 import Podium from "../../components/Sections/Result/Podium/Podium.tsx";
 import TextLoungePanel from "../../components/Sections/WaitingRoom/TextLounge/TextLoungePanel.tsx";
 import Leaderboard from "../../components/Sections/Result/LeaderBoard/LeaderBoard.tsx";
@@ -30,9 +29,9 @@ const Result: React.FC = () => {
     return (
         <Layout header={<Header />}>
             <div className="flex flex-col w-full overflow-hidden items-center justify-center p-4 gap-6 max-md:mb-16">
-                <Container className="w-full h-full flex items-center justify-center text-xl font-bold text-white">
+                <div className="title-block">
                     Résultats
-                </Container>
+                </div>
                 <section className="w-full flex gap-6">
                     <div className="w-full flex flex-col gap-6">
                         <Podium players={podiumPlayers} />
@@ -42,7 +41,7 @@ const Result: React.FC = () => {
                         <TextLoungePanel />
                     </div>
                 </section>
-                <section className="w-full flex flex-wrap-reverse justify-center gap-x-6">
+                <section className="w-full flex justify-center">
                     <ReturnToLobbyButton />
                 </section>
             </div>

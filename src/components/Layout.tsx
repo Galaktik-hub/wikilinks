@@ -14,7 +14,7 @@ const Layout: React.FC<LayoutProps> = ({ header, children, leftColumn, rightColu
 
     if (isMobile) {
         return (
-            <div className="h-[100vh] bg-primary flex flex-col md:flex-row overflow-hidden">
+            <div className="h-[100vh] bg-background flex flex-col md:flex-row overflow-hidden">
                 <main className="md:w-1/2 flex flex-col overflow-auto">
                     <div className="flex flex-col flex-1">
                         {header}
@@ -25,7 +25,7 @@ const Layout: React.FC<LayoutProps> = ({ header, children, leftColumn, rightColu
         );
     } else if (isBetween) {
         return (
-            <div className="h-[100vh] bg-primary flex flex-col md:flex-row overflow-hidden">
+            <div className="h-[100vh] bg-background flex flex-col md:flex-row overflow-hidden">
                 <aside className="flex flex-col justify-center items-center md:w-[15%] xl-custom:w-1/4 bg-gray-600 gap-2.5 p-2.5">
                     {/* Asides vides */}
                 </aside>
@@ -42,7 +42,7 @@ const Layout: React.FC<LayoutProps> = ({ header, children, leftColumn, rightColu
         );
     } else {
         return (
-            <div className="h-[100vh] bg-primary flex flex-col md:flex-row overflow-hidden">
+            <div className="h-[100vh] bg-background flex flex-col md:flex-row overflow-hidden">
                 <aside className="flex flex-col justify-center items-center md:w-[15%] xl-custom:w-1/4 bg-gray-600 gap-2.5 p-2.5">
                     {leftColumn}
                 </aside>

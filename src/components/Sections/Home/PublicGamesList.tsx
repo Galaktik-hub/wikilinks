@@ -11,10 +11,10 @@ export const PublicGamesList: React.FC = () => {
     ];
 
     return (
-        <section className="flex flex-col items-center mt-6 w-full">
-            <h2 className="text-lg font-bold leading-none text-white">
+        <section className="flex flex-col items-center py-6 px-2.5 w-full">
+            <div className="title-block mx-2.5">
                 Parties publiques
-            </h2>
+            </div>
             <div className="flex flex-wrap gap-5 justify-center items-start mt-5 w-full max-md:max-w-full">
                 {games.map((game, index) => (
                     <PublicGameCard key={index} {...game} onJoin={() => {}} />

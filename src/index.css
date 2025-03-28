@@ -5,3 +5,43 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+:root {
+    --background: #111827;
+    --bgSecondary: #1F2937;
+    --dark-background: #181D25;
+    --bluePrimary: #0EA5E9;
+    --blueSecondary: #1D4ED8;
+    --shadow-color: #FFFFFF; /* Default value */
+}
+
+* {
+    font-family: 'Inter', sans-serif;
+}
+
+@layer utilities {
+    .text-shadow-sky {
+        text-shadow: 0 0 14px var(--bluePrimary);
+    }
+
+    .dynamic-shadow {
+        box-shadow: 0 0 6px rgba(var(--shadow-color), 0.5);
+    }
+    .dynamic-shadow-hover:hover {
+        box-shadow: 0 0 15px rgba(var(--shadow-color), 1);
+    }
+}
+
+@layer components {
+    .card-container {
+        @apply w-full p-4 bg-bgSecondary rounded-xl border-2 border-blueSecondary border-solid;
+    }
+
+    .blue-title-effect {
+        @apply self-stretch my-auto py-1 text-lg text-center font-bold leading-none text-bluePrimary text-shadow-sky whitespace-nowrap;
+    }
+
+    .title-block {
+        @apply card-container h-full flex items-center justify-center text-xl font-bold text-white;
+    }
+}

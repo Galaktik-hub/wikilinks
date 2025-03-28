@@ -48,12 +48,11 @@ const SettingsGameOverlay: React.FC<SettingsGameOverlayProps> = ({ closeModal })
 
     return (
         <div
-            className="fixed inset-0 bg-black bg-opacity-50 flex items-start justify-center pt-10"
+            className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
             onClick={closeModal}
         >
-            {}
             <article
-                className="flex overflow-hidden flex-col bg-gray-800 rounded-lg border-2 border-blue-700 border-solid w-[360px]"
+                className="flex overflow-hidden flex-col bg-bgSecondary rounded-lg border-2 border-blueSecondary border-solid w-[360px]"
                 onClick={(e) => e.stopPropagation()}
             >
                 <SettingsHeader
@@ -61,7 +60,7 @@ const SettingsGameOverlay: React.FC<SettingsGameOverlayProps> = ({ closeModal })
                     icon={<CloseSVG onClick={closeModal} />}
                 />
 
-                <div className="self-center mt-2.5 w-[340px]">
+                <div className="self-center flex flex-col gap-3 mt-4 w-[340px]">
                     <SettingsOption icon={<TimerSVG />} label="Temps imparti">
                         <OptionSelector
                             options={timeOptions}
@@ -69,45 +68,36 @@ const SettingsGameOverlay: React.FC<SettingsGameOverlayProps> = ({ closeModal })
                             onChange={setSelectedTime}
                         />
                     </SettingsOption>
-
-                    <div className="mt-5">
-                        <SettingsOption icon={<ArticleSVG />} label="Nombre d'articles">
-                            <OptionSelector
-                                options={articleOptions}
-                                selectedValue={selectedArticles}
-                                onChange={setSelectedArticles}
-                            />
-                        </SettingsOption>
-                    </div>
-
-                    <div className="mt-5">
-                        <SettingsOption icon={<PlayerSVG />} label="Joueurs max">
-                            <OptionSelector
-                                options={playerOptions}
-                                selectedValue={selectedPlayers}
-                                onChange={setSelectedPlayers}
-                            />
-                        </SettingsOption>
-                    </div>
-
-                    <div className="mt-5">
-                        <SettingsOption icon={<PlanetSVG />} label="Partie publique">
-                            <div className="flex items-center pl-10 mb-4">
-                                <button
-                                    onClick={togglePublicGame}
-                                    className={`relative w-10 h-5 flex items-center rounded-full p-1 transition-all duration-300 ${
-                                        isPublicGame ? "bg-sky-500" : "bg-gray-400"
+                    <SettingsOption icon={<ArticleSVG />} label="Nombre d'articles">
+                        <OptionSelector
+                            options={articleOptions}
+                            selectedValue={selectedArticles}
+                            onChange={setSelectedArticles}
+                        />
+                    </SettingsOption>
+                    <SettingsOption icon={<PlayerSVG />} label="Joueurs max">
+                        <OptionSelector
+                            options={playerOptions}
+                            selectedValue={selectedPlayers}
+                            onChange={setSelectedPlayers}
+                        />
+                    </SettingsOption>
+                    <SettingsOption icon={<PlanetSVG />} label="Partie publique">
+                        <div className="flex items-center pl-10 mb-4">
+                            <button
+                                onClick={togglePublicGame}
+                                className={`relative w-10 h-5 flex items-center rounded-full p-1 transition-all duration-300 ${
+                                    isPublicGame ? "bg-bluePrimary" : "bg-gray-400"
+                                }`}
+                            >
+                                <div
+                                    className={`w-4 h-4 bg-white rounded-full shadow-md transform transition-all duration-300 ${
+                                        isPublicGame ? "translate-x-5" : "translate-x-0"
                                     }`}
-                                >
-                                    <div
-                                        className={`w-4 h-4 bg-white rounded-full shadow-md transform transition-all duration-300 ${
-                                            isPublicGame ? "translate-x-5" : "translate-x-0"
-                                        }`}
-                                    ></div>
-                                </button>
-                            </div>
-                        </SettingsOption>
-                    </div>
+                                ></div>
+                            </button>
+                        </div>
+                    </SettingsOption>
                 </div>
             </article>
         </div>
