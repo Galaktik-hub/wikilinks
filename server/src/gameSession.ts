@@ -1,6 +1,6 @@
 import { randomInt } from "node:crypto";
 import { Player } from "./player/player";
-import fetch from "node-fetch";
+import {WikipediaService} from "./WikipediaService";
 
 export type GameType = 'public' | 'private';
 
@@ -59,40 +59,13 @@ export class GameSession {
      */
     public async initializeArticles(): Promise<void> {
         const totalCount = this.numberOfArticles + 1;
-        const articles = await GameSession.fetchRandomWikipediaPages(totalCount);
+        const articles = await WikipediaService.fetchRandomPopularWikipediaPages(totalCount, 1000, "20250101", "20250325");
         if (articles.length > 0) {
             this.startArticle = articles.pop()!;
             this.articles = articles;
             console.log(`Session ${this.id} initialized with ${this.articles.length} articles and startArticle: ${this.startArticle}`);
         } else {
             console.error("No articles fetched");
-        }
-    }
-
-    /**
-     * Static method to fetch random Wikipedia pages using the Wikipedia API.
-     */
-    public static async fetchRandomWikipediaPages(count: number): Promise<string[]> {
-        interface WikipediaResponse {
-            query: {
-                random: { title: string }[];
-            };
-        }
-
-        try {
-            const response = await fetch(`https://fr.wikipedia.org/w/api.php?action=query&format=json&list=random&rnlimit=${count}&rnnamespace=0`);
-            const data = await response.json() as WikipediaResponse;
-
-            if (!data.query || !data.query.random) {
-                throw new Error("Unexpected API response format");
-            }
-
-            const articles = data.query.random.map((page) => page.title);
-            console.log("Fetched Wikipedia articles:", articles);
-            return articles;
-        } catch (error) {
-            console.error("Error fetching Wikipedia articles:", error);
-            return [];
         }
     }
 }
