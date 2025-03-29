@@ -19,9 +19,7 @@ export class WikipediaService {
                 throw new Error("Unexpected API response format");
             }
 
-            const articles = data.query.random.map((page) => page.title);
-            console.log("Fetched Wikipedia articles:", articles);
-            return articles;
+            return data.query.random.map((page) => page.title);
         } catch (error) {
             console.error("Error fetching Wikipedia articles:", error);
             return [];
@@ -72,16 +70,13 @@ export class WikipediaService {
 
             for (const title of titles) {
                 const views = await this.getPageViews(title, startDate, endDate);
-                console.log(`Page "${title}" has ${views} views between ${startDate} and ${endDate}`);
                 if (views >= minViews) {
+                    console.log(`Page "${title}" has ${views} views between ${startDate} and ${endDate}`);
                     validTitles.add(title);
                     if (validTitles.size >= requiredCount) {
                         break;
                     }
                 }
-            }
-            if (validTitles.size < requiredCount) {
-                console.log(`Collected ${validTitles.size} valid pages so far, need ${requiredCount}. Retrying...`);
             }
         }
         validTitles.forEach((title) => console.log("Result : " + title));
