@@ -43,7 +43,7 @@ const SettingsGameOverlay: React.FC<SettingsGameOverlayProps> = ({ closeModal })
         { label: "5", value: 5 },
         { label: "10", value: 10 },
         { label: "20", value: 20 },
-        { label: "Illimité", value: null },
+        { label: "30", value: 30 },
     ];
 
     return (
