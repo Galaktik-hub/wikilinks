@@ -1,82 +1,144 @@
 import { randomInt } from "node:crypto";
 import { Player } from "./player/player";
+import fetch from "node-fetch";
 
 export type GameType = 'public' | 'private';
 
-export interface GameSession {
-    id: string;              // Unique id between 100000 and 999999
-    timeLimit: number;       // Time in minutes
-    numberOfArticles: number;
-    maxPlayers: number;
-    type: GameType;
-    leader: Player;
-    players: Set<Player>;
+export class GameSession {
+    public id: string;
+    public timeLimit: number;
+    public numberOfArticles: number;
+    public maxPlayers: number;
+    public type: GameType;
+    public leader: Player;
+    public players: Set<Player>;
+    public articles: string[];
+    public startArticle: string;
+
+    constructor(
+        id: string,
+        timeLimit: number,
+        numberOfArticles: number,
+        maxPlayers: number,
+        type: GameType,
+        leader: Player
+    ) {
+        this.id = id;
+        this.timeLimit = timeLimit;
+        this.numberOfArticles = numberOfArticles;
+        this.maxPlayers = maxPlayers;
+        this.type = type;
+        this.leader = leader;
+        this.players = new Set([leader]);
+        this.articles = [];
+        this.startArticle = "";
+    }
+
+    /**
+     * Adds a player to the session if capacity is not reached.
+     * Returns true on success, false otherwise.
+     */
+    public addPlayer(player: Player): boolean {
+        if (this.players.size >= this.maxPlayers) return false;
+        this.players.add(player);
+        return true;
+    }
+
+    /**
+     * Removes a player from the session.
+     * The leader cannot be removed.
+     */
+    public removePlayer(player: Player): boolean {
+        if (player.equals(this.leader)) return false;
+        return this.players.delete(player);
+    }
+
+    /**
+     * Initializes the Wikipedia articles for the session.
+     * Fetches (numberOfArticles + 1) pages and uses the last one as the start article.
+     */
+    public async initializeArticles(): Promise<void> {
+        const totalCount = this.numberOfArticles + 1;
+        const articles = await GameSession.fetchRandomWikipediaPages(totalCount);
+        if (articles.length > 0) {
+            this.startArticle = articles.pop()!;
+            this.articles = articles;
+            console.log(`Session ${this.id} initialized with ${this.articles.length} articles and startArticle: ${this.startArticle}`);
+        } else {
+            console.error("No articles fetched");
+        }
+    }
+
+    /**
+     * Static method to fetch random Wikipedia pages using the Wikipedia API.
+     */
+    public static async fetchRandomWikipediaPages(count: number): Promise<string[]> {
+        interface WikipediaResponse {
+            query: {
+                random: { title: string }[];
+            };
+        }
+
+        try {
+            const response = await fetch(`https://fr.wikipedia.org/w/api.php?action=query&format=json&list=random&rnlimit=${count}&rnnamespace=0`);
+            const data = await response.json() as WikipediaResponse;
+
+            if (!data.query || !data.query.random) {
+                throw new Error("Unexpected API response format");
+            }
+
+            const articles = data.query.random.map((page) => page.title);
+            console.log("Fetched Wikipedia articles:", articles);
+            return articles;
+        } catch (error) {
+            console.error("Error fetching Wikipedia articles:", error);
+            return [];
+        }
+    }
 }
 
-const gameSessions: Map<string, GameSession> = new Map();
+export class GameSessionManager {
+    private static sessions: Map<string, GameSession> = new Map();
 
-/**
- * Creates a new {@link GameSession} with the given parameters.
- * Generates a unique id for the game.
- */
-export function createGameSession(params: {
-    timeLimit: number,
-    numberOfArticles: number,
-    maxPlayers: number,
-    type: GameType,
-    leader: Player
-}): GameSession {
-    let id: string;
-    do {
-        id = randomInt(100000, 1000000).toString();
-    } while (gameSessions.has(id));
+    /**
+     * Creates a new game session with a unique ID.
+     */
+    public static createSession(params: {
+        timeLimit: number,
+        numberOfArticles: number,
+        maxPlayers: number,
+        type: GameType,
+        leader: Player
+    }): GameSession {
+        let id: string;
+        do {
+            id = randomInt(100000, 1000000).toString();
+        } while (this.sessions.has(id));
 
-    const session: GameSession = {
-        id,
-        timeLimit: params.timeLimit,
-        numberOfArticles: params.numberOfArticles,
-        maxPlayers: params.maxPlayers,
-        type: params.type,
-        leader: params.leader,
-        players: new Set([params.leader])
-    };
+        const session = new GameSession(
+            id,
+            params.timeLimit,
+            params.numberOfArticles,
+            params.maxPlayers,
+            params.type,
+            params.leader
+        );
 
-    gameSessions.set(id, session);
-    return session;
-}
+        this.sessions.set(id, session);
+        return session;
+    }
 
-/**
- * Adds a player to a game, if the capacity is not reached
- * Returns true if success, else false
- */
-export function addPlayer(sessionId: string, player: Player): boolean {
-    const session = gameSessions.get(sessionId);
-    if (!session) return false;
-    if (session.players.size >= session.maxPlayers) return false;
-    session.players.add(player);
-    return true;
-}
+    /**
+     * Retrieves a game session by its ID.
+     */
+    public static getSession(sessionId: string): GameSession | undefined {
+        return this.sessions.get(sessionId);
+    }
 
-/**
- * Removes a player from the game.
- */
-export function removePlayer(sessionId: string, player: Player): boolean {
-    const session = gameSessions.get(sessionId);
-    if (!session) return false;
-    if (player.equals(session.leader)) return false;
-    return session.players.delete(player);
-}
-
-/**
- * To close and delete a game session.
- */
-export function endGameSession(sessionId: string): boolean {
-    return gameSessions.delete(sessionId);
-}
-
-/**
- * To get a game object with its id.
- */
-export function getGameSession(sessionId: string): GameSession | undefined {
-    return gameSessions.get(sessionId);
+    /**
+     * Ends and deletes a game session.
+     */
+    public static endSession(sessionId: string): boolean {
+        return this.sessions.delete(sessionId);
+    }
 }

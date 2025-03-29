@@ -1,5 +1,5 @@
 import { WebSocketServer, WebSocket, RawData } from 'ws';
-import { getGameSession, removePlayer, endGameSession } from './gameSession';
+import { GameSessionManager } from './gameSession';
 import { handleMessage, ClientContext } from './messageHandler';
 
 const gameSessionConnections: Map<string, Map<string, WebSocket>> = new Map();
@@ -19,35 +19,36 @@ wss.on('connection', (ws: WebSocket) => {
         try {
             const message = JSON.parse(data.toString());
             console.log('Received message:', message);
+            // Call handleMessage (it can be asynchronous if needed)
             handleMessage(ws, message, context, gameSessionConnections);
         } catch (e) {
             console.error('Error processing message:', e);
-            ws.send(JSON.stringify({ kind: 'error', message: 'Format de message invalide' }));
+            ws.send(JSON.stringify({ kind: 'error', message: 'Invalid message format' }));
         }
     });
 
     ws.on('close', () => {
         console.log(`Connection closed for user ${context.currentUser?.name}`);
         if (context.currentGameSessionId && context.currentUser) {
-            const session = getGameSession(context.currentGameSessionId);
+            const session = GameSessionManager.getSession(context.currentGameSessionId);
             const connections = gameSessionConnections.get(context.currentGameSessionId);
             if (session && connections) {
                 if (session.leader.equals(context.currentUser)) {
-                    console.log(`Le leader ${context.currentUser.name} s'est déconnecté. Clôture de la session ${context.currentGameSessionId}.`);
+                    console.log(`Leader ${context.currentUser.name} disconnected. Closing session ${context.currentGameSessionId}.`);
                     connections.forEach((clientWs) => {
                         if (clientWs.readyState === WebSocket.OPEN) {
                             clientWs.send(JSON.stringify({
                                 kind: 'redirect_home',
-                                message: 'Le leader a quitté la partie. Retour à l\'accueil.'
+                                message: 'Leader left the game. Returning home.'
                             }));
                             clientWs.close();
                         }
                     });
-                    endGameSession(context.currentGameSessionId);
+                    GameSessionManager.endSession(context.currentGameSessionId);
                     gameSessionConnections.delete(context.currentGameSessionId);
                 } else {
-                    if (removePlayer(context.currentGameSessionId, context.currentUser)) {
-                        console.log(`Le joueur ${context.currentUser.name} a été retiré de la session ${context.currentGameSessionId}`);
+                    if (session.removePlayer(context.currentUser)) {
+                        console.log(`Player ${context.currentUser.name} removed from session ${context.currentGameSessionId}`);
                         connections.delete(context.currentUser.id);
                     }
                 }
