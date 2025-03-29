@@ -22,8 +22,7 @@ const players: ResultProps[] = [
 ];
 
 // Si moins de 3 joueurs, on fournit uniquement ceux nécessaires
-const podiumPlayers =
-    players.length >= 3 ? [players[0], players[1], players[2]] : [players[0], players[1]];
+const podiumPlayers = players.slice(0, 3);
 
 const Result: React.FC = () => {
     return (
