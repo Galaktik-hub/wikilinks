@@ -1,19 +1,33 @@
 "use client";
 
-import React, { useState, useContext } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { LobbyCard } from "./LobbyCard.tsx";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import UsernameModal from "../../Modals/WaitingRoom/UsernameModal";
-import { SocketContext } from "../../../context/SocketContext";
+import { ChatContext } from "../../../contexts/ChatContext";
+import {IconPlus} from "@tabler/icons-react";
 
 export const CreateOrJoinGame: React.FC = () => {
     const navigate = useNavigate();
-    const socket = useContext(SocketContext);
+    const location = useLocation();
+    const chat = useContext(ChatContext);
     const [showUsernameModal, setShowUsernameModal] = useState(false);
     const [tempRoomCode, setTempRoomCode] = useState("");
+    const [roomCodeInput, setRoomCodeInput] = useState(""); // État pour le champ d'entrée
     const [error, setError] = useState<string | null>(null);
     const [isCheckingRoom, setIsCheckingRoom] = useState(false);
 
+    useEffect(() => {
+        const urlParams = new URLSearchParams(location.search);
+        const roomCode = urlParams.get("code");
+
+        if (roomCode) {
+            setRoomCodeInput(roomCode); // Remplit le champ d'entrée avec le code
+            handleJoinGame(roomCode); // Vérifie et rejoint la salle
+        }
+    }, [location.search]);
+
+    // Function to create a game with just a username
     const handleCreateGame = (username: string) => {
         if (!username.trim()) return;
 
@@ -45,11 +59,18 @@ export const CreateOrJoinGame: React.FC = () => {
             setTimeout(() => setError(null), 3000);
             return;
         }
+        if (!/^\d+$/.test(roomCode)) {
+            setError("Room code must contain only digits");
+            setTimeout(() => setError(null), 3000);
+            return;
+        }
 
         setIsCheckingRoom(true);
         setError(null);
         try {
-            const roomExists = await socket?.checkRoomExists(roomCode);
+            // Use the context function to check if the room exists
+            const roomExists = await chat?.checkRoomExists(roomCode);
+
             if (roomExists) {
                 // Si la room existe, on sauvegarde le code temporairement et on affiche le modal pour renseigner le username
                 setTempRoomCode(roomCode);
@@ -93,7 +114,9 @@ export const CreateOrJoinGame: React.FC = () => {
             <LobbyCard
                 inputPlaceholder="Saisissez votre pseudo"
                 buttonText="Créer une partie"
-                buttonIcon={true}
+                icon={<IconPlus size = {18} color = "white"/>}
+                value=""
+                onChange={() => {}}
                 onSubmit={handleCreateGame}
                 error={null}
             />
@@ -103,6 +126,8 @@ export const CreateOrJoinGame: React.FC = () => {
                 maxLength={6}
                 onSubmit={handleJoinGame}
                 error={error}
+                value={roomCodeInput} // Utilisez l'état pour la valeur du champ
+                onChange={(e) => setRoomCodeInput(e.target.value)} // Mettez à jour l'état lorsque l'utilisateur tape
             />
 
             {/* Modal pour renseigner le username lors du join */}

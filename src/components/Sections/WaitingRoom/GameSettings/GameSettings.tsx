@@ -3,7 +3,6 @@ import * as React from "react";
 import { GameSettingsHeader } from "./GameSettingsHeader.tsx";
 import { GameSettingsParameters } from "./GameSettingsParameters.tsx";
 import SettingsGameOverlay from "../PopupSettings/SettingsGameOverlay.tsx";
-import Container from "../../../Container.tsx";
 
 interface GameSettingsProps {
     isHost: boolean;
@@ -22,7 +21,7 @@ const GameSettings: React.FC<GameSettingsProps> = ({ isHost }) => {
     };
 
     return (
-        <Container className="whitespace-nowrap">
+        <div className="card-container whitespace-nowrap">
             <GameSettingsHeader onEdit={handleEdit} isHost={isHost} />
             <GameSettingsParameters
                 timeLimit={2}
@@ -33,14 +32,9 @@ const GameSettings: React.FC<GameSettingsProps> = ({ isHost }) => {
 
             {/* Modal Popup */}
             {isModalOpen && (
-                <div className="fixed top-0 left-0 right-0 flex items-center justify-center bg-opacity-50 z-50">
-                    <div className="relative bg-gray-800 mt-4 rounded-lg">
-                        {/* Pass closeModal function to SettingsGameOverlay */}
-                        <SettingsGameOverlay closeModal={closeModal} />
-                    </div>
-                </div>
+                <SettingsGameOverlay closeModal={closeModal} />
             )}
-        </Container>
+        </div>
     );
 };
 

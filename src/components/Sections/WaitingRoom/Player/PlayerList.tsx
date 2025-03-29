@@ -2,7 +2,6 @@
 
 import * as React from "react";
 import { PlayerCard } from "./PlayerCard.tsx";
-import Container from "../../../Container.tsx";
 
 type PlayerListProps = {
     isHost: boolean;
@@ -10,13 +9,12 @@ type PlayerListProps = {
 
 export const PlayerList: React.FC<PlayerListProps> = ({ isHost }) => {
     return (
-        <Container className="whitespace-nowrap">
-            <h2
-                className="gap-2.5 self-start py-1 text-lg font-bold leading-none text-sky-500 whitespace-nowrap"
-                style={{ textShadow: "0px 0px 14px #0ea5e9"}}
-            >
-                Joueurs
-            </h2>
+        <div className="card-container whitespace-nowrap">
+            <div className="w-full flex justify-start">
+                <h2 className="blue-title-effect">
+                    Joueurs
+                </h2>
+            </div>
             <div className="mt-4 w-full text-base leading-none text-white flex flex-wrap justify-center gap-4">
                 <PlayerCard playerName="Joueur 1" isPlayerAdmin={true} isHost={isHost} />
                 <PlayerCard playerName="Joueur 2" isHost={isHost} />
@@ -24,7 +22,7 @@ export const PlayerList: React.FC<PlayerListProps> = ({ isHost }) => {
                 <PlayerCard playerName="Joueur 4" isHost={isHost} />
                 <PlayerCard playerName="Joueur 5" isHost={isHost} />
             </div>
-        </Container>
+        </div>
     );
 };
 

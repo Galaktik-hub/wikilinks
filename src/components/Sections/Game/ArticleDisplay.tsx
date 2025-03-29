@@ -5,6 +5,7 @@ import parse, { domToReact, HTMLReactParserOptions, Element, DOMNode } from 'htm
 import { useWikiNavigation } from '../../../context/WikiNavigationContext.tsx';
 import WikiLink from '../../Hypertext/Game/WikiLink';
 import {cleanHTMLContent} from "../../../utils/Game/ArticleCleaningUtils.ts";
+import {useNavigate} from "react-router-dom";
 
 interface ArticleDisplayProps {
     className?: string;
@@ -17,6 +18,7 @@ const ArticleDisplay: React.FC<ArticleDisplayProps> = ({ className }) => {
     const [mainImage, setMainImage] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
     const sectionsToRemove = ["Voir aussi", "Notes et références"];
+    const navigate = useNavigate();
 
     const fetchArticle = useCallback(async () => {
         try {
@@ -67,10 +69,7 @@ const ArticleDisplay: React.FC<ArticleDisplayProps> = ({ className }) => {
         const content = document.querySelector('main');
         if (content) content.scrollTop = 0;
         // Supprime le hash de l'URL
-        if (window.history.pushState) {
-            const newUrl = window.location.pathname + window.location.search;
-            window.history.pushState(null, "", newUrl);
-        }
+        navigate(window.location.pathname + window.location.search, { replace: true });
     }, [currentTitle]);
 
     useEffect(() => {

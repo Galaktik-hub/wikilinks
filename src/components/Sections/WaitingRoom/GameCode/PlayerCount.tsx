@@ -12,8 +12,8 @@ export const PlayerCount: React.FC<PlayerCountProps> = ({ playerCount, maxPlayer
             ? "text-orange-400"
             : "text-emerald-500";
     return (
-        <section className="flex gap-10 justify-between items-start py-1 mt-2 w-full text-base leading-none">
-            <h2 className="text-gray-400">Joueurs</h2>
+        <section className="flex justify-between items-center py-2 w-full text-base leading-none">
+            <h2 className="text-gray-400 text-lg">Joueurs</h2>
             <p className={`${textColor}`}>
                 {playerCount}/{maxPlayers}
             </p>

@@ -31,9 +31,9 @@
         margin-bottom: 1rem;
     }
     a {
-        color: #0ea5e9;
+        color: var(--bluePrimary);
         text-decoration: none;
-        border-bottom: 1px dotted #0ea5e9;
+        border-bottom: 1px dotted var(--bluePrimary);
         &:hover {
             color: #d14836;
             border-bottom: 1px solid #d14836;
@@ -67,4 +67,14 @@
 
 .mantine-Timeline-itemTitle {
     color: white;
+}
+
+/* Style global pour la scrollbar */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: var(--bluePrimary) var(--background);
+}
+*::-webkit-scrollbar {
+    width: 4px;
+    height: 4px;
 }

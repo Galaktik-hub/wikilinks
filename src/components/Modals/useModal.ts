@@ -2,7 +2,7 @@ import { useState } from "react";
 
 interface ModalOptions {
     title: string;
-    type: "form" | "confirmation";
+    type: "form" | "confirmation" | "timeline";
     content: any;
     onClose?: () => void;
 }

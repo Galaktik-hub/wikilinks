@@ -3,7 +3,6 @@
 import * as React from "react";
 import { GameCode } from "./GameCode.tsx";
 import { PlayerCount } from "./PlayerCount.tsx";
-import Container from "../../../Container.tsx";
 
 interface GameRoomCardProps {
     codegame: number;
@@ -13,12 +12,10 @@ interface GameRoomCardProps {
 
 export const GameRoomCard: React.FC<GameRoomCardProps> = ({ codegame, playerCount, maxPlayers }) => {
     return (
-        <Container
-            className="whitespace-nowrap"
-        >
+        <div className="card-container whitespace-nowrap">
             <GameCode code={codegame} />
             <PlayerCount playerCount={playerCount} maxPlayers={maxPlayers} />
-        </Container>
+        </div>
     );
 };
 
