@@ -11,12 +11,10 @@ export interface Room {
 
 const rooms: Map<string, Room> = new Map();
 
-export function createRoom(userName: string, ws: WebSocket): Room {
-    const roomId = randomInt(100000, 999999).toString();
+export function createRoom(roomId: string, userName: string, ws: WebSocket): void {
     const room: Room = { id: roomId, members: new Map(), bots: new Map() };
     room.members.set(userName, { ws, role: 'creator' });
 
-    // Initialisation des bots
     BOTS.forEach(BotClass => {
         const botInstance = new BotClass(`Bot-${BotClass.name}`, (content: string, destination: string | null) => {
             if (destination) {
@@ -34,7 +32,6 @@ export function createRoom(userName: string, ws: WebSocket): Room {
     });
 
     rooms.set(roomId, room);
-    return room;
 }
 
 export function joinRoom(roomId: string, userName: string, ws: WebSocket): Room | null {

@@ -4,17 +4,17 @@ import { ChatInput } from "../../../Chat/ChatInput.tsx";
 import { SendButton } from "../../../Chat/SendButton.tsx";
 import RoomModal from "../../../Modals/WaitingRoom/RoomModal";
 import { useContext } from "react";
-import { ChatContext, ChatMessage } from "../../../../context/ChatContext";
+import { SocketContext } from "../../../../context/SocketContext";
 
 export const TextLoungePanel: React.FC = () => {
-    const chat = useContext(ChatContext);
+    const socket = useContext(SocketContext);
     const [message, setMessage] = React.useState("");
     const [isInputFocused, setIsInputFocused] = React.useState(false);
     const messagesEndRef = React.useRef<HTMLDivElement>(null);
 
     const handleSendMessage = () => {
-        if (message.trim() && chat?.sendMessage) {
-            chat.sendMessage(message.trim());
+        if (message.trim() && socket?.sendMessage && socket?.username) {
+            socket.sendMessage(message.trim(), socket.username);
             setMessage("");
         }
     };
@@ -26,52 +26,68 @@ export const TextLoungePanel: React.FC = () => {
         }
     };
 
-    // Scroll to bottom when new messages arrive
+    // Scroll automatique vers le bas lors de l'arrivée de nouveaux messages
     React.useEffect(() => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    }, [chat?.messages]);
+    }, [socket?.messages]);
 
-    const MessageBubble = React.useCallback(({ msg, index }: { msg: ChatMessage; index: number }) => (
-        <div key={index}
-            className={`mb-2 p-3 rounded-lg border border-gray-700/50 ${msg.sender === 'system' ? 'bg-yellow-950/50' :
-                    msg.sender === chat?.username ? 'bg-sky-950/50' : 'bg-[#12151A]'
-                }`}>
-            <strong className="text-sky-500" style={{ textShadow: "0 0 10px rgba(14, 165, 233, 0.3)" }}>
-                {msg.sender}
-            </strong>
-            <span className="mx-2 text-gray-500">:</span>
-            <span className="text-gray-100">{msg.content}</span>
-        </div>
-    ), [chat?.username]);
+    const MessageBubble = React.useCallback(
+        ({ msg, index }: { msg: any; index: number }) => (
+            <div
+                key={index}
+                className={`mb-2 p-3 rounded-lg border border-gray-700/50 ${
+                    msg.sender === "system"
+                        ? "bg-yellow-950/50"
+                        : msg.sender === socket?.username
+                            ? "bg-sky-950/50"
+                            : "bg-[#12151A]"
+                }`}
+            >
+                <strong
+                    className="text-sky-500"
+                    style={{ textShadow: "0 0 10px rgba(14, 165, 233, 0.3)" }}
+                >
+                    {msg.sender}
+                </strong>
+                <span className="mx-2 text-gray-500">:</span>
+                <span className="text-gray-100">{msg.content}</span>
+            </div>
+        ),
+        [socket?.username]
+    );
 
     return (
         <>
             <RoomModal
                 onSubmit={(username: string, roomCode: string) => {
-                    if (chat?.setUsername && chat?.setRoomCode) {
-                        chat.setUsername(username);
-                        chat.setRoomCode(roomCode);
+                    if (socket?.setUsername && socket?.setRoomCode) {
+                        socket.setUsername(username);
+                        socket.setRoomCode(roomCode);
                     }
                 }}
-                shouldOpen={!chat?.username}
+                shouldOpen={!socket?.username}
             />
 
-            {/* Desktop version */}
+            {/* Version desktop */}
             <div className="hidden xl-custom:block w-full h-full">
                 <Container className="flex flex-col h-full">
-                    <h2 className="gap-2.5 py-1 text-lg font-bold leading-none text-sky-500 text-center mb-2"
-                        style={{ textShadow: "0px 0px 14px #0ea5e9" }}>
+                    <h2
+                        className="gap-2.5 py-1 text-lg font-bold leading-none text-sky-500 text-center mb-2"
+                        style={{ textShadow: "0px 0px 14px #0ea5e9" }}
+                    >
                         Salon Textuel
                     </h2>
 
                     <div className="flex flex-col flex-grow bg-[#181D25] rounded-lg overflow-hidden">
                         <div className="flex-grow overflow-y-auto p-4">
-                            {chat?.messages.length ? (
-                                chat.messages.map((msg, index) => (
+                            {socket?.messages.length ? (
+                                socket.messages.map((msg, index) => (
                                     <MessageBubble key={index} msg={msg} index={index} />
                                 ))
                             ) : (
-                                <p className="text-gray-400 text-center">Aucun message pour l'instant...</p>
+                                <p className="text-gray-400 text-center">
+                                    Aucun message pour l'instant...
+                                </p>
                             )}
                             <div ref={messagesEndRef} />
                         </div>
@@ -83,27 +99,34 @@ export const TextLoungePanel: React.FC = () => {
                                     onChange={(e) => setMessage(e.target.value)}
                                     onKeyDown={handleKeyDown}
                                     placeholder="Écrivez un message..."
-                                    disabled={!chat?.isConnected}
+                                    disabled={!socket?.isConnected}
                                 />
-                                <SendButton onClick={handleSendMessage} disabled={!chat?.isConnected || !message.trim()} />
+                                <SendButton
+                                    onClick={handleSendMessage}
+                                    disabled={!socket?.isConnected || !message.trim()}
+                                />
                             </div>
                         </div>
                     </div>
                 </Container>
             </div>
 
-            {/* Mobile version */}
+            {/* Version mobile */}
             <div className="xl-custom:hidden w-full z-50">
-                {/* Overlay that appears when the input is focused */}
+                {/* Overlay lors du focus sur l'input */}
                 <div
-                    className={`fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300 ${isInputFocused ? 'opacity-100 visible' : 'opacity-0 invisible'
-                        }`}
+                    className={`fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300 ${
+                        isInputFocused ? "opacity-100 visible" : "opacity-0 invisible"
+                    }`}
                     onClick={() => setIsInputFocused(false)}
                 />
 
-                {/* Chat panel that slides up from bottom */}
-                <div className={`fixed bottom-16 left-0 right-0 bg-[#181D25] transition-transform duration-300 ease-out ${isInputFocused ? 'translate-y-0' : 'translate-y-full'
-                    }`}>
+                {/* Panneau de chat qui glisse depuis le bas */}
+                <div
+                    className={`fixed bottom-16 left-0 right-0 bg-[#181D25] transition-transform duration-300 ease-out ${
+                        isInputFocused ? "translate-y-0" : "translate-y-full"
+                    }`}
+                >
                     <h2
                         className="gap-2.5 py-3 text-lg font-bold leading-none text-sky-500 text-center"
                         style={{ textShadow: "0px 0px 14px #0ea5e9" }}
@@ -112,18 +135,20 @@ export const TextLoungePanel: React.FC = () => {
                     </h2>
 
                     <div className="max-h-[50vh] overflow-y-auto p-4">
-                        {chat?.messages.length ? (
-                            chat.messages.map((msg, index) => (
+                        {socket?.messages.length ? (
+                            socket.messages.map((msg, index) => (
                                 <MessageBubble key={index} msg={msg} index={index} />
                             ))
                         ) : (
-                            <p className="text-gray-400 text-center">Aucun message pour l'instant...</p>
+                            <p className="text-gray-400 text-center">
+                                Aucun message pour l'instant...
+                            </p>
                         )}
                         <div ref={messagesEndRef} />
                     </div>
                 </div>
 
-                {/* Chat input at bottom of screen - always visible */}
+                {/* Zone d'input toujours visible en bas */}
                 <div className="fixed bottom-0 left-0 right-0 p-4 bg-[#181D25] border-t border-gray-700/50">
                     <div className="flex items-center gap-2">
                         <ChatInput
@@ -132,9 +157,12 @@ export const TextLoungePanel: React.FC = () => {
                             onKeyDown={handleKeyDown}
                             onFocus={() => setIsInputFocused(true)}
                             placeholder="Écrivez un message..."
-                            disabled={!chat?.isConnected}
+                            disabled={!socket?.isConnected}
                         />
-                        <SendButton onClick={handleSendMessage} disabled={!chat?.isConnected || !message.trim()} />
+                        <SendButton
+                            onClick={handleSendMessage}
+                            disabled={!socket?.isConnected || !message.trim()}
+                        />
                     </div>
                 </div>
             </div>
