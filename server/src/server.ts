@@ -1,6 +1,6 @@
 import { WebSocketServer, WebSocket, RawData } from 'ws';
 import { createGameSession, addPlayer, getGameSession, removePlayer, endGameSession, GameSession } from './gameSession';
-import { Player } from './player';
+import { Player } from './player/player';
 
 interface ClientContext {
     currentRoomId: string | null;

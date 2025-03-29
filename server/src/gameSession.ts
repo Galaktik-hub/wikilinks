@@ -1,5 +1,5 @@
 import { randomInt } from "node:crypto";
-import { Player } from "./player";
+import { Player } from "./player/player";
 
 export type GameType = 'public' | 'private';
 
