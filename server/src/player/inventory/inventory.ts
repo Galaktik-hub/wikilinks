@@ -1,4 +1,4 @@
-import {Artifact, artifactDefinitions, ArtifactName, ImmediateArtifact, StackableArtifact} from "./InventoryProps";
+import {Artifact, artifactDefinitions, ArtifactName, ImmediateArtifact, StackableArtifact} from "./inventoryProps";
 
 export class Inventory {
     private artifacts: Record<ArtifactName, Artifact>;
