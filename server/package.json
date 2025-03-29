@@ -1,5 +1,5 @@
 {
-    "name": "chatserver",
+    "name": "server",
     "version": "1.0.0",
     "description": "",
     "main": "index.js",
@@ -20,6 +20,7 @@
         "typescript": "^5.8.2"
     },
     "dependencies": {
+        "node-fetch": "^3.3.2",
         "ws": "^8.18.1"
     }
 }

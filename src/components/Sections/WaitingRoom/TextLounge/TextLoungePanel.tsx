@@ -3,17 +3,17 @@ import { ChatInput } from "../../../Chat/ChatInput.tsx";
 import { SendButton } from "../../../Chat/SendButton.tsx";
 import RoomModal from "../../../Modals/WaitingRoom/RoomModal";
 import { useContext } from "react";
-import { ChatContext, ChatMessage } from "../../../../contexts/ChatContext";
+import { SocketContext } from "../../../../context/SocketContext";
 
 export const TextLoungePanel: React.FC = () => {
-    const chat = useContext(ChatContext);
+    const socket = useContext(SocketContext);
     const [message, setMessage] = React.useState("");
     const [isInputFocused, setIsInputFocused] = React.useState(false);
     const messagesRef = React.useRef<HTMLDivElement[]>([]);
 
     const handleSendMessage = () => {
-        if (message.trim() && chat?.sendMessage) {
-            chat.sendMessage(message.trim());
+        if (message.trim() && socket?.sendMessage && socket?.username) {
+            socket.sendMessage(message.trim(), socket.username);
             setMessage("");
         }
     };
@@ -70,12 +70,12 @@ export const TextLoungePanel: React.FC = () => {
         <>
             <RoomModal
                 onSubmit={(username: string, roomCode: string) => {
-                    if (chat?.setUsername && chat?.setRoomCode) {
-                        chat.setUsername(username);
-                        chat.setRoomCode(roomCode);
+                    if (socket?.setUsername && socket?.setRoomCode) {
+                        socket.setUsername(username);
+                        socket.setRoomCode(roomCode);
                     }
                 }}
-                shouldOpen={!chat?.username}
+                shouldOpen={!socket?.username}
             />
 
             {/* Desktop version */}
@@ -115,12 +115,13 @@ export const TextLoungePanel: React.FC = () => {
                 </div>
             </div>
 
-            {/* Mobile version */}
+            {/* Version mobile */}
             <div className="xl-custom:hidden w-full z-50">
-                {/* Overlay that appears when the input is focused */}
+                {/* Overlay lors du focus sur l'input */}
                 <div
-                    className={`fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300 ${isInputFocused ? 'opacity-100 visible' : 'opacity-0 invisible'
-                        }`}
+                    className={`fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300 ${
+                        isInputFocused ? "opacity-100 visible" : "opacity-0 invisible"
+                    }`}
                     onClick={() => setIsInputFocused(false)}
                 />
 
@@ -142,7 +143,9 @@ export const TextLoungePanel: React.FC = () => {
                                 <MessageBubble key={index} msg={msg} index={index} />
                             ))
                         ) : (
-                            <p className="text-gray-400 text-center">Aucun message pour l'instant...</p>
+                            <p className="text-gray-400 text-center">
+                                Aucun message pour l'instant...
+                            </p>
                         )}
                     </div>
                 </div>
@@ -156,9 +159,12 @@ export const TextLoungePanel: React.FC = () => {
                             onKeyDown={handleKeyDown}
                             onFocus={() => setIsInputFocused(true)}
                             placeholder="Écrivez un message..."
-                            disabled={!chat?.isConnected}
+                            disabled={!socket?.isConnected}
                         />
-                        <SendButton onClick={handleSendMessage} disabled={!chat?.isConnected || !message.trim()} />
+                        <SendButton
+                            onClick={handleSendMessage}
+                            disabled={!socket?.isConnected || !message.trim()}
+                        />
                     </div>
                 </div>
             </div>

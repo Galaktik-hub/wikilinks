@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { generateTOC, TOCItem } from "../../../utils/Game/TOCutils.ts";
 import TOC from "./TOC.tsx";
 import parse, { domToReact, HTMLReactParserOptions, Element, DOMNode } from 'html-react-parser';
-import { useWikiNavigation } from '../../../context/Game/WikiNavigationContext';
+import { useWikiNavigation } from '../../../context/WikiNavigationContext.tsx';
 import WikiLink from '../../Hypertext/Game/WikiLink';
 import {cleanHTMLContent} from "../../../utils/Game/ArticleCleaningUtils.ts";
 import {useNavigate} from "react-router-dom";

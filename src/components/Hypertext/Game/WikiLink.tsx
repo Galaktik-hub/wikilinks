@@ -1,5 +1,5 @@
 import React from 'react';
-import { useWikiNavigation } from '../../../context/Game/WikiNavigationContext';
+import { useWikiNavigation } from '../../../context/WikiNavigationContext.tsx';
 
 interface WikiLinkProps extends React.AnchorHTMLAttributes<HTMLAnchorElement> {
     title: string; // Titre de l'article ciblé

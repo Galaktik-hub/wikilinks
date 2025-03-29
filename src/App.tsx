@@ -3,15 +3,15 @@ import '@mantine/core/styles.css';
 import AppRoutes from "./route";
 import { MantineProvider } from '@mantine/core';
 import { ModalProvider } from "./components/Modals/ModalProvider.tsx";
-import { ChatProvider } from "./contexts/ChatContext";
+import { SocketProvider } from './context/SocketContext.tsx';
 
 function App() {
     return (
         <MantineProvider>
             <ModalProvider>
-                <ChatProvider>
+                <SocketProvider>
                     <AppRoutes />
-                </ChatProvider>
+                </SocketProvider>
             </ModalProvider>
         </MantineProvider>
     )
