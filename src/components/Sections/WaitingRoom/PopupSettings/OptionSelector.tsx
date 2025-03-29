@@ -2,7 +2,7 @@ import * as React from "react";
 
 interface Option {
     label: string;
-    value: number;
+    value: number | null;
 }
 
 interface OptionSelectorProps {
@@ -16,7 +16,7 @@ export const OptionSelector: React.FC<OptionSelectorProps> = ({
                                                                   selectedValue,
                                                                   onChange,
                                                               }) => {
-    const handleClick = (value: number) => {
+    const handleClick = (value: number | null) => {
         if (selectedValue === value) {
             onChange(null);
         } else {

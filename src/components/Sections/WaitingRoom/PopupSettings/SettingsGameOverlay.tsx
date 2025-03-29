@@ -39,11 +39,11 @@ const SettingsGameOverlay: React.FC<SettingsGameOverlayProps> = ({ closeModal })
     ];
 
     const playerOptions = [
-        { label: "2", value: 2 },
+        { label: "Seul", value: 1 },
         { label: "5", value: 5 },
         { label: "10", value: 10 },
         { label: "20", value: 20 },
-        { label: "30", value: 30 },
+        { label: "Illimité", value: null },
     ];
 
     return (
