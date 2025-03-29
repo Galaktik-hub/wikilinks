@@ -1,4 +1,4 @@
-import {HistoryStep, HistoryType} from "./PlayerHistoryProps";
+import {HistoryStep, HistoryType} from "./playerHistoryProps";
 import {Player} from "../player";
 
 export class PlayerHistory {

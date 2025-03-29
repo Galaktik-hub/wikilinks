@@ -1,6 +1,6 @@
-import {Inventory} from "./Inventory/Inventory";
-import {ArtifactName} from "./Inventory/InventoryProps";
-import {PlayerHistory} from "./History/PlayerHistory";
+import {PlayerHistory} from "./history/playerHistory";
+import {Inventory} from "./inventory/inventory";
+import {ArtifactName} from "./inventory/inventoryProps";
 
 export class Player {
     id: string;
