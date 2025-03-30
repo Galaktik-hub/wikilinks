@@ -40,7 +40,7 @@ export const TextLoungePanel: React.FC = () => {
     // Scroll to bottom when new messages arrive
     React.useEffect(() => {
         scrollToBottom();
-    }, [chat?.messages]);
+    }, [socket?.messages]);
 
     // Function to add references to the list
     const addToRefs = (el: HTMLDivElement | null) => {
@@ -49,10 +49,10 @@ export const TextLoungePanel: React.FC = () => {
         }
     };
 
-    const MessageBubble = React.useCallback(({ msg, index }: { msg: ChatMessage; index: number }) => (
+    const MessageBubble = React.useCallback(({ msg, index }: { msg: any; index: number }) => (
         <div key={index}
             className={`mb-2 p-3 rounded-lg border border-gray-700/50 ${msg.sender === 'system' ? 'bg-yellow-950/50' :
-                msg.sender === chat?.username ? 'bg-sky-950/50' : 'bg-background'
+                msg.sender === socket?.username ? 'bg-sky-950/50' : 'bg-background'
                 }`}>
             {msg.sender !== "Bot-JoinLeaveBot" && (
                 <>
@@ -64,7 +64,7 @@ export const TextLoungePanel: React.FC = () => {
             )}
             <span className="text-gray-100">{msg.content}</span>
         </div>
-    ), [chat?.username]);
+    ), [socket?.username]);
 
     return (
         <>
@@ -91,8 +91,8 @@ export const TextLoungePanel: React.FC = () => {
                         className="flex-grow overflow-auto p-4 scroll-smooth"
                         ref={addToRefs}
                     >
-                        {chat?.messages.length ? (
-                            chat.messages.map((msg, index) => (
+                        {socket?.messages.length ? (
+                            socket.messages.map((msg, index) => (
                                 <MessageBubble key={index} msg={msg} index={index} />
                             ))
                         ) : (
@@ -107,9 +107,9 @@ export const TextLoungePanel: React.FC = () => {
                                 onChange={(e) => setMessage(e.target.value)}
                                 onKeyDown={handleKeyDown}
                                 placeholder="Écrivez un message..."
-                                disabled={!chat?.isConnected}
+                                disabled={!socket?.isConnected}
                             />
-                            <SendButton onClick={handleSendMessage} disabled={!chat?.isConnected || !message.trim()} />
+                            <SendButton onClick={handleSendMessage} disabled={!socket?.isConnected || !message.trim()} />
                         </div>
                     </div>
                 </div>
@@ -138,8 +138,8 @@ export const TextLoungePanel: React.FC = () => {
                         className="min-h-[15vh] max-h-[50vh] overflow-auto px-4 pb-4 scroll-smooth"
                         ref={addToRefs}
                     >
-                        {chat?.messages.length ? (
-                            chat.messages.map((msg, index) => (
+                        {socket?.messages.length ? (
+                            socket.messages.map((msg, index) => (
                                 <MessageBubble key={index} msg={msg} index={index} />
                             ))
                         ) : (

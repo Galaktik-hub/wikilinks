@@ -60,7 +60,7 @@ export class WikipediaService {
         minViews: number,
         startDate: string,
         endDate: string,
-        batchSize: number = 5
+        batchSize: number = requiredCount * 2
     ): Promise<string[]> {
         const validTitles = new Set<string>();
 
