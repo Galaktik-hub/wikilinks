@@ -31,11 +31,9 @@ export const CreateOrJoinGame: React.FC = () => {
     const handleCreateGame = (username: string) => {
         if (!username.trim()) return;
 
-        if (socket?.setUsername && socket?.setRoomCode && socket?.createGameSession) {
+        if (socket?.setUsername && socket?.createGameSession) {
             socket.setUsername(username);
-            socket.setRoomCode(-1);
 
-            // Envoi de l'event de création vers le serveur avec les paramètres requis
             socket.createGameSession({
                 timeLimit: 10,
                 numberOfArticles: 4,
@@ -85,11 +83,9 @@ export const CreateOrJoinGame: React.FC = () => {
     const handleUsernameSubmit = (username: string) => {
         if (!username.trim()) return;
 
-        if (socket?.setUsername && socket?.setRoomCode && socket?.joinGameSession) {
+        if (socket?.setUsername && socket?.joinGameSession) {
             socket.setUsername(username);
-            socket.setRoomCode(-1);
 
-            // Envoi de l'event de join au serveur
             socket.joinGameSession({
                 sessionId: tempRoomCode,
                 playerName: username,

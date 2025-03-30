@@ -1,6 +1,6 @@
 "use client";
 
-import React, {useContext} from "react";
+import React, { useContext, useEffect } from "react";
 import Layout from "../../components/Layout.tsx";
 import GameRoomCard from "../../components/Sections/WaitingRoom/GameCode/GameRoomCard.tsx";
 import ExitButton from "../../components/Buttons/WaitingRoom/ExitButton.tsx";
@@ -9,7 +9,7 @@ import GameSettings from "../../components/Sections/WaitingRoom/GameSettings/Gam
 import PlayerList from "../../components/Sections/WaitingRoom/Player/PlayerList.tsx";
 import TextLoungePanel from "../../components/Sections/WaitingRoom/TextLounge/TextLoungePanel.tsx";
 import Header from "../../components/Header/Header.tsx";
-import {SocketContext} from "../../context/SocketContext.tsx";
+import { SocketContext } from "../../context/SocketContext.tsx";
 
 const isHost: boolean = true;
 
@@ -23,6 +23,14 @@ const WaitingRoom: React.FC = () => {
         isPublicGame: false,
     });
 
+    const [code, setCode] = React.useState<number>(socket?.roomCode || -10);
+
+    useEffect(() => {
+        if (socket?.roomCode) {
+            setCode(socket.roomCode);
+        }
+    }, [socket?.roomCode]);
+
     return (
         <Layout header={<Header />}>
             <div className="flex flex-col w-full overflow-hidden items-center justify-center p-4 gap-6 max-md:mb-16">
@@ -31,8 +39,8 @@ const WaitingRoom: React.FC = () => {
                 </div>
                 <section className="w-full flex gap-6">
                     <div className="w-full flex flex-col gap-6">
-                        <GameRoomCard codegame={socket?.roomCode || -10} playerCount={4} maxPlayers={gameSettings.maxPlayers} />
-                        <GameSettings isHost={isHost} gameSettings={gameSettings} setGameSettings={setGameSettings}/>
+                        <GameRoomCard codegame={code} playerCount={4} maxPlayers={gameSettings.maxPlayers} />
+                        <GameSettings isHost={isHost} gameSettings={gameSettings} setGameSettings={setGameSettings} />
                         <PlayerList isHost={isHost} />
                     </div>
                     <div className="hidden xl-custom:flex w-full flex-col gap-6">

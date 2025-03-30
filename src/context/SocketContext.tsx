@@ -13,7 +13,7 @@ export interface SocketContextType {
         leaderName: string;
     }) => void;
     joinGameSession: (payload: { sessionId: number; playerName: string }) => void;
-    sendMessage: (content: string, sender: string ) => void;
+    sendMessage: (content: string, sender: string) => void;
     username: string | null;
     setUsername: (name: string) => void;
     roomCode: number;
@@ -54,7 +54,11 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
             try {
                 const data = JSON.parse(event.data);
                 console.log("Message reçu :", data);
-                setMessages((prev) => [...prev, data]);
+                if (data.kind === "game_session_created") {
+                    setRoomCode(data.sessionId);
+                } else {
+                    setMessages((prev) => [...prev, data]);
+                }
             } catch (error) {
                 console.error("Erreur lors du parsing du message", error);
             }
@@ -100,17 +104,17 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
         });
     };
 
-    const sendMessage = (content: string, sender: string ) => {
+    const sendMessage = (content: string, sender: string) => {
         sendMessageToServer({
             kind: "send_message",
             content,
             sender,
         });
-    }
+    };
 
     const checkRoomExists = async (roomCode: number): Promise<boolean> => {
         return new Promise((resolve) => {
-            setTimeout(() => resolve(roomCode >= 100000 || roomCode <= 999999), 1000);
+            setTimeout(() => resolve(roomCode >= 100000 && roomCode <= 999999), 1000);
         });
     };
 
