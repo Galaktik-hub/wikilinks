@@ -149,7 +149,15 @@ export async function handleMessage(
             if (maxPlayers != null) session.maxPlayers = maxPlayers;
             if (type != null) session.type = type;
 
-            ws.send(JSON.stringify({ kind: 'settings_modified', timeLimit: timeLimit, numberOfArticles: numberOfArticles, maxPlayers: maxPlayers, type: type }));
+            // Notify all players in the game session about the updated settings
+            const connections = gameSessionConnections.get(currentGameSessionId);
+            if (connections) {
+                connections.forEach((clientWs) => {
+                    if (clientWs.readyState === WebSocket.OPEN) {
+                        clientWs.send(JSON.stringify({ kind: 'settings_modified', timeLimit: timeLimit, numberOfArticles: numberOfArticles, maxPlayers: maxPlayers, type: type }));
+                    }
+                });
+            }
             break;
         }
         case 'disconnect': {
