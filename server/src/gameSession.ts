@@ -5,7 +5,7 @@ import {WikipediaService} from "./WikipediaService";
 export type GameType = 'public' | 'private';
 
 export class GameSession {
-    public id: string;
+    public id: number;
     public timeLimit: number;
     public numberOfArticles: number;
     public maxPlayers: number;
@@ -16,7 +16,7 @@ export class GameSession {
     public startArticle: string;
 
     constructor(
-        id: string,
+        id: number,
         timeLimit: number,
         numberOfArticles: number,
         maxPlayers: number,
@@ -71,7 +71,7 @@ export class GameSession {
 }
 
 export class GameSessionManager {
-    private static sessions: Map<string, GameSession> = new Map();
+    private static sessions: Map<number, GameSession> = new Map();
 
     /**
      * Creates a new game session with a unique ID.
@@ -83,9 +83,9 @@ export class GameSessionManager {
         type: GameType,
         leader: Player
     }): GameSession {
-        let id: string;
+        let id: number;
         do {
-            id = randomInt(100000, 1000000).toString();
+            id = randomInt(100000, 1000000);
         } while (this.sessions.has(id));
 
         const session = new GameSession(
@@ -104,14 +104,14 @@ export class GameSessionManager {
     /**
      * Retrieves a game session by its ID.
      */
-    public static getSession(sessionId: string): GameSession | undefined {
+    public static getSession(sessionId: number): GameSession | undefined {
         return this.sessions.get(sessionId);
     }
 
     /**
      * Ends and deletes a game session.
      */
-    public static endSession(sessionId: string): boolean {
+    public static endSession(sessionId: number): boolean {
         return this.sessions.delete(sessionId);
     }
 }

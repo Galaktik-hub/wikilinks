@@ -3,14 +3,14 @@ import { WebSocket } from 'ws';
 import { Bot, JoinLeaveBot, BOTS } from "./bots";
 
 export interface Room {
-    id: string;
+    id: number;
     members: Map<string, { ws: WebSocket, role: 'creator' | 'client' }>;
     bots: Map<string, Bot>;
 }
 
-const rooms: Map<string, Room> = new Map();
+const rooms: Map<number, Room> = new Map();
 
-export function createRoom(roomId: string, userName: string, ws: WebSocket): void {
+export function createRoom(roomId: number, userName: string, ws: WebSocket): void {
     const room: Room = { id: roomId, members: new Map(), bots: new Map() };
     room.members.set(userName, { ws, role: 'creator' });
 
@@ -33,7 +33,7 @@ export function createRoom(roomId: string, userName: string, ws: WebSocket): voi
     rooms.set(roomId, room);
 }
 
-export function joinRoom(roomId: string, userName: string, ws: WebSocket): Room | null {
+export function joinRoom(roomId: number, userName: string, ws: WebSocket): Room | null {
     const room = rooms.get(roomId);
     if (!room) return null;
     room.members.set(userName, { ws, role: 'client' });
@@ -46,7 +46,7 @@ export function joinRoom(roomId: string, userName: string, ws: WebSocket): Room 
     return room;
 }
 
-export function closeRoom(roomId: string, userName: string): boolean {
+export function closeRoom(roomId: number, userName: string): boolean {
     const room = rooms.get(roomId);
     if (room) {
         const member = room.members.get(userName);
@@ -62,11 +62,11 @@ export function closeRoom(roomId: string, userName: string): boolean {
     return false;
 }
 
-export function getRoom(roomId: string): Room | undefined {
+export function getRoom(roomId: number): Room | undefined {
     return rooms.get(roomId);
 }
 
-export function removeMember(roomId: string, userName: string) {
+export function removeMember(roomId: number, userName: string) {
     const room = rooms.get(roomId);
     if (room) {
         room.members.delete(userName);

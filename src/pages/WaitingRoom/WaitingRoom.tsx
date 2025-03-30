@@ -24,8 +24,7 @@ const WaitingRoom: React.FC = () => {
                 </div>
                 <section className="w-full flex gap-6">
                     <div className="w-full flex flex-col gap-6">
-                        {/* Conversion du roomCode en nombre avant de le passer en prop */}
-                        <GameRoomCard codegame={parseInt(socket?.roomCode as string, 10)} playerCount={4} maxPlayers={10} />
+                        <GameRoomCard codegame={socket?.roomCode} playerCount={4} maxPlayers={10} />
                         <GameSettings isHost={isHost} />
                         <PlayerList isHost={isHost} />
                     </div>

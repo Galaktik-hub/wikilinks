@@ -12,14 +12,14 @@ export interface SocketContextType {
         type: string;
         leaderName: string;
     }) => void;
-    joinGameSession: (payload: { sessionId: string; playerName: string }) => void;
+    joinGameSession: (payload: { sessionId: number; playerName: string }) => void;
     sendMessage: (content: string, sender: string ) => void;
     username: string | null;
     setUsername: (name: string) => void;
-    roomCode: string | null;
-    setRoomCode: (code: string | null) => void;
+    roomCode: number | null;
+    setRoomCode: (code: number | null) => void;
     // Pour vérifier l'existence d'une room (ici, simulation)
-    checkRoomExists: (roomCode: string) => Promise<boolean>;
+    checkRoomExists: (roomCode: number) => Promise<boolean>;
 }
 
 export const SocketContext = createContext<SocketContextType | undefined>(undefined);
@@ -32,7 +32,7 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
     const [isConnected, setIsConnected] = useState(false);
     const [messages, setMessages] = useState<any[]>([]);
     const [username, setUsername] = useState<string | null>(null);
-    const [roomCode, setRoomCode] = useState<string | null>(null);
+    const [roomCode, setRoomCode] = useState<number | null>(null);
     const socketRef = useRef<WebSocket | null>(null);
 
     useEffect(() => {
@@ -87,7 +87,7 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
         });
     };
 
-    const joinGameSession = (payload: { sessionId: string; playerName: string }) => {
+    const joinGameSession = (payload: { sessionId: number; playerName: string }) => {
         sendMessageToServer({
             kind: "join_game_session",
             ...payload,
@@ -102,9 +102,9 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
         });
     }
 
-    const checkRoomExists = async (roomCode: string): Promise<boolean> => {
+    const checkRoomExists = async (roomCode: number): Promise<boolean> => {
         return new Promise((resolve) => {
-            setTimeout(() => resolve(roomCode !== "000000"), 1000);
+            setTimeout(() => resolve(roomCode >= 100000 || roomCode <= 999999), 1000);
         });
     };
 

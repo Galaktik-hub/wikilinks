@@ -4,16 +4,16 @@ import { Player } from './player/player';
 import { createRoom, joinRoom, closeRoom, getRoom, removeMember } from "./rooms";
 
 export interface ClientContext {
-    currentRoomId: string | null;
+    currentRoomId: number | null;
     currentUser: Player | null;
-    currentGameSessionId: string | null;
+    currentGameSessionId: number | null;
 }
 
 export async function handleMessage(
     ws: WebSocket,
     message: any,
     context: ClientContext,
-    gameSessionConnections: Map<string, Map<string, WebSocket>>
+    gameSessionConnections: Map<number, Map<string, WebSocket>>
 ) {
     switch (message.kind) {
         case 'create_game_session': {

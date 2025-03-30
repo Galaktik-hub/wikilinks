@@ -12,8 +12,8 @@ export const CreateOrJoinGame: React.FC = () => {
     const location = useLocation();
     const socket = useContext(SocketContext);
     const [showUsernameModal, setShowUsernameModal] = useState(false);
-    const [tempRoomCode, setTempRoomCode] = useState("");
-    const [roomCodeInput, setRoomCodeInput] = useState(""); // État pour le champ d'entrée
+    const [tempRoomCode, setTempRoomCode] = useState(-1);
+    const [roomCodeInput, setRoomCodeInput] = useState("");
     const [error, setError] = useState<string | null>(null);
     const [isCheckingRoom, setIsCheckingRoom] = useState(false);
 
@@ -37,10 +37,10 @@ export const CreateOrJoinGame: React.FC = () => {
 
             // Envoi de l'event de création vers le serveur avec les paramètres requis
             socket.createGameSession({
-                timeLimit: 60, // exemple de valeur, à adapter
-                numberOfArticles: 5, // exemple de valeur
-                maxPlayers: 4, // exemple de valeur
-                type: "public", // ou un autre type selon votre logique
+                timeLimit: 10,
+                numberOfArticles: 4,
+                maxPlayers: 5,
+                type: "private",
                 leaderName: username,
             });
 
@@ -51,16 +51,10 @@ export const CreateOrJoinGame: React.FC = () => {
 
     // Rejoindre une partie : on vérifie d'abord si le code existe
     const handleJoinGame = async (roomCode: string) => {
-        if (!roomCode.trim()) return;
+        const parsedRoomCode = parseInt(roomCode, 10);
 
-        // Pour le test, on considère "000000" comme un code invalide
-        if (roomCode === "000000") {
+        if (parsedRoomCode < 100000 || parsedRoomCode > 999999) {
             setError("Code de partie invalide");
-            setTimeout(() => setError(null), 3000);
-            return;
-        }
-        if (!/^\d+$/.test(roomCode)) {
-            setError("Room code must contain only digits");
             setTimeout(() => setError(null), 3000);
             return;
         }
@@ -69,11 +63,11 @@ export const CreateOrJoinGame: React.FC = () => {
         setError(null);
         try {
             // Use the context function to check if the room exists
-            const roomExists = await socket?.checkRoomExists(roomCode);
+            const roomExists = await socket?.checkRoomExists(parsedRoomCode);
 
             if (roomExists) {
                 // Si la room existe, on sauvegarde le code temporairement et on affiche le modal pour renseigner le username
-                setTempRoomCode(roomCode);
+                setTempRoomCode(parsedRoomCode);
                 setShowUsernameModal(true);
             } else {
                 setError("Cette partie n'existe pas");
@@ -89,11 +83,11 @@ export const CreateOrJoinGame: React.FC = () => {
 
     // Lors de la soumission du username dans le modal pour rejoindre une partie existante
     const handleUsernameSubmit = (username: string) => {
-        if (!username.trim() || !tempRoomCode.trim()) return;
+        if (!username.trim()) return;
 
         if (socket?.setUsername && socket?.setRoomCode && socket?.joinGameSession) {
             socket.setUsername(username);
-            socket.setRoomCode(tempRoomCode);
+            socket.setRoomCode(-1);
 
             // Envoi de l'event de join au serveur
             socket.joinGameSession({
@@ -106,7 +100,7 @@ export const CreateOrJoinGame: React.FC = () => {
         }
         // Réinitialise le modal et le code temporaire
         setShowUsernameModal(false);
-        setTempRoomCode("");
+        setTempRoomCode(-1);
     };
 
     return (
@@ -127,7 +121,7 @@ export const CreateOrJoinGame: React.FC = () => {
                 onSubmit={handleJoinGame}
                 error={error}
                 value={roomCodeInput} // Utilisez l'état pour la valeur du champ
-                onChange={(e) => setRoomCodeInput(e.target.value)} // Mettez à jour l'état lorsque l'utilisateur tape
+                onChange={(e) => setRoomCodeInput(e.target.value)}
             />
 
             {/* Modal pour renseigner le username lors du join */}
