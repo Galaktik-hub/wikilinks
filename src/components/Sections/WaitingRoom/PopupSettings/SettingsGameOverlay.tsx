@@ -8,6 +8,8 @@ import ArticleSVG from "../../../../assets/WaitingRoom/ArticleSVG.tsx";
 import PlayerSVG from "../../../../assets/WaitingRoom/PlayerSVG.tsx";
 import PlanetSVG from "../../../../assets/WaitingRoom/PlanetSVG.tsx";
 import CloseSVG from "../../../../assets/WaitingRoom/CloseSVG.tsx";
+import {useContext, useEffect} from "react";
+import {SocketContext} from "../../../../context/SocketContext.tsx";
 
 interface SettingsGameOverlayProps {
     timeLimit: number;
@@ -32,6 +34,8 @@ const SettingsGameOverlay: React.FC<SettingsGameOverlayProps> = ({
     setIsPublicGame,
     closeModal,
 }) => {
+    const socket = useContext(SocketContext);
+
     const timeOptions = [
         { label: "Aucun", value: 0 },
         { label: "2min", value: 2 },
@@ -54,6 +58,17 @@ const SettingsGameOverlay: React.FC<SettingsGameOverlayProps> = ({
         { label: "20", value: 20 },
         { label: "30", value: 30 },
     ];
+
+    useEffect(() => {
+        if (socket) {
+            socket.updateSettings({
+                timeLimit,
+                numberOfArticles: articleCount,
+                maxPlayers,
+                type: isPublicGame ? "public" : "private",
+            });
+        }
+    }, [timeLimit, articleCount, maxPlayers, isPublicGame, socket]);
 
     const togglePublicGame = () => {
         setIsPublicGame(!isPublicGame);

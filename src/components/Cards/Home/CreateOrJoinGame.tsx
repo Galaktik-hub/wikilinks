@@ -33,7 +33,7 @@ export const CreateOrJoinGame: React.FC = () => {
 
         if (socket?.setUsername && socket?.setRoomCode && socket?.createGameSession) {
             socket.setUsername(username);
-            socket.setRoomCode(null);
+            socket.setRoomCode(-1);
 
             // Envoi de l'event de création vers le serveur avec les paramètres requis
             socket.createGameSession({

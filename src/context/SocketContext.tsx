@@ -20,6 +20,12 @@ export interface SocketContextType {
     setRoomCode: (code: number) => void;
     // Pour vérifier l'existence d'une room (ici, simulation)
     checkRoomExists: (roomCode: number) => Promise<boolean>;
+    updateSettings: (payload: {
+        timeLimit: number;
+        numberOfArticles: number;
+        maxPlayers: number;
+        type: string;
+    }) => void;
 }
 
 export const SocketContext = createContext<SocketContextType | undefined>(undefined);
@@ -108,6 +114,18 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
         });
     };
 
+    const updateSettings = (payload: {
+        timeLimit: number;
+        numberOfArticles: number;
+        maxPlayers: number;
+        type: string;
+    }) => {
+        sendMessageToServer({
+            kind: "update_settings",
+            ...payload,
+        });
+    };
+
     return (
         <SocketContext.Provider
             value={{
@@ -122,6 +140,7 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
                 roomCode,
                 setRoomCode,
                 checkRoomExists,
+                updateSettings,
             }}
         >
             {children}
