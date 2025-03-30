@@ -46,7 +46,7 @@ export async function handleMessage(
             context.currentRoomId = session.id;
 
             console.log(`Game session ${session.id} created by ${leader.name}`);
-            ws.send(JSON.stringify({ kind: 'game_session_created', sessionId: session.id }));
+            ws.send(JSON.stringify({ kind: 'game_session_created', sessionId: session.id, leaderName: message.leaderName }));
             break;
         }
         case 'join_game_session': {
@@ -79,7 +79,7 @@ export async function handleMessage(
             context.currentRoomId = room.id;
 
             console.log(`${player.name} joined game session ${message.sessionId}`);
-            ws.send(JSON.stringify({ kind: 'game_session_created', sessionId: session.id }));
+            ws.send(JSON.stringify({ kind: 'game_session_created', sessionId: session.id, leaderName: session.leader.name }));
             break;
         }
         case 'send_message': {
@@ -148,6 +148,8 @@ export async function handleMessage(
             if (numberOfArticles != null) session.numberOfArticles = numberOfArticles;
             if (maxPlayers != null) session.maxPlayers = maxPlayers;
             if (type != null) session.type = type;
+
+            ws.send(JSON.stringify({ kind: 'settings_modified', timeLimit: timeLimit, numberOfArticles: numberOfArticles, maxPlayers: maxPlayers, type: type }));
             break;
         }
         case 'disconnect': {

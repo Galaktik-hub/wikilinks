@@ -11,18 +11,17 @@ import TextLoungePanel from "../../components/Sections/WaitingRoom/TextLounge/Te
 import Header from "../../components/Header/Header.tsx";
 import { SocketContext } from "../../context/SocketContext.tsx";
 
-const isHost: boolean = true;
-
 const WaitingRoom: React.FC = () => {
     const socket = useContext(SocketContext);
     const leftRef = useRef<HTMLDivElement>(null);
     const rightRef = useRef<HTMLDivElement>(null);
+    const isHost: boolean = socket?.leaderName === socket?.username;
 
     const [gameSettings, setGameSettings] = React.useState({
-        timeLimit: 10,
-        articleCount: 4,
-        maxPlayers: 10,
-        isPublicGame: false,
+        timeLimit: socket?.gameTimeLimit || 10,
+        articleCount: socket?.gameNumberOfArticles || 4,
+        maxPlayers: socket?.gameMaxPlayers || 10,
+        gameType: socket?.gameType || "private",
     });
 
     const [code, setCode] = React.useState<number>(socket?.roomCode || -10);
@@ -32,6 +31,12 @@ const WaitingRoom: React.FC = () => {
             setCode(socket.roomCode);
         }
     }, [socket?.roomCode]);
+
+    useEffect(() => {
+        if (socket?.gameTimeLimit && socket?.gameNumberOfArticles && socket?.gameMaxPlayers && socket?.gameType) {
+            setGameSettings((prev) => ({ ...prev }));
+        }
+    }, [socket?.gameTimeLimit, socket?.gameNumberOfArticles, socket?.gameMaxPlayers, socket?.gameType]);
 
     useEffect(() => {
         const updateHeights = () => {

@@ -15,11 +15,11 @@ interface SettingsGameOverlayProps {
     timeLimit: number;
     articleCount: number;
     maxPlayers: number;
-    isPublicGame: boolean;
+    gameType: "publique" | "privé";
     setTimeLimit: (value: number) => void;
     setArticleCount: (value: number) => void;
     setMaxPlayers: (value: number) => void;
-    setIsPublicGame: (value: boolean) => void;
+    setGameType: (value: "publique" | "privé") => void;
     closeModal: () => void;
 }
 
@@ -27,11 +27,11 @@ const SettingsGameOverlay: React.FC<SettingsGameOverlayProps> = ({
     timeLimit,
     articleCount,
     maxPlayers,
-    isPublicGame,
+    gameType,
     setTimeLimit,
     setArticleCount,
     setMaxPlayers,
-    setIsPublicGame,
+    setGameType,
     closeModal,
 }) => {
     const socket = useContext(SocketContext);
@@ -65,13 +65,13 @@ const SettingsGameOverlay: React.FC<SettingsGameOverlayProps> = ({
                 timeLimit,
                 numberOfArticles: articleCount,
                 maxPlayers,
-                type: isPublicGame ? "public" : "private",
+                type: gameType === "publique" ? "public" : "private",
             });
         }
-    }, [timeLimit, articleCount, maxPlayers, isPublicGame, socket]);
+    }, [timeLimit, articleCount, maxPlayers, gameType, socket]);
 
     const togglePublicGame = () => {
-        setIsPublicGame(!isPublicGame);
+        setGameType(gameType === "publique" ? "privé" : "publique");
     };
 
     return (
@@ -115,12 +115,12 @@ const SettingsGameOverlay: React.FC<SettingsGameOverlayProps> = ({
                             <button
                                 onClick={togglePublicGame}
                                 className={`relative w-10 h-5 flex items-center rounded-full p-1 transition-all duration-300 ${
-                                    isPublicGame ? "bg-bluePrimary" : "bg-gray-400"
+                                    gameType === "publique" ? "bg-bluePrimary" : "bg-gray-400"
                                 }`}
                             >
                                 <div
                                     className={`w-4 h-4 bg-white rounded-full shadow-md transform transition-all duration-300 ${
-                                        isPublicGame ? "translate-x-5" : "translate-x-0"
+                                        gameType === "publique" ? "translate-x-5" : "translate-x-0"
                                     }`}
                                 ></div>
                             </button>

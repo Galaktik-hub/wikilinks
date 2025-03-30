@@ -10,13 +10,13 @@ interface GameSettingsProps {
         timeLimit: number;
         articleCount: number;
         maxPlayers: number;
-        isPublicGame: boolean;
+        gameType: string;
     };
     setGameSettings: React.Dispatch<React.SetStateAction<{
         timeLimit: number;
         articleCount: number;
         maxPlayers: number;
-        isPublicGame: boolean;
+        gameType: string;
     }>>;
 }
 
@@ -38,7 +38,7 @@ const GameSettings: React.FC<GameSettingsProps> = ({ isHost, gameSettings, setGa
                 timeLimit={gameSettings.timeLimit}
                 articleCount={gameSettings.articleCount}
                 maxPlayers={gameSettings.maxPlayers}
-                gameType={gameSettings.isPublicGame ? "Publique" : "Privé"}
+                gameType={gameSettings.gameType.charAt(0).toUpperCase() + gameSettings.gameType.slice(1)}
             />
 
             {/* Modal Popup */}
@@ -47,7 +47,7 @@ const GameSettings: React.FC<GameSettingsProps> = ({ isHost, gameSettings, setGa
                     timeLimit={gameSettings.timeLimit}
                     articleCount={gameSettings.articleCount}
                     maxPlayers={gameSettings.maxPlayers}
-                    isPublicGame={gameSettings.isPublicGame}
+                    gameType={gameSettings.gameType === "publique" ? gameSettings.gameType : "privé"}
                     setTimeLimit={(value) =>
                         setGameSettings((prev) => ({ ...prev, timeLimit: value }))
                     }
@@ -57,8 +57,8 @@ const GameSettings: React.FC<GameSettingsProps> = ({ isHost, gameSettings, setGa
                     setMaxPlayers={(value) =>
                         setGameSettings((prev) => ({ ...prev, maxPlayers: value }))
                     }
-                    setIsPublicGame={(value) =>
-                        setGameSettings((prev) => ({ ...prev, isPublicGame: value }))
+                    setGameType={(value) =>
+                        setGameSettings((prev) => ({ ...prev, gameType: value }))
                     }
                     closeModal={closeModal}
                 />

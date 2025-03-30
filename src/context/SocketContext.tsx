@@ -13,6 +13,7 @@ export interface SocketContextType {
         leaderName: string;
     }) => void;
     joinGameSession: (payload: { sessionId: number; playerName: string }) => void;
+    leaderName: string | null;
     sendMessage: (content: string, sender: string) => void;
     username: string | null;
     setUsername: (name: string) => void;
@@ -26,6 +27,11 @@ export interface SocketContextType {
         maxPlayers: number;
         type: string;
     }) => void;
+    // Game session settings
+    gameTimeLimit: number;
+    gameNumberOfArticles: number;
+    gameMaxPlayers: number;
+    gameType: string;
 }
 
 export const SocketContext = createContext<SocketContextType | undefined>(undefined);
@@ -37,9 +43,15 @@ interface SocketProviderProps {
 export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
     const [isConnected, setIsConnected] = useState(false);
     const [messages, setMessages] = useState<any[]>([]);
+    const [leaderName, setLeaderName] = useState<string | null>(null);
     const [username, setUsername] = useState<string | null>(null);
     const [roomCode, setRoomCode] = useState<number>(-1);
     const socketRef = useRef<WebSocket | null>(null);
+
+    const [gameTimeLimit, setGameTimeLimit] = useState<number>(10);
+    const [gameNumberOfArticles, setNumberOfArticles] = useState<number>(4);
+    const [gameMaxPlayers, setMaxPlayers] = useState<number>(10);
+    const [gameType, setType] = useState<string>("private");
 
     useEffect(() => {
         const socket = new WebSocket("ws://localhost:2025");
@@ -56,6 +68,12 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
                 console.log("Message reçu :", data);
                 if (data.kind === "game_session_created") {
                     setRoomCode(data.sessionId);
+                    setLeaderName(data.leaderName);
+                } else if (data.kind === "settings_modified") {
+                    setGameTimeLimit(data.timeLimit);
+                    setNumberOfArticles(data.numberOfArticles);
+                    setMaxPlayers(data.maxPlayers);
+                    setType(data.type);
                 } else {
                     setMessages((prev) => [...prev, data]);
                 }
@@ -143,8 +161,13 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
                 setUsername,
                 roomCode,
                 setRoomCode,
+                leaderName,
                 checkRoomExists,
                 updateSettings,
+                gameTimeLimit,
+                gameNumberOfArticles,
+                gameMaxPlayers,
+                gameType,
             }}
         >
             {children}
