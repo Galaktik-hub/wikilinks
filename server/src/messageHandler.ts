@@ -79,6 +79,7 @@ export async function handleMessage(
             context.currentRoomId = room.id;
 
             console.log(`${player.name} joined game session ${message.sessionId}`);
+            ws.send(JSON.stringify({ kind: 'game_session_created', sessionId: session.id }));
             break;
         }
         case 'send_message': {
