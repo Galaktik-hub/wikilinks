@@ -4,13 +4,13 @@ import React, { useState, useEffect, useContext } from "react";
 import { LobbyCard } from "./LobbyCard.tsx";
 import { useNavigate, useLocation } from "react-router-dom";
 import UsernameModal from "../../Modals/WaitingRoom/UsernameModal";
-import { ChatContext } from "../../../contexts/ChatContext";
 import {IconPlus} from "@tabler/icons-react";
+import {SocketContext} from "../../../context/SocketContext.tsx";
 
 export const CreateOrJoinGame: React.FC = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const chat = useContext(ChatContext);
+    const socket = useContext(SocketContext);
     const [showUsernameModal, setShowUsernameModal] = useState(false);
     const [tempRoomCode, setTempRoomCode] = useState("");
     const [roomCodeInput, setRoomCodeInput] = useState(""); // État pour le champ d'entrée
@@ -69,7 +69,7 @@ export const CreateOrJoinGame: React.FC = () => {
         setError(null);
         try {
             // Use the context function to check if the room exists
-            const roomExists = await chat?.checkRoomExists(roomCode);
+            const roomExists = await socket?.checkRoomExists(roomCode);
 
             if (roomExists) {
                 // Si la room existe, on sauvegarde le code temporairement et on affiche le modal pour renseigner le username
