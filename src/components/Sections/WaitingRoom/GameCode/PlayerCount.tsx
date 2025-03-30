@@ -6,7 +6,7 @@ interface PlayerCountProps {
 }
 
 export const PlayerCount: React.FC<PlayerCountProps> = ({ playerCount, maxPlayers }) => {
-    const textColor = playerCount === maxPlayers
+    const textColor = playerCount >= maxPlayers
         ? "text-red-500"
         : playerCount > maxPlayers / 2
             ? "text-orange-400"

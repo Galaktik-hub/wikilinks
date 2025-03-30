@@ -16,6 +16,13 @@ const isHost: boolean = true;
 const WaitingRoom: React.FC = () => {
     const socket = useContext(SocketContext);
 
+    const [gameSettings, setGameSettings] = React.useState({
+        timeLimit: 10,
+        articleCount: 4,
+        maxPlayers: 10,
+        isPublicGame: false,
+    });
+
     return (
         <Layout header={<Header />}>
             <div className="flex flex-col w-full overflow-hidden items-center justify-center p-4 gap-6 max-md:mb-16">
@@ -24,8 +31,8 @@ const WaitingRoom: React.FC = () => {
                 </div>
                 <section className="w-full flex gap-6">
                     <div className="w-full flex flex-col gap-6">
-                        <GameRoomCard codegame={socket?.roomCode} playerCount={4} maxPlayers={10} />
-                        <GameSettings isHost={isHost} />
+                        <GameRoomCard codegame={socket?.roomCode || -10} playerCount={4} maxPlayers={gameSettings.maxPlayers} />
+                        <GameSettings isHost={isHost} gameSettings={gameSettings} setGameSettings={setGameSettings}/>
                         <PlayerList isHost={isHost} />
                     </div>
                     <div className="hidden xl-custom:flex w-full flex-col gap-6">

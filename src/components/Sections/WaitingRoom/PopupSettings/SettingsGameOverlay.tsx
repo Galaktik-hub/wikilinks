@@ -10,19 +10,28 @@ import PlanetSVG from "../../../../assets/WaitingRoom/PlanetSVG.tsx";
 import CloseSVG from "../../../../assets/WaitingRoom/CloseSVG.tsx";
 
 interface SettingsGameOverlayProps {
+    timeLimit: number;
+    articleCount: number;
+    maxPlayers: number;
+    isPublicGame: boolean;
+    setTimeLimit: (value: number) => void;
+    setArticleCount: (value: number) => void;
+    setMaxPlayers: (value: number) => void;
+    setIsPublicGame: (value: boolean) => void;
     closeModal: () => void;
 }
 
-const SettingsGameOverlay: React.FC<SettingsGameOverlayProps> = ({ closeModal }) => {
-    const [selectedTime, setSelectedTime] = React.useState<number | string | null>(0);
-    const [selectedArticles, setSelectedArticles] = React.useState<number | null>(1);
-    const [selectedPlayers, setSelectedPlayers] = React.useState<number | null>(2);
-    const [isPublicGame, setIsPublicGame] = React.useState<boolean>(false);
-
-    const togglePublicGame = () => {
-        setIsPublicGame((prev) => !prev);
-    };
-
+const SettingsGameOverlay: React.FC<SettingsGameOverlayProps> = ({
+    timeLimit,
+    articleCount,
+    maxPlayers,
+    isPublicGame,
+    setTimeLimit,
+    setArticleCount,
+    setMaxPlayers,
+    setIsPublicGame,
+    closeModal,
+}) => {
     const timeOptions = [
         { label: "Aucun", value: 0 },
         { label: "2min", value: 2 },
@@ -46,6 +55,10 @@ const SettingsGameOverlay: React.FC<SettingsGameOverlayProps> = ({ closeModal })
         { label: "30", value: 30 },
     ];
 
+    const togglePublicGame = () => {
+        setIsPublicGame(!isPublicGame);
+    };
+
     return (
         <div
             className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
@@ -64,22 +77,22 @@ const SettingsGameOverlay: React.FC<SettingsGameOverlayProps> = ({ closeModal })
                     <SettingsOption icon={<TimerSVG />} label="Temps imparti">
                         <OptionSelector
                             options={timeOptions}
-                            selectedValue={selectedTime}
-                            onChange={setSelectedTime}
+                            selectedValue={timeLimit}
+                            onChange={(value) => setTimeLimit(Number(value))}
                         />
                     </SettingsOption>
                     <SettingsOption icon={<ArticleSVG />} label="Nombre d'articles">
                         <OptionSelector
                             options={articleOptions}
-                            selectedValue={selectedArticles}
-                            onChange={setSelectedArticles}
+                            selectedValue={articleCount}
+                            onChange={(value) => setArticleCount(Number(value))}
                         />
                     </SettingsOption>
                     <SettingsOption icon={<PlayerSVG />} label="Joueurs max">
                         <OptionSelector
                             options={playerOptions}
-                            selectedValue={selectedPlayers}
-                            onChange={setSelectedPlayers}
+                            selectedValue={maxPlayers}
+                            onChange={(value) => setMaxPlayers(Number(value))}
                         />
                     </SettingsOption>
                     <SettingsOption icon={<PlanetSVG />} label="Partie publique">

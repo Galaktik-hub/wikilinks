@@ -6,14 +6,25 @@ import SettingsGameOverlay from "../PopupSettings/SettingsGameOverlay.tsx";
 
 interface GameSettingsProps {
     isHost: boolean;
+    gameSettings: {
+        timeLimit: number;
+        articleCount: number;
+        maxPlayers: number;
+        isPublicGame: boolean;
+    };
+    setGameSettings: React.Dispatch<React.SetStateAction<{
+        timeLimit: number;
+        articleCount: number;
+        maxPlayers: number;
+        isPublicGame: boolean;
+    }>>;
 }
 
-const GameSettings: React.FC<GameSettingsProps> = ({ isHost }) => {
+const GameSettings: React.FC<GameSettingsProps> = ({ isHost, gameSettings, setGameSettings }) => {
     const [isModalOpen, setIsModalOpen] = React.useState(false);
 
     const handleEdit = () => {
         setIsModalOpen(true);
-        console.log("Edit clicked");
     };
 
     const closeModal = () => {
@@ -24,15 +35,33 @@ const GameSettings: React.FC<GameSettingsProps> = ({ isHost }) => {
         <div className="card-container whitespace-nowrap">
             <GameSettingsHeader onEdit={handleEdit} isHost={isHost} />
             <GameSettingsParameters
-                timeLimit={2}
-                articleCount={2}
-                maxPlayers={10}
-                gameType={"Privé"}
+                timeLimit={gameSettings.timeLimit}
+                articleCount={gameSettings.articleCount}
+                maxPlayers={gameSettings.maxPlayers}
+                gameType={gameSettings.isPublicGame ? "Publique" : "Privé"}
             />
 
             {/* Modal Popup */}
             {isModalOpen && (
-                <SettingsGameOverlay closeModal={closeModal} />
+                <SettingsGameOverlay
+                    timeLimit={gameSettings.timeLimit}
+                    articleCount={gameSettings.articleCount}
+                    maxPlayers={gameSettings.maxPlayers}
+                    isPublicGame={gameSettings.isPublicGame}
+                    setTimeLimit={(value) =>
+                        setGameSettings((prev) => ({ ...prev, timeLimit: value }))
+                    }
+                    setArticleCount={(value) =>
+                        setGameSettings((prev) => ({ ...prev, articleCount: value }))
+                    }
+                    setMaxPlayers={(value) =>
+                        setGameSettings((prev) => ({ ...prev, maxPlayers: value }))
+                    }
+                    setIsPublicGame={(value) =>
+                        setGameSettings((prev) => ({ ...prev, isPublicGame: value }))
+                    }
+                    closeModal={closeModal}
+                />
             )}
         </div>
     );
