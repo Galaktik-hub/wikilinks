@@ -126,6 +126,28 @@ export async function handleMessage(
             await session.initializeArticles();
             break;
         }
+        case 'update_settings': {
+            const { currentGameSessionId, currentUser } = context;
+            if (!currentGameSessionId || !currentUser) {
+                ws.send(JSON.stringify({ kind: 'error', message: 'Not in a game session' }));
+                return;
+            }
+            const session = GameSessionManager.getSession(currentGameSessionId);
+            if (!session) {
+                ws.send(JSON.stringify({ kind: 'error', message: 'Game session not found' }));
+                return;
+            }
+            if (!session.leader.equals(currentUser)) {
+                ws.send(JSON.stringify({ kind: 'error', message: 'Only the leader can update settings' }));
+                return;
+            }
+            const { timeLimit, numberOfArticles, maxPlayers, type } = message;
+            if (timeLimit != null) session.timeLimit = timeLimit;
+            if (numberOfArticles != null) session.numberOfArticles = numberOfArticles;
+            if (maxPlayers != null) session.maxPlayers = maxPlayers;
+            if (type != null) session.type = type;
+            break;
+        }
         case 'disconnect': {
             const { currentRoomId, currentUser } = context;
             if (currentRoomId && currentUser) {
