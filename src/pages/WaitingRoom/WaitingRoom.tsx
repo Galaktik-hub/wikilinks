@@ -62,7 +62,7 @@ const WaitingRoom: React.FC = () => {
         <Layout header={<Header />}>
             <div className="flex flex-col w-full overflow-hidden items-center justify-center p-4 gap-6 max-md:mb-16">
                 <div className="title-block">
-                    Partie de {socket?.username}
+                    Partie de {socket?.leaderName}
                 </div>
                 <section className="w-full h-full flex gap-6">
                     <div ref={leftRef} className="w-full flex flex-col gap-6">
