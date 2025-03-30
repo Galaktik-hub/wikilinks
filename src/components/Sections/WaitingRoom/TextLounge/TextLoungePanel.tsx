@@ -1,7 +1,6 @@
 import * as React from "react";
 import { ChatInput } from "../../../Chat/ChatInput.tsx";
 import { SendButton } from "../../../Chat/SendButton.tsx";
-import RoomModal from "../../../Modals/WaitingRoom/RoomModal";
 import { useContext } from "react";
 import { SocketContext } from "../../../../context/SocketContext";
 
@@ -68,16 +67,6 @@ export const TextLoungePanel: React.FC = () => {
 
     return (
         <>
-            <RoomModal
-                onSubmit={(username: string, roomCode: string) => {
-                    if (socket?.setUsername && socket?.setRoomCode) {
-                        socket.setUsername(username);
-                        socket.setRoomCode(roomCode);
-                    }
-                }}
-                shouldOpen={!socket?.username}
-            />
-
             {/* Desktop version */}
             <div className="card-container hidden xl-custom:flex flex-col h-full gap-2.5">
                 <div className="w-full flex justify-center">
