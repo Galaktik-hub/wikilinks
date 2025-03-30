@@ -34,7 +34,12 @@ const WaitingRoom: React.FC = () => {
 
     useEffect(() => {
         if (socket?.gameTimeLimit && socket?.gameNumberOfArticles && socket?.gameMaxPlayers && socket?.gameType) {
-            setGameSettings((prev) => ({ ...prev }));
+            setGameSettings({
+                timeLimit: socket.gameTimeLimit,
+                articleCount: socket.gameNumberOfArticles,
+                maxPlayers: socket.gameMaxPlayers,
+                gameType: socket.gameType,
+            });
         }
     }, [socket?.gameTimeLimit, socket?.gameNumberOfArticles, socket?.gameMaxPlayers, socket?.gameType]);
 
