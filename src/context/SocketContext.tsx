@@ -16,8 +16,8 @@ export interface SocketContextType {
     sendMessage: (content: string, sender: string ) => void;
     username: string | null;
     setUsername: (name: string) => void;
-    roomCode: number | null;
-    setRoomCode: (code: number | null) => void;
+    roomCode: number;
+    setRoomCode: (code: number) => void;
     // Pour vérifier l'existence d'une room (ici, simulation)
     checkRoomExists: (roomCode: number) => Promise<boolean>;
 }
@@ -32,7 +32,7 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
     const [isConnected, setIsConnected] = useState(false);
     const [messages, setMessages] = useState<any[]>([]);
     const [username, setUsername] = useState<string | null>(null);
-    const [roomCode, setRoomCode] = useState<number | null>(null);
+    const [roomCode, setRoomCode] = useState<number>(-1);
     const socketRef = useRef<WebSocket | null>(null);
 
     useEffect(() => {
