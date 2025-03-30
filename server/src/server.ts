@@ -1,5 +1,5 @@
 import { WebSocketServer, WebSocket, RawData } from 'ws';
-import { GameSessionManager } from './gameSession';
+import { GameSessionManager } from "./game/gameSessionManager";
 import { handleMessage, ClientContext } from './messageHandler';
 
 const gameSessionConnections: Map<number, Map<string, WebSocket>> = new Map();
