@@ -1,11 +1,16 @@
 import React, { createContext, useEffect, useRef, useState } from "react";
-import {GameSettings} from "../../server/src/game/gameSettings.ts";
 
 export interface SocketContextType {
     isConnected: boolean;
     messages: any[];
     sendMessageToServer: (msg: any) => void;
-    createGameSession: (payload:  GameSettings & { leaderName: string }) => void;
+    createGameSession: (payload: {
+        timeLimit: number;
+        numberOfArticles: number;
+        maxPlayers: number;
+        type: string;
+        leaderName: string;
+    }) => void;
     joinGameSession: (payload: { sessionId: number; playerName: string }) => void;
     leaderName: string | null;
     sendMessage: (content: string, sender: string) => void;
@@ -15,8 +20,17 @@ export interface SocketContextType {
     setRoomCode: (code: number) => void;
     // Pour vérifier l'existence d'une room (ici, simulation)
     checkRoomExists: (roomCode: number) => Promise<boolean>;
-    updateSettings: (settings: GameSettings) => void;
-    gameSettings: GameSettings;
+    updateSettings: (payload: {
+        timeLimit: number;
+        numberOfArticles: number;
+        maxPlayers: number;
+        type: string;
+    }) => void;
+    // Game session settings
+    gameTimeLimit: number;
+    gameNumberOfArticles: number;
+    gameMaxPlayers: number;
+    gameType: string;
 }
 
 export const SocketContext = createContext<SocketContextType | undefined>(undefined);
@@ -33,8 +47,10 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
     const [roomCode, setRoomCode] = useState<number>(-1);
     const socketRef = useRef<WebSocket | null>(null);
 
-    // Stocke tous les paramètres de la game dans un seul state
-    const [gameSettings, setGameSettings] = useState<GameSettings>({ timeLimit: 10, numberOfArticles: 4, maxPlayers: 10, type: 'private' });
+    const [gameTimeLimit, setGameTimeLimit] = useState<number>(10);
+    const [gameNumberOfArticles, setNumberOfArticles] = useState<number>(4);
+    const [gameMaxPlayers, setMaxPlayers] = useState<number>(10);
+    const [gameType, setType] = useState<string>("private");
 
     useEffect(() => {
         const socket = new WebSocket("ws://localhost:2025");
@@ -53,12 +69,10 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
                     setRoomCode(data.sessionId);
                     setLeaderName(data.leaderName);
                 } else if (data.kind === "settings_modified") {
-                    setGameSettings({
-                        timeLimit: data.timeLimit,
-                        numberOfArticles: data.numberOfArticles,
-                        maxPlayers: data.maxPlayers,
-                        type: data.type
-                    });
+                    setGameTimeLimit(data.timeLimit);
+                    setNumberOfArticles(data.numberOfArticles);
+                    setMaxPlayers(data.maxPlayers);
+                    setType(data.type);
                 } else {
                     setMessages((prev) => [...prev, data]);
                 }
@@ -121,10 +135,15 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
         });
     };
 
-    const updateSettings = (settings: GameSettings) => {
+    const updateSettings = (payload: {
+        timeLimit: number;
+        numberOfArticles: number;
+        maxPlayers: number;
+        type: string;
+    }) => {
         sendMessageToServer({
             kind: "update_settings",
-            ...settings,
+            ...payload,
         });
     };
 
@@ -144,7 +163,10 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
                 leaderName,
                 checkRoomExists,
                 updateSettings,
-                gameSettings
+                gameTimeLimit,
+                gameNumberOfArticles,
+                gameMaxPlayers,
+                gameType,
             }}
         >
             {children}

@@ -1,6 +1,5 @@
 import { WebSocket } from 'ws';
-import {GameSessionManager} from "./game/gameSessionManager";
-import {GameSettings} from "./game/gameSettings";
+import { GameSessionManager } from './gameSession';
 import { Player } from './player/player';
 import { createRoom, joinRoom, closeRoom, getRoom, removeMember } from "./rooms";
 
@@ -30,17 +29,14 @@ export async function handleMessage(
             }
 
             const leader = new Player(message.leaderName, true);
-            const gameSettings: GameSettings = {
+            // Create session using GameSessionManager
+            const session = GameSessionManager.createSession({
                 timeLimit: message.timeLimit,
                 numberOfArticles: message.numberOfArticles,
                 maxPlayers: message.maxPlayers,
-                type: message.type
-            };
-            // Create session using GameSessionManager
-            const session = GameSessionManager.createSession(
+                type: message.type,
                 leader,
-                gameSettings
-            );
+            });
             context.currentGameSessionId = session.id;
             context.currentUser = leader;
             gameSessionConnections.set(session.id, new Map([[leader.id, ws]]));
@@ -148,10 +144,10 @@ export async function handleMessage(
                 return;
             }
             const { timeLimit, numberOfArticles, maxPlayers, type } = message;
-            if (timeLimit != null) session.gameSettings.timeLimit = timeLimit;
-            if (numberOfArticles != null) session.gameSettings.numberOfArticles = numberOfArticles;
-            if (maxPlayers != null) session.gameSettings.maxPlayers = maxPlayers;
-            if (type != null) session.gameSettings.type = type;
+            if (timeLimit != null) session.timeLimit = timeLimit;
+            if (numberOfArticles != null) session.numberOfArticles = numberOfArticles;
+            if (maxPlayers != null) session.maxPlayers = maxPlayers;
+            if (type != null) session.type = type;
 
             // Notify all players in the game session about the updated settings
             const connections = gameSessionConnections.get(currentGameSessionId);

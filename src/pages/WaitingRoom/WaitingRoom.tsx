@@ -5,8 +5,7 @@ import Layout from "../../components/Layout.tsx";
 import GameRoomCard from "../../components/Sections/WaitingRoom/GameCode/GameRoomCard.tsx";
 import ExitButton from "../../components/Buttons/WaitingRoom/ExitButton.tsx";
 import LaunchButton from "../../components/Buttons/WaitingRoom/LaunchButton.tsx";
-import GameSettingsPanel from "../../components/Sections/WaitingRoom/GameSettings/GameSettingsPanel.tsx";
-import {GameSettings} from "../../../server/src/game/gameSettings.ts";
+import GameSettings from "../../components/Sections/WaitingRoom/GameSettings/GameSettings.tsx";
 import PlayerList from "../../components/Sections/WaitingRoom/Player/PlayerList.tsx";
 import TextLoungePanel from "../../components/Sections/WaitingRoom/TextLounge/TextLoungePanel.tsx";
 import Header from "../../components/Header/Header.tsx";
@@ -18,7 +17,12 @@ const WaitingRoom: React.FC = () => {
     const rightRef = useRef<HTMLDivElement>(null);
     const isHost: boolean = socket?.leaderName === socket?.username;
 
-    const [gameSettings, setGameSettings] = React.useState<GameSettings>({ timeLimit: 10, numberOfArticles: 4, maxPlayers: 10, type: 'private' });
+    const [gameSettings, setGameSettings] = React.useState({
+        timeLimit: socket?.gameTimeLimit || 10,
+        articleCount: socket?.gameNumberOfArticles || 4,
+        maxPlayers: socket?.gameMaxPlayers || 10,
+        gameType: socket?.gameType || "private",
+    });
 
     const [code, setCode] = React.useState<number>(socket?.roomCode || -10);
 
@@ -29,15 +33,15 @@ const WaitingRoom: React.FC = () => {
     }, [socket?.roomCode]);
 
     useEffect(() => {
-        if (socket?.gameSettings) {
+        if (socket?.gameTimeLimit && socket?.gameNumberOfArticles && socket?.gameMaxPlayers && socket?.gameType) {
             setGameSettings({
-                timeLimit: socket.gameSettings.timeLimit,
-                numberOfArticles: socket.gameSettings.numberOfArticles,
-                maxPlayers: socket.gameSettings.maxPlayers,
-                type: socket.gameSettings.type
+                timeLimit: socket.gameTimeLimit,
+                articleCount: socket.gameNumberOfArticles,
+                maxPlayers: socket.gameMaxPlayers,
+                gameType: socket.gameType,
             });
         }
-    }, [socket?.gameSettings]);
+    }, [socket?.gameTimeLimit, socket?.gameNumberOfArticles, socket?.gameMaxPlayers, socket?.gameType]);
 
     useEffect(() => {
         const updateHeights = () => {
@@ -63,7 +67,7 @@ const WaitingRoom: React.FC = () => {
                 <section className="w-full h-full flex gap-6">
                     <div ref={leftRef} className="w-full flex flex-col gap-6">
                         <GameRoomCard codegame={code} playerCount={4} maxPlayers={gameSettings.maxPlayers} />
-                        <GameSettingsPanel isHost={isHost} gameSettings={gameSettings} setGameSettings={setGameSettings} />
+                        <GameSettings isHost={isHost} gameSettings={gameSettings} setGameSettings={setGameSettings} />
                         <PlayerList isHost={isHost} />
                     </div>
                     <div ref={rightRef} className="hidden xl-custom:flex w-full flex-col gap-6">

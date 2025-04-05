@@ -10,22 +10,31 @@ import PlanetSVG from "../../../../assets/WaitingRoom/PlanetSVG.tsx";
 import CloseSVG from "../../../../assets/WaitingRoom/CloseSVG.tsx";
 import {useContext, useEffect} from "react";
 import {SocketContext} from "../../../../context/SocketContext.tsx";
-import {GameSettings} from "../../../../../server/src/game/gameSettings.ts";
 
 interface SettingsGameOverlayProps {
-    gameSettings: GameSettings;
-    updateGameSettings: (newSettings: GameSettings) => void;
+    timeLimit: number;
+    articleCount: number;
+    maxPlayers: number;
+    gameType: "publique" | "privé";
+    setTimeLimit: (value: number) => void;
+    setArticleCount: (value: number) => void;
+    setMaxPlayers: (value: number) => void;
+    setGameType: (value: "publique" | "privé") => void;
     closeModal: () => void;
 }
 
 const SettingsGameOverlay: React.FC<SettingsGameOverlayProps> = ({
-    gameSettings,
-    updateGameSettings,
+    timeLimit,
+    articleCount,
+    maxPlayers,
+    gameType,
+    setTimeLimit,
+    setArticleCount,
+    setMaxPlayers,
+    setGameType,
     closeModal,
 }) => {
     const socket = useContext(SocketContext);
-    const { timeLimit, numberOfArticles, maxPlayers, type } = gameSettings;
-    const gameType = type === "public" ? "publique" : "privé";
 
     const timeOptions = [
         { label: "Aucun", value: 0 },
@@ -52,12 +61,17 @@ const SettingsGameOverlay: React.FC<SettingsGameOverlayProps> = ({
 
     useEffect(() => {
         if (socket) {
-            socket.updateSettings(gameSettings);
+            socket.updateSettings({
+                timeLimit,
+                numberOfArticles: articleCount,
+                maxPlayers,
+                type: gameType === "publique" ? "public" : "private",
+            });
         }
-    }, [gameSettings]);
+    }, [timeLimit, articleCount, maxPlayers, gameType, socket]);
 
     const togglePublicGame = () => {
-        updateGameSettings({ ...gameSettings, type: gameSettings.type === "public" ? "private" : "public" })
+        setGameType(gameType === "publique" ? "privé" : "publique");
     };
 
     return (
@@ -79,27 +93,21 @@ const SettingsGameOverlay: React.FC<SettingsGameOverlayProps> = ({
                         <OptionSelector
                             options={timeOptions}
                             selectedValue={timeLimit}
-                            onChange={(value) =>
-                                updateGameSettings({ ...gameSettings, timeLimit: Number(value) })
-                            }
+                            onChange={(value) => setTimeLimit(Number(value))}
                         />
                     </SettingsOption>
                     <SettingsOption icon={<ArticleSVG />} label="Nombre d'articles">
                         <OptionSelector
                             options={articleOptions}
-                            selectedValue={numberOfArticles}
-                            onChange={(value) =>
-                                updateGameSettings({ ...gameSettings, numberOfArticles: Number(value) })
-                            }
+                            selectedValue={articleCount}
+                            onChange={(value) => setArticleCount(Number(value))}
                         />
                     </SettingsOption>
                     <SettingsOption icon={<PlayerSVG />} label="Joueurs max">
                         <OptionSelector
                             options={playerOptions}
                             selectedValue={maxPlayers}
-                            onChange={(value) =>
-                                updateGameSettings({ ...gameSettings, maxPlayers: Number(value) })
-                            }
+                            onChange={(value) => setMaxPlayers(Number(value))}
                         />
                     </SettingsOption>
                     <SettingsOption icon={<PlanetSVG />} label="Partie publique">
