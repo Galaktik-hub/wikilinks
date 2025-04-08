@@ -1,7 +1,13 @@
-import { WebSocket } from 'ws';
-import { GameSessionManager } from './gameSession';
-import { Player } from './player/player';
-import { createRoom, joinRoom, closeRoom, getRoom, removeMember } from "./rooms";
+import { WebSocket } from "ws";
+import { GameSessionManager } from "./gameSession";
+import { Player } from "./player/player";
+import {
+    createRoom,
+    joinRoom,
+    closeRoom,
+    getRoom,
+    removeMember,
+} from "./rooms";
 
 export interface ClientContext {
     currentRoomId: number | null;
@@ -16,7 +22,7 @@ export async function handleMessage(
     gameSessionConnections: Map<number, Map<string, WebSocket>>
 ) {
     switch (message.kind) {
-        case 'create_game_session': {
+        case "create_game_session": {
             if (
                 message.timeLimit == null ||
                 message.numberOfArticles == null ||
@@ -24,7 +30,12 @@ export async function handleMessage(
                 !message.type ||
                 !message.leaderName
             ) {
-                ws.send(JSON.stringify({ kind: 'error', message: 'Missing parameters for game session creation' }));
+                ws.send(
+                    JSON.stringify({
+                        kind: "error",
+                        message: "Missing parameters for game session creation",
+                    })
+                );
                 return;
             }
 
@@ -46,22 +57,44 @@ export async function handleMessage(
             context.currentRoomId = session.id;
 
             console.log(`Game session ${session.id} created by ${leader.name}`);
-            ws.send(JSON.stringify({ kind: 'game_session_created', sessionId: session.id, leaderName: message.leaderName }));
+            ws.send(
+                JSON.stringify({
+                    kind: "game_session_created",
+                    sessionId: session.id,
+                    leaderName: message.leaderName,
+                })
+            );
             break;
         }
-        case 'join_game_session': {
+        case "join_game_session": {
             if (!message.sessionId || !message.playerName) {
-                ws.send(JSON.stringify({ kind: 'error', message: 'Missing parameters for joining game session' }));
+                ws.send(
+                    JSON.stringify({
+                        kind: "error",
+                        message: "Missing parameters for joining game session",
+                    })
+                );
                 return;
             }
             const session = GameSessionManager.getSession(message.sessionId);
             if (!session) {
-                ws.send(JSON.stringify({ kind: 'error', message: 'Game session not found' }));
+                ws.send(
+                    JSON.stringify({
+                        kind: "error",
+                        message: "Game session not found",
+                    })
+                );
                 return;
             }
             const player = new Player(message.playerName);
             if (!session.addPlayer(player)) {
-                ws.send(JSON.stringify({ kind: 'error', message: 'Unable to join game session (max capacity reached)' }));
+                ws.send(
+                    JSON.stringify({
+                        kind: "error",
+                        message:
+                            "Unable to join game session (max capacity reached)",
+                    })
+                );
                 return;
             }
             context.currentGameSessionId = message.sessionId;
@@ -73,26 +106,41 @@ export async function handleMessage(
 
             const room = joinRoom(message.sessionId, message.playerName, ws);
             if (!room) {
-                ws.send(JSON.stringify({ kind: 'error', message: 'Room not found' }));
+                ws.send(
+                    JSON.stringify({ kind: "error", message: "Room not found" })
+                );
                 return;
             }
             context.currentRoomId = room.id;
 
-            console.log(`${player.name} joined game session ${message.sessionId}`);
-            ws.send(JSON.stringify({ kind: 'game_session_created', sessionId: session.id, leaderName: session.leader.name }));
+            console.log(
+                `${player.name} joined game session ${message.sessionId}`
+            );
+            ws.send(
+                JSON.stringify({
+                    kind: "game_session_created",
+                    sessionId: session.id,
+                    leaderName: session.leader.name,
+                })
+            );
             break;
         }
-        case 'send_message': {
+        case "send_message": {
             const { currentRoomId, currentUser } = context;
             if (!currentRoomId || !currentUser) {
-                ws.send(JSON.stringify({ kind: 'error', message: 'Not in a room' }));
+                ws.send(
+                    JSON.stringify({ kind: "error", message: "Not in a room" })
+                );
                 return;
             }
             const room = getRoom(currentRoomId);
             if (!room) return;
             let intercepted = false;
             room.bots.forEach((bot) => {
-                if (bot.notifyReceivedMessage && bot.notifyReceivedMessage(currentUser.name, message.content)) {
+                if (
+                    bot.notifyReceivedMessage &&
+                    bot.notifyReceivedMessage(currentUser.name, message.content)
+                ) {
                     intercepted = true;
                 }
             });
@@ -100,7 +148,7 @@ export async function handleMessage(
                 room.members.forEach((member) => {
                     member.ws.send(
                         JSON.stringify({
-                            kind: 'message_received',
+                            kind: "message_received",
                             content: message.content,
                             sender: currentUser.name,
                         })
@@ -109,58 +157,98 @@ export async function handleMessage(
             }
             break;
         }
-        case 'start_game': {
+        case "start_game": {
             const { currentGameSessionId, currentUser } = context;
             if (!currentGameSessionId || !currentUser) {
-                ws.send(JSON.stringify({ kind: 'error', message: 'Not in a game session' }));
+                ws.send(
+                    JSON.stringify({
+                        kind: "error",
+                        message: "Not in a game session",
+                    })
+                );
                 return;
             }
             const session = GameSessionManager.getSession(currentGameSessionId);
             if (!session) {
-                ws.send(JSON.stringify({ kind: 'error', message: 'Game session not found' }));
+                ws.send(
+                    JSON.stringify({
+                        kind: "error",
+                        message: "Game session not found",
+                    })
+                );
                 return;
             }
             if (!session.leader.equals(currentUser)) {
-                ws.send(JSON.stringify({ kind: 'error', message: 'Only the leader can start the game' }));
+                ws.send(
+                    JSON.stringify({
+                        kind: "error",
+                        message: "Only the leader can start the game",
+                    })
+                );
                 return;
             }
             // Start the game by initializing session articles
             await session.initializeArticles();
             break;
         }
-        case 'update_settings': {
+        case "update_settings": {
             const { currentGameSessionId, currentUser } = context;
             if (!currentGameSessionId || !currentUser) {
-                ws.send(JSON.stringify({ kind: 'error', message: 'Not in a game session' }));
+                ws.send(
+                    JSON.stringify({
+                        kind: "error",
+                        message: "Not in a game session",
+                    })
+                );
                 return;
             }
             const session = GameSessionManager.getSession(currentGameSessionId);
             if (!session) {
-                ws.send(JSON.stringify({ kind: 'error', message: 'Game session not found' }));
+                ws.send(
+                    JSON.stringify({
+                        kind: "error",
+                        message: "Game session not found",
+                    })
+                );
                 return;
             }
             if (!session.leader.equals(currentUser)) {
-                ws.send(JSON.stringify({ kind: 'error', message: 'Only the leader can update settings' }));
+                ws.send(
+                    JSON.stringify({
+                        kind: "error",
+                        message: "Only the leader can update settings",
+                    })
+                );
                 return;
             }
             const { timeLimit, numberOfArticles, maxPlayers, type } = message;
             if (timeLimit != null) session.timeLimit = timeLimit;
-            if (numberOfArticles != null) session.numberOfArticles = numberOfArticles;
+            if (numberOfArticles != null)
+                session.numberOfArticles = numberOfArticles;
             if (maxPlayers != null) session.maxPlayers = maxPlayers;
             if (type != null) session.type = type;
 
             // Notify all players in the game session about the updated settings
-            const connections = gameSessionConnections.get(currentGameSessionId);
+            const connections =
+                gameSessionConnections.get(currentGameSessionId);
             if (connections) {
                 connections.forEach((clientWs) => {
                     if (clientWs.readyState === WebSocket.OPEN) {
-                        clientWs.send(JSON.stringify({ kind: 'settings_modified', timeLimit: timeLimit, numberOfArticles: numberOfArticles, maxPlayers: maxPlayers, type: type }));
+                        clientWs.send(
+                            JSON.stringify({
+                                kind: "settings_modified",
+                                timeLimit: timeLimit,
+                                numberOfArticles: numberOfArticles,
+                                maxPlayers: maxPlayers,
+                                type: type,
+                            })
+                        );
                     }
                 });
             }
             break;
         }
-        case 'disconnect': {
+        case "disconnect": {
             const { currentRoomId, currentUser } = context;
             if (currentRoomId && currentUser) {
                 removeMember(currentRoomId, currentUser.name);
@@ -168,13 +256,47 @@ export async function handleMessage(
             ws.close();
             break;
         }
-        case 'close_room': {
+        case "close_room": {
             const { currentRoomId, currentUser } = context;
             if (currentRoomId && currentUser) {
                 if (!closeRoom(currentRoomId, currentUser.name)) {
-                    ws.send(JSON.stringify({ kind: 'error', message: 'Only the creator can close the room' }));
+                    ws.send(
+                        JSON.stringify({
+                            kind: "error",
+                            message: "Only the creator can close the room",
+                        })
+                    );
                 }
             }
+            break;
+        }
+        case "get_all_sessions": {
+            // Get all sessions
+            const allSessions = GameSessionManager.getAllSessions();
+            console.log(`Number of sessions: ${allSessions.size}`);
+
+            const sessionsArray = [];
+
+            allSessions.forEach((session, id) => {
+                sessionsArray.push({
+                    id: id,
+                    type: session.type,
+                    playerCount: session.players.size,
+                    maxPlayers: session.maxPlayers,
+                    leaderName: session.leader.name,
+                    timeLimit: session.timeLimit,
+                    numberOfArticles: session.numberOfArticles,
+                });
+            });
+
+            console.log("Sessions sent:", sessionsArray);
+
+            ws.send(
+                JSON.stringify({
+                    kind: "all_sessions",
+                    sessions: sessionsArray,
+                })
+            );
             break;
         }
         default: {

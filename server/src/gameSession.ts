@@ -114,4 +114,11 @@ export class GameSessionManager {
     public static endSession(sessionId: number): boolean {
         return this.sessions.delete(sessionId);
     }
+
+    /**
+     * Returns all active game sessions
+     */
+    public static getAllSessions(): Map<number, GameSession> {
+        return this.sessions;
+    }
 }
