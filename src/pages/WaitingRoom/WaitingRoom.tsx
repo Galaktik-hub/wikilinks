@@ -25,12 +25,21 @@ const WaitingRoom: React.FC = () => {
     });
 
     const [code, setCode] = React.useState<number>(socket?.roomCode || -10);
+    const [players, setPlayers] = React.useState(socket?.players || []);
+
 
     useEffect(() => {
         if (socket?.roomCode) {
             setCode(socket.roomCode);
         }
     }, [socket?.roomCode]);
+
+    useEffect(() => {
+        if (socket?.players) {
+            setPlayers(socket.players);
+        }
+    }, [socket?.players]);
+
 
     useEffect(() => {
         if (socket?.gameTimeLimit && socket?.gameNumberOfArticles && socket?.gameMaxPlayers && socket?.gameType) {
@@ -66,9 +75,9 @@ const WaitingRoom: React.FC = () => {
                 </div>
                 <section className="w-full h-full flex gap-6">
                     <div ref={leftRef} className="w-full flex flex-col gap-6">
-                        <GameRoomCard codegame={code} playerCount={4} maxPlayers={gameSettings.maxPlayers} />
+                        <GameRoomCard codegame={code} playerCount={players.length} maxPlayers={gameSettings.maxPlayers} />
                         <GameSettings isHost={isHost} gameSettings={gameSettings} setGameSettings={setGameSettings} />
-                        <PlayerList isHost={isHost} />
+                        <PlayerList isHost={isHost} players={players} />
                     </div>
                     <div ref={rightRef} className="hidden xl-custom:flex w-full flex-col gap-6">
                         <TextLoungePanel />

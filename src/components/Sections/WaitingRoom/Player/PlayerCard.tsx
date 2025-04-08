@@ -4,7 +4,7 @@ import MoreOptionsIcon from "../../../../assets/WaitingRoom/MoreSVG.tsx";
 import PlayerSettingsOverlay from "./PlayerSettingsOverlay.tsx";
 
 interface PlayerCardProps {
-    playerName: string;
+    playerName: string | null | undefined;
     isPlayerAdmin?: boolean; // Indique si ce joueur est admin (affiche la couronne)
     isHost: boolean; // Indique si l'utilisateur actuel est admin (affiche les options)
 }

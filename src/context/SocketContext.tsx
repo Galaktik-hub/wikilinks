@@ -31,6 +31,9 @@ export interface SocketContextType {
     gameNumberOfArticles: number;
     gameMaxPlayers: number;
     gameType: string;
+
+    players: { username: string; role: string }[];
+
 }
 
 export const SocketContext = createContext<SocketContextType | undefined>(undefined);
@@ -51,6 +54,8 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
     const [gameNumberOfArticles, setNumberOfArticles] = useState<number>(4);
     const [gameMaxPlayers, setMaxPlayers] = useState<number>(10);
     const [gameType, setType] = useState<string>("private");
+
+    const [players, setPlayers] = useState<{ username: string; role: string }[]>([]);
 
     useEffect(() => {
         const socket = new WebSocket("ws://localhost:2025");
@@ -73,7 +78,10 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
                     setNumberOfArticles(data.numberOfArticles);
                     setMaxPlayers(data.maxPlayers);
                     setType(data.type);
-                } else {
+                } else if (data.kind === "players_update") {
+                    setPlayers(data.players);
+                }
+                else {
                     setMessages((prev) => [...prev, data]);
                 }
             } catch (error) {
@@ -167,6 +175,7 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
                 gameNumberOfArticles,
                 gameMaxPlayers,
                 gameType,
+                players,
             }}
         >
             {children}

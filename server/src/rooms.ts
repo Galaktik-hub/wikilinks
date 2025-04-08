@@ -43,6 +43,22 @@ export function joinRoom(roomId: number, userName: string, ws: WebSocket): Room 
             bot.notifyMemberJoin(userName);
         }
     });
+    refreshPlayer(roomId,ws);
+    return room;
+}
+
+export function refreshPlayer(roomId: number, ws: WebSocket): Room | null {
+    const room = rooms.get(roomId);
+    if (!room) return null;
+
+    const players = Array.from(room.members.entries()).map(([username, { role }]) => ({
+        username,
+        role,
+    }));
+
+    room.members.forEach(member => {
+        member.ws.send(JSON.stringify({ kind: 'players_update', players: players }));
+    });
     return room;
 }
 

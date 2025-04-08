@@ -7,6 +7,7 @@ import {
     closeRoom,
     getRoom,
     removeMember,
+    refreshPlayer
 } from "./rooms";
 
 export interface ClientContext {
@@ -57,6 +58,7 @@ export async function handleMessage(
             context.currentRoomId = session.id;
 
             console.log(`Game session ${session.id} created by ${leader.name}`);
+            refreshPlayer(session.id, ws);
             ws.send(
                 JSON.stringify({
                     kind: "game_session_created",
