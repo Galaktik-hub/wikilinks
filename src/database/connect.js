@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 import { database_url_connect } from './credentials.js';
-import {Artifact, Challenge} from './models/challengeModel.js';
+import {Artifact, Challenge} from './models/models.js';
 
 async function run() {
     await mongoose.connect(database_url_connect, {
