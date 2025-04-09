@@ -98,9 +98,6 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
             console.error("Erreur WebSocket :", error);
         };
 
-        return () => {
-            socket.close();
-        };
     }, []);
 
     const sendMessageToServer = (msg: any) => {
