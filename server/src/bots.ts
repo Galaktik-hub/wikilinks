@@ -13,7 +13,7 @@ export class UpperCaseBot extends Bot {
     notifyReceivedMessage(sender: string, content: string): boolean {
         console.log(`UpperCaseBot (${this.name}) received message from ${sender}: ${content}`);
         if (content.startsWith('/upper')) {
-            const response = `${content.replace('/upper', '').toUpperCase()}`;
+            const response = `${content.replace(/\/upper\s*/gm, '').toUpperCase()}`;
             console.log(`UpperCaseBot (${this.name}) intercepts message, sending private response: ${response}`);
             this.sendMessage(response, sender);
             return true;
