@@ -55,9 +55,9 @@ export const TextLoungePanel: React.FC = () => {
 
         return (
             <div key={index}
-                 className={`mb-2 p-3 rounded-lg border border-gray-700/50 ${msg.sender === 'system' ? 'bg-yellow-950/50' :
-                     msg.sender === socket?.username ? 'bg-sky-950/50' : 'bg-background'
-                 }`}>
+                className={`mb-2 p-3 rounded-lg border border-gray-700/50 ${msg.sender === 'system' ? 'bg-yellow-950/50' :
+                    msg.sender === socket?.username ? 'bg-sky-950/50' : 'bg-background'
+                    }`}>
                 {msg.sender !== "Bot-JoinLeaveBot" && (
                     <>
                         <strong className="text-bluePrimary">
@@ -74,16 +74,16 @@ export const TextLoungePanel: React.FC = () => {
     return (
         <>
             {/* Desktop version */}
-            <div className="card-container hidden xl-custom:flex flex-col h-full gap-2.5">
+            <div className="card-container hidden xl-custom:flex flex-col h-full">
                 <div className="w-full flex justify-center">
                     <h2 className="blue-title-effect">
                         Salon Textuel
                     </h2>
                 </div>
 
-                <div className="flex flex-col flex-grow bg-darkBg rounded-lg h-full overflow-hidden">
+                <div className="flex flex-col bg-darkBg rounded-lg overflow-hidden h-full mt-2.5">
                     <div
-                        className="flex-grow overflow-auto p-4 scroll-smooth"
+                        className="flex-1 overflow-auto p-4 scroll-smooth max-h-full"
                         ref={addToRefs}
                     >
                         {socket?.messages.length ? (
@@ -114,9 +114,8 @@ export const TextLoungePanel: React.FC = () => {
             <div className="xl-custom:hidden w-full z-50">
                 {/* Overlay lors du focus sur l'input */}
                 <div
-                    className={`fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300 ${
-                        isInputFocused ? "opacity-100 visible" : "opacity-0 invisible"
-                    }`}
+                    className={`fixed inset-0 bg-black bg-opacity-50 transition-opacity duration-300 ${isInputFocused ? "opacity-100 visible" : "opacity-0 invisible"
+                        }`}
                     onClick={() => setIsInputFocused(false)}
                 />
 
@@ -130,7 +129,7 @@ export const TextLoungePanel: React.FC = () => {
                     </div>
 
                     <div
-                        className="min-h-[15vh] max-h-[50vh] overflow-auto px-4 pb-4 scroll-smooth"
+                        className="h-[300px] overflow-auto px-4 pb-4 scroll-smooth"
                         ref={addToRefs}
                     >
                         {socket?.messages.length ? (

@@ -1,6 +1,6 @@
 "use client";
 
-import React, {useContext, useEffect, useRef} from "react";
+import React, { useContext, useEffect, useRef } from "react";
 import Layout from "../../components/Layout.tsx";
 import GameRoomCard from "../../components/Sections/WaitingRoom/GameCode/GameRoomCard.tsx";
 import ExitButton from "../../components/Buttons/WaitingRoom/ExitButton.tsx";
@@ -55,17 +55,41 @@ const WaitingRoom: React.FC = () => {
     useEffect(() => {
         const updateHeights = () => {
             if (leftRef.current && rightRef.current) {
-                const leftHeight = leftRef.current.offsetHeight;
-                const rightHeight = rightRef.current.offsetHeight;
-                const maxHeight = Math.max(leftHeight, rightHeight);
-                leftRef.current.style.height = `${maxHeight}px`;
-                rightRef.current.style.height = `${maxHeight}px`;
+                // Reset heights before measuring to prevent compounding
+                leftRef.current.style.height = 'auto';
+                rightRef.current.style.height = 'auto';
+                
+                // Wait for next frame to ensure DOM has updated
+                setTimeout(() => {
+                    if (leftRef.current && rightRef.current) {
+                        // Get the height of the left container
+                        const leftHeight = leftRef.current.getBoundingClientRect().height;
+                        // Set the right container to match
+                        rightRef.current.style.height = `${leftHeight}px`;
+                    }
+                }, 0);
             }
         };
+        
+        // Initial update and setup resize listener
         updateHeights();
         window.addEventListener("resize", updateHeights);
-        return () => window.removeEventListener("resize", updateHeights);
-    }, []);
+        
+        // Update heights when players or game settings change
+        const observer = new MutationObserver(() => {
+            // Add a small delay to ensure DOM is fully updated
+            setTimeout(updateHeights, 100);
+        });
+        
+        if (leftRef.current) {
+            observer.observe(leftRef.current, { childList: true, subtree: true });
+        }
+        
+        return () => {
+            window.removeEventListener("resize", updateHeights);
+            observer.disconnect();
+        };
+    }, [players, gameSettings]);
 
     return (
         <Layout header={<Header />}>
@@ -73,17 +97,17 @@ const WaitingRoom: React.FC = () => {
                 <div className="title-block">
                     Partie de {socket?.leaderName}
                 </div>
-                <section className="w-full h-full flex gap-6">
-                    <div ref={leftRef} className="w-full flex flex-col gap-6">
+                <section className="w-full flex gap-6">
+                    <div ref={leftRef} className="w-full flex flex-col gap-6 overflow-y-auto">
                         <GameRoomCard codegame={code} playerCount={players.length} maxPlayers={gameSettings.maxPlayers} />
                         <GameSettings isHost={isHost} gameSettings={gameSettings} setGameSettings={setGameSettings} />
                         <PlayerList isHost={isHost} players={players} />
                     </div>
-                    <div ref={rightRef} className="hidden xl-custom:flex w-full flex-col gap-6">
+                    <div ref={rightRef} className="hidden xl-custom:flex w-full flex-col gap-6 overflow-y-auto">
                         <TextLoungePanel />
                     </div>
                 </section>
-                <section className="w-full flex flex-wrap-reverse justify-center gap-x-6">
+                <section className="w-full flex flex-wrap-reverse justify-center gap-x-12 mt-8">
                     <ExitButton isHost={isHost} />
                     <LaunchButton isHost={isHost} />
                 </section>
