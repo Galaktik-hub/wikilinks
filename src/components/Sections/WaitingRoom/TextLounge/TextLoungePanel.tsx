@@ -48,22 +48,28 @@ export const TextLoungePanel: React.FC = () => {
         }
     };
 
-    const MessageBubble = React.useCallback(({ msg, index }: { msg: any; index: number }) => (
-        <div key={index}
-            className={`mb-2 p-3 rounded-lg border border-gray-700/50 ${msg.sender === 'system' ? 'bg-yellow-950/50' :
-                msg.sender === socket?.username ? 'bg-sky-950/50' : 'bg-background'
-                }`}>
-            {msg.sender !== "Bot-JoinLeaveBot" && (
-                <>
-                    <strong className="text-bluePrimary">
-                        {msg.sender}
-                    </strong>
-                    <span className="mx-2 text-gray-500">:</span>
-                </>
-            )}
-            <span className="text-gray-100">{msg.content}</span>
-        </div>
-    ), [socket?.username]);
+    const MessageBubble = React.useCallback(({ msg, index }: { msg: any; index: number }) => {
+        if (msg.kind !== "message_received") {
+            return null;
+        }
+
+        return (
+            <div key={index}
+                 className={`mb-2 p-3 rounded-lg border border-gray-700/50 ${msg.sender === 'system' ? 'bg-yellow-950/50' :
+                     msg.sender === socket?.username ? 'bg-sky-950/50' : 'bg-background'
+                 }`}>
+                {msg.sender !== "Bot-JoinLeaveBot" && (
+                    <>
+                        <strong className="text-bluePrimary">
+                            {msg.sender}
+                        </strong>
+                        <span className="mx-2 text-gray-500">:</span>
+                    </>
+                )}
+                <span className="text-gray-100">{msg.content}</span>
+            </div>
+        );
+    }, [socket?.username]);
 
     return (
         <>
