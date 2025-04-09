@@ -17,7 +17,12 @@ export const PlayerList: React.FC<PlayerListProps> = ({ isHost, players }) => (
         </div>
         <div className="mt-4 w-full text-base leading-none text-white flex flex-wrap justify-center gap-4">
             {players.map((player) => (
-                <PlayerCard playerName={player.username} isPlayerAdmin={player.role === "creator"} isHost={isHost}/>
+                <PlayerCard
+                    key={player.username}
+                    playerName={player.username}
+                    isPlayerAdmin={player.role === "creator"}
+                    isHost={isHost}
+                />
             ))}
         </div>
     </div>
