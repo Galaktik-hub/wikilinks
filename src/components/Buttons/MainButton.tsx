@@ -13,7 +13,7 @@ const MainButton: React.FC<MainButtonProps> = ({color, onClick, children, classN
     return (
         <button
             className={`flex gap-1 items-center justify-center font-bold text-white rounded-lg transition-colors py-3 px-10 dynamic-shadow dynamic-shadow-hover ${className}`}
-            style={{"--shadow-color": color}}
+            style={{"--shadow-color": color} as React.CSSProperties}
             onClick={onClick}
             type="button"
             aria-label={ariaLabel}

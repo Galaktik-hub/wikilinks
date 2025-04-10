@@ -8,6 +8,7 @@
         "dev:host": "vite --host",
         "dev:full": "concurrently \"vite --host\" \"npx ts-node server/src/server.ts\"",
         "build": "tsc -b && vite build",
+        "build:full": "npm run build && cd server && npm run build",
         "lint": "eslint .",
         "preview": "vite preview",
         "prettier:check": "npx prettier . --check",
