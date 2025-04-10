@@ -27,7 +27,6 @@ const WaitingRoom: React.FC = () => {
     const [code, setCode] = React.useState<number>(socket?.roomCode || -10);
     const [players, setPlayers] = React.useState(socket?.players || []);
 
-
     useEffect(() => {
         if (socket?.roomCode) {
             setCode(socket.roomCode);
@@ -39,7 +38,6 @@ const WaitingRoom: React.FC = () => {
             setPlayers(socket.players);
         }
     }, [socket?.players]);
-
 
     useEffect(() => {
         if (socket?.gameTimeLimit && socket?.gameNumberOfArticles && socket?.gameMaxPlayers && socket?.gameType) {
@@ -55,39 +53,16 @@ const WaitingRoom: React.FC = () => {
     useEffect(() => {
         const updateHeights = () => {
             if (leftRef.current && rightRef.current) {
-                // Reset heights before measuring to prevent compounding
-                leftRef.current.style.height = 'auto';
-                rightRef.current.style.height = 'auto';
-                
-                // Wait for next frame to ensure DOM has updated
-                setTimeout(() => {
-                    if (leftRef.current && rightRef.current) {
-                        // Get the height of the left container
-                        const leftHeight = leftRef.current.getBoundingClientRect().height;
-                        // Set the right container to match
-                        rightRef.current.style.height = `${leftHeight}px`;
-                    }
-                }, 0);
+                const leftHeight = leftRef.current.getBoundingClientRect().height;
+                const minHeight = 300; // Hauteur minimale pour le chat
+                rightRef.current.style.height = `${Math.max(leftHeight, minHeight)}px`;
             }
         };
-        
-        // Initial update and setup resize listener
+
         updateHeights();
         window.addEventListener("resize", updateHeights);
-        
-        // Update heights when players or game settings change
-        const observer = new MutationObserver(() => {
-            // Add a small delay to ensure DOM is fully updated
-            setTimeout(updateHeights, 100);
-        });
-        
-        if (leftRef.current) {
-            observer.observe(leftRef.current, { childList: true, subtree: true });
-        }
-        
         return () => {
             window.removeEventListener("resize", updateHeights);
-            observer.disconnect();
         };
     }, [players, gameSettings]);
 
