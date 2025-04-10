@@ -60,15 +60,13 @@ const SettingsGameOverlay: React.FC<SettingsGameOverlayProps> = ({
     ];
 
     useEffect(() => {
-        if (socket) {
-            socket.updateSettings({
+        socket?.updateSettings({
                 timeLimit,
                 numberOfArticles: articleCount,
                 maxPlayers,
                 type: gameType === "publique" ? "public" : "private",
-            });
-        }
-    }, [timeLimit, articleCount, maxPlayers, gameType, socket]);
+        });
+    }, [timeLimit, articleCount, maxPlayers, gameType]);
 
     const togglePublicGame = () => {
         setGameType(gameType === "publique" ? "privé" : "publique");
