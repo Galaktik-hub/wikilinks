@@ -1,4 +1,4 @@
-/android/
-**/dist/
-**/build/
-**/node_modules/
+android
+dist
+build
+node_modules
