@@ -44,10 +44,7 @@ export class Inventory {
         if (artifact.immediate) {
             (artifact as ImmediateArtifact).possessed = false;
         } else {
-            (artifact as StackableArtifact).count = Math.max(
-                0,
-                (artifact as StackableArtifact).count - quantity
-            );
+            (artifact as StackableArtifact).count = Math.max(0, (artifact as StackableArtifact).count - quantity);
         }
     }
 

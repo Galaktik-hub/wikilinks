@@ -1,7 +1,7 @@
 "use client";
 import * as React from "react";
-import { GameSettingsHeader } from "./GameSettingsHeader.tsx";
-import { GameSettingsParameters } from "./GameSettingsParameters.tsx";
+import {GameSettingsHeader} from "./GameSettingsHeader.tsx";
+import {GameSettingsParameters} from "./GameSettingsParameters.tsx";
 import SettingsGameOverlay from "../PopupSettings/SettingsGameOverlay.tsx";
 
 interface GameSettingsProps {
@@ -12,15 +12,17 @@ interface GameSettingsProps {
         maxPlayers: number;
         gameType: string;
     };
-    setGameSettings: React.Dispatch<React.SetStateAction<{
-        timeLimit: number;
-        articleCount: number;
-        maxPlayers: number;
-        gameType: string;
-    }>>;
+    setGameSettings: React.Dispatch<
+        React.SetStateAction<{
+            timeLimit: number;
+            articleCount: number;
+            maxPlayers: number;
+            gameType: string;
+        }>
+    >;
 }
 
-const GameSettings: React.FC<GameSettingsProps> = ({ isHost, gameSettings, setGameSettings }) => {
+const GameSettings: React.FC<GameSettingsProps> = ({isHost, gameSettings, setGameSettings}) => {
     const [isModalOpen, setIsModalOpen] = React.useState(false);
 
     const handleEdit = () => {
@@ -48,18 +50,10 @@ const GameSettings: React.FC<GameSettingsProps> = ({ isHost, gameSettings, setGa
                     articleCount={gameSettings.articleCount}
                     maxPlayers={gameSettings.maxPlayers}
                     gameType={gameSettings.gameType === "publique" ? gameSettings.gameType : "privé"}
-                    setTimeLimit={(value) =>
-                        setGameSettings((prev) => ({ ...prev, timeLimit: value }))
-                    }
-                    setArticleCount={(value) =>
-                        setGameSettings((prev) => ({ ...prev, articleCount: value }))
-                    }
-                    setMaxPlayers={(value) =>
-                        setGameSettings((prev) => ({ ...prev, maxPlayers: value }))
-                    }
-                    setGameType={(value) =>
-                        setGameSettings((prev) => ({ ...prev, gameType: value }))
-                    }
+                    setTimeLimit={value => setGameSettings(prev => ({...prev, timeLimit: value}))}
+                    setArticleCount={value => setGameSettings(prev => ({...prev, articleCount: value}))}
+                    setMaxPlayers={value => setGameSettings(prev => ({...prev, maxPlayers: value}))}
+                    setGameType={value => setGameSettings(prev => ({...prev, gameType: value}))}
                     closeModal={closeModal}
                 />
             )}

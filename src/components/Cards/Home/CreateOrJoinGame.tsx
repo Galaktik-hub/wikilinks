@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState, useEffect, useContext } from "react";
-import { LobbyCard } from "./LobbyCard.tsx";
-import { useNavigate, useLocation } from "react-router-dom";
+import React, {useState, useEffect, useContext} from "react";
+import {LobbyCard} from "./LobbyCard.tsx";
+import {useNavigate, useLocation} from "react-router-dom";
 import UsernameModal from "../../Modals/WaitingRoom/UsernameModal";
 import {IconPlus} from "@tabler/icons-react";
 import {SocketContext} from "../../../context/SocketContext.tsx";
@@ -104,7 +104,7 @@ export const CreateOrJoinGame: React.FC = () => {
             <LobbyCard
                 inputPlaceholder="Saisissez votre pseudo"
                 buttonText="Créer une partie"
-                icon={<IconPlus size = {18} color = "white"/>}
+                icon={<IconPlus size={18} color="white" />}
                 value=""
                 onChange={() => {}}
                 onSubmit={handleCreateGame}
@@ -117,7 +117,7 @@ export const CreateOrJoinGame: React.FC = () => {
                 onSubmit={handleJoinGame}
                 error={error}
                 value={roomCodeInput} // Utilisez l'état pour la valeur du champ
-                onChange={(e) => setRoomCodeInput(e.target.value)}
+                onChange={e => setRoomCodeInput(e.target.value)}
             />
 
             {/* Modal pour renseigner le username lors du join */}

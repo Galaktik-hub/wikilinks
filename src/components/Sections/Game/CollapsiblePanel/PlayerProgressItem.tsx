@@ -9,14 +9,10 @@ interface PlayerProgressBarProps {
     history: TimelineStep[];
 }
 
-const PlayerProgressItem: React.FC<PlayerProgressBarProps> = ({
-        playerName,
-        percentage,
-        history,
-    }) => {
+const PlayerProgressItem: React.FC<PlayerProgressBarProps> = ({playerName, percentage, history}) => {
     const normalizedPercentage = Math.min(Math.max(percentage, 0), 100);
     const progressWidth = `${normalizedPercentage}%`;
-    const { openModal } = useModalContext();
+    const {openModal} = useModalContext();
 
     const handleClick = () => {
         openModal({
@@ -30,28 +26,16 @@ const PlayerProgressItem: React.FC<PlayerProgressBarProps> = ({
     };
 
     return (
-        <button
-            onClick={handleClick}
-            className="w-full"
-        >
+        <button onClick={handleClick} className="w-full">
             <div className="flex gap-10 justify-between items-center py-1 w-full ">
                 <div className="flex gap-2.5 items-center self-stretch my-auto">
-                    <h3 className="self-stretch my-auto text-base leading-none text-white">
-                        {playerName}
-                    </h3>
-                    <div className="self-stretch my-auto text-xs font-light leading-none underline text-zinc-400 w-[54px]">
-                        Détails
-                    </div>
+                    <h3 className="self-stretch my-auto text-base leading-none text-white">{playerName}</h3>
+                    <div className="self-stretch my-auto text-xs font-light leading-none underline text-zinc-400 w-[54px]">Détails</div>
                 </div>
-                <p className="self-stretch my-auto text-base leading-none text-white">
-                    {normalizedPercentage}%
-                </p>
+                <p className="self-stretch my-auto text-base leading-none text-white">{normalizedPercentage}%</p>
             </div>
             <div className="flex flex-col items-start mt-1.5 w-full bg-gray-700 rounded-full">
-                <div
-                    className="flex bg-emerald-500 rounded-full min-h-2"
-                    style={{ width: progressWidth }}
-                />
+                <div className="flex bg-emerald-500 rounded-full min-h-2" style={{width: progressWidth}} />
             </div>
         </button>
     );

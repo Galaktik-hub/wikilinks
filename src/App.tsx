@@ -1,9 +1,9 @@
-import './App.css'
-import '@mantine/core/styles.css';
+import "./App.css";
+import "@mantine/core/styles.css";
 import AppRoutes from "./route";
-import { MantineProvider } from '@mantine/core';
-import { ModalProvider } from "./components/Modals/ModalProvider.tsx";
-import { SocketProvider } from './context/SocketContext.tsx';
+import {MantineProvider} from "@mantine/core";
+import {ModalProvider} from "./components/Modals/ModalProvider.tsx";
+import {SocketProvider} from "./context/SocketContext.tsx";
 
 function App() {
     return (
@@ -14,7 +14,7 @@ function App() {
                 </SocketProvider>
             </ModalProvider>
         </MantineProvider>
-    )
+    );
 }
 
 export default App;

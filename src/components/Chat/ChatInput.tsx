@@ -11,7 +11,7 @@ interface ChatInputProps {
     disabled?: boolean;
 }
 
-export function ChatInput({ value, onChange, onKeyDown, onFocus, placeholder = "Écrivez votre message...", disabled }: ChatInputProps) {
+export function ChatInput({value, onChange, onKeyDown, onFocus, placeholder = "Écrivez votre message...", disabled}: ChatInputProps) {
     return (
         <input
             type="text"

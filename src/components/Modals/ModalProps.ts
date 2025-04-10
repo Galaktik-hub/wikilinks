@@ -57,11 +57,7 @@ export interface ModalProps {
     content: ModalFormProps | ModalConfirmationProps | ModalTimelineProps; // Dynamique en fonction du type
 }
 
-export const formatContent = (
-    template: string,
-    username: string,
-    data?: Record<string, string>
-) => {
+export const formatContent = (template: string, username: string, data?: Record<string, string>) => {
     let result = template.replace("{user}", username);
     if (data) {
         Object.entries(data).forEach(([key, value]) => {

@@ -6,7 +6,7 @@ interface CheckCircleProps {
     alt?: string;
 }
 
-const CheckCircle: React.FC<CheckCircleProps> = ({ checked, className = "", alt = "Check icon" }) => {
+const CheckCircle: React.FC<CheckCircleProps> = ({checked, className = "", alt = "Check icon"}) => {
     return (
         <figure className={`flex items-center justify-center w-4 h-4 ${className}`} aria-label={alt}>
             {checked ? (

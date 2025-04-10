@@ -1,7 +1,7 @@
 import * as React from "react";
 import {ResultProps} from "../../../../pages/Result/Result.tsx";
 
-const LeaderboardRow: React.FC<ResultProps> = ({ rank, name, score }) => {
+const LeaderboardRow: React.FC<ResultProps> = ({rank, name, score}) => {
     // Determine rank color based on position
     const getRankColor = (rank: number): string => {
         switch (rank) {

@@ -12,28 +12,23 @@ interface ConfigItem {
     rankTextClass: string;
 }
 
-const Podium: React.FC<PodiumProps> = ({ players }) => {
+const Podium: React.FC<PodiumProps> = ({players}) => {
     // Configuration spécifique pour 1, 2 ou 3 joueurs
-    const podiumConfig: { [key: number]: ConfigItem[] } = {
-        1: [
-            { label: '1er', nameClass: 'min-h-16', rankClass: 'min-h-24', rankTextClass: 'text-amber-400' },
-        ],
+    const podiumConfig: {[key: number]: ConfigItem[]} = {
+        1: [{label: "1er", nameClass: "min-h-16", rankClass: "min-h-24", rankTextClass: "text-amber-400"}],
         2: [
-            { label: '1er', nameClass: 'min-h-16', rankClass: 'min-h-24', rankTextClass: 'text-amber-400' },
-            { label: '2e', nameClass: 'min-h-12', rankClass: 'min-h-20', rankTextClass: 'text-gray-400' },
+            {label: "1er", nameClass: "min-h-16", rankClass: "min-h-24", rankTextClass: "text-amber-400"},
+            {label: "2e", nameClass: "min-h-12", rankClass: "min-h-20", rankTextClass: "text-gray-400"},
         ],
         3: [
-            { label: '2e', nameClass: 'min-h-12', rankClass: 'min-h-20', rankTextClass: 'text-gray-400' },
-            { label: '1er', nameClass: 'min-h-16', rankClass: 'min-h-24', rankTextClass: 'text-amber-400' },
-            { label: '3e', nameClass: 'min-h-12', rankClass: 'min-h-16', rankTextClass: 'text-amber-600' },
+            {label: "2e", nameClass: "min-h-12", rankClass: "min-h-20", rankTextClass: "text-gray-400"},
+            {label: "1er", nameClass: "min-h-16", rankClass: "min-h-24", rankTextClass: "text-amber-400"},
+            {label: "3e", nameClass: "min-h-12", rankClass: "min-h-16", rankTextClass: "text-amber-600"},
         ],
     };
 
     const config = podiumConfig[players.length];
-    const containerClass =
-        players.length === 1
-            ? 'flex justify-center w-full'
-            : 'flex flex-1 shrink gap-10 justify-between items-end w-full';
+    const containerClass = players.length === 1 ? "flex justify-center w-full" : "flex flex-1 shrink gap-10 justify-between items-end w-full";
 
     return (
         <div className="card-container flex flex-col gap-2 justify-center">

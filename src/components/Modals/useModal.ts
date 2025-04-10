@@ -1,4 +1,4 @@
-import { useState } from "react";
+import {useState} from "react";
 
 interface ModalOptions {
     title: string;
@@ -25,7 +25,7 @@ export default function useModal() {
     };
 
     const updateModal = (options: Partial<ModalOptions>) => {
-        setModalOptions(prev => (prev ? { ...prev, ...options } : null));
+        setModalOptions(prev => (prev ? {...prev, ...options} : null));
     };
 
     return {

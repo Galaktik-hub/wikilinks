@@ -9,7 +9,7 @@ interface PlayerSettingsOverlayProps {
     isHost: boolean;
 }
 
-export const PlayerSettingsOverlay: React.FC<PlayerSettingsOverlayProps> = ({ isHost }) => {
+export const PlayerSettingsOverlay: React.FC<PlayerSettingsOverlayProps> = ({isHost}) => {
     return (
         <div className="card-container flex justify-center items-center gap-2.5">
             <div className="flex flex-col justify-between items-center">

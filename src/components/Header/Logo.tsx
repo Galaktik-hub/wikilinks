@@ -1,5 +1,5 @@
-import React from 'react';
-import logo from '/wikilinks_logo.png';
+import React from "react";
+import logo from "/wikilinks_logo.png";
 
 const Logo: React.FC = () => {
     return (

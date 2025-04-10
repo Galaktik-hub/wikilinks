@@ -1,8 +1,8 @@
-import { randomInt } from "node:crypto";
-import { Player } from "./player/player";
+import {randomInt} from "node:crypto";
+import {Player} from "./player/player";
 import {WikipediaService} from "./WikipediaService";
 
-export type GameType = 'public' | 'private';
+export type GameType = "public" | "private";
 
 export class GameSession {
     public id: number;
@@ -15,14 +15,7 @@ export class GameSession {
     public articles: string[];
     public startArticle: string;
 
-    constructor(
-        id: number,
-        timeLimit: number,
-        numberOfArticles: number,
-        maxPlayers: number,
-        type: GameType,
-        leader: Player
-    ) {
+    constructor(id: number, timeLimit: number, numberOfArticles: number, maxPlayers: number, type: GameType, leader: Player) {
         this.id = id;
         this.timeLimit = timeLimit;
         this.numberOfArticles = numberOfArticles;
@@ -76,26 +69,13 @@ export class GameSessionManager {
     /**
      * Creates a new game session with a unique ID.
      */
-    public static createSession(params: {
-        timeLimit: number,
-        numberOfArticles: number,
-        maxPlayers: number,
-        type: GameType,
-        leader: Player
-    }): GameSession {
+    public static createSession(params: {timeLimit: number; numberOfArticles: number; maxPlayers: number; type: GameType; leader: Player}): GameSession {
         let id: number;
         do {
             id = randomInt(100000, 1000000);
         } while (this.sessions.has(id));
 
-        const session = new GameSession(
-            id,
-            params.timeLimit,
-            params.numberOfArticles,
-            params.maxPlayers,
-            params.type,
-            params.leader
-        );
+        const session = new GameSession(id, params.timeLimit, params.numberOfArticles, params.maxPlayers, params.type, params.leader);
 
         this.sessions.set(id, session);
         return session;

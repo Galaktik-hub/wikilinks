@@ -1,6 +1,6 @@
-@import url('https://fonts.googleapis.com/css2?family=Martian+Mono:wght@100..800&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Righteous&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Martian+Mono:wght@100..800&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Righteous&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap");
 
 @tailwind base;
 @tailwind components;
@@ -8,15 +8,15 @@
 
 :root {
     --background: #111827;
-    --bgSecondary: #1F2937;
-    --dark-background: #181D25;
-    --bluePrimary: #0EA5E9;
-    --blueSecondary: #1D4ED8;
-    --shadow-color: #FFFFFF; /* Default value */
+    --bgSecondary: #1f2937;
+    --dark-background: #181d25;
+    --bluePrimary: #0ea5e9;
+    --blueSecondary: #1d4ed8;
+    --shadow-color: #ffffff; /* Default value */
 }
 
 * {
-    font-family: 'Inter', sans-serif;
+    font-family: "Inter", sans-serif;
 }
 
 @layer utilities {

@@ -1,7 +1,7 @@
 "use client";
-import React, { useState, useEffect, useContext } from "react";
-import { PublicGameCard } from "../../Cards/Home/PublicGameCard.tsx";
-import { SocketContext } from "../../../context/SocketContext.tsx";
+import React, {useState, useEffect, useContext} from "react";
+import {PublicGameCard} from "../../Cards/Home/PublicGameCard.tsx";
+import {SocketContext} from "../../../context/SocketContext.tsx";
 
 // Interface pour les sessions reçues du serveur
 interface GameSession {
@@ -39,7 +39,7 @@ export const PublicGamesList: React.FC = () => {
         if (socket?.isConnected && socket?.sendMessageToServer) {
             setLoading(true);
             setError(null);
-            socket.sendMessageToServer({ kind: "get_all_sessions" });
+            socket.sendMessageToServer({kind: "get_all_sessions"});
 
             // Timeout pour éviter un état de chargement infini
             setTimeout(() => {
@@ -48,7 +48,7 @@ export const PublicGamesList: React.FC = () => {
                 }
             }, 5000);
         } else {
-            setError('Socket non disponible');
+            setError("Socket non disponible");
         }
     };
 
@@ -67,7 +67,7 @@ export const PublicGamesList: React.FC = () => {
                     continue; // Message déjà traité, passer au suivant
                 }
 
-                if (message.kind === 'all_sessions' && Array.isArray(message.sessions)) {
+                if (message.kind === "all_sessions" && Array.isArray(message.sessions)) {
                     setLoading(false);
                     console.log(`Reçu ${message.sessions.length} sessions`);
 
@@ -80,7 +80,7 @@ export const PublicGamesList: React.FC = () => {
                             hostName: session.leaderName,
                             playerCount: session.playerCount,
                             maxPlayers: session.maxPlayers,
-                            gameCode: session.id.toString()
+                            gameCode: session.id.toString(),
                         }));
 
                         setGames(activeSessions);
@@ -116,27 +116,17 @@ export const PublicGamesList: React.FC = () => {
     return (
         <section className="flex flex-col items-center py-6 px-2.5 w-full">
             <div className="flex justify-between items-center w-full px-2.5 mb-4">
-                <div className="title-block">
-                    Parties publiques
-                </div>
-                <button
-                    className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
-                    onClick={fetchSessions}
-                    disabled={loading}
-                >
+                <div className="title-block">Parties publiques</div>
+                <button className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors" onClick={fetchSessions} disabled={loading}>
                     {loading ? "Chargement..." : "Rafraîchir"}
                 </button>
             </div>
 
-            {error && (
-                <div className="w-full p-4 mb-4 bg-red-100 text-red-700 rounded">
-                    {error}
-                </div>
-            )}
+            {error && <div className="w-full p-4 mb-4 bg-red-100 text-red-700 rounded">{error}</div>}
 
             <div className="flex flex-wrap gap-5 justify-center items-start mt-5 w-full max-md:max-w-full">
                 {games.map((game, index) => (
-                    <PublicGameCard key={index} {...game} onJoin={() => { }} />
+                    <PublicGameCard key={index} {...game} onJoin={() => {}} />
                 ))}
             </div>
         </section>

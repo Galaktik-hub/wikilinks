@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useContext, useEffect, useRef } from "react";
+import React, {useContext, useEffect, useRef} from "react";
 import Layout from "../../components/Layout.tsx";
 import GameRoomCard from "../../components/Sections/WaitingRoom/GameCode/GameRoomCard.tsx";
 import ExitButton from "../../components/Buttons/WaitingRoom/ExitButton.tsx";
@@ -9,7 +9,7 @@ import GameSettings from "../../components/Sections/WaitingRoom/GameSettings/Gam
 import PlayerList from "../../components/Sections/WaitingRoom/Player/PlayerList.tsx";
 import TextLoungePanel from "../../components/Sections/WaitingRoom/TextLounge/TextLoungePanel.tsx";
 import Header from "../../components/Header/Header.tsx";
-import { SocketContext } from "../../context/SocketContext.tsx";
+import {SocketContext} from "../../context/SocketContext.tsx";
 
 const WaitingRoom: React.FC = () => {
     const socket = useContext(SocketContext);
@@ -69,9 +69,7 @@ const WaitingRoom: React.FC = () => {
     return (
         <Layout header={<Header />}>
             <div className="flex flex-col w-full overflow-hidden items-center justify-center p-4 gap-6 max-md:mb-16">
-                <div className="title-block">
-                    Partie de {socket?.leaderName}
-                </div>
+                <div className="title-block">Partie de {socket?.leaderName}</div>
                 <section className="w-full flex gap-6">
                     <div ref={leftRef} className="w-full flex flex-col gap-6 overflow-y-auto">
                         <GameRoomCard codegame={code} playerCount={players.length} maxPlayers={gameSettings.maxPlayers} />

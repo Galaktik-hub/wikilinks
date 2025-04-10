@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext } from 'react';
+import React, {createContext, useState, useContext} from "react";
 
 interface WikiNavigationContextType {
     currentTitle: string;
@@ -12,13 +12,11 @@ interface WikiNavigationProviderProps {
     className?: string;
 }
 
-export const WikiNavigationProvider: React.FC<WikiNavigationProviderProps> = ({ children, className }) => {
-    const [currentTitle, setCurrentTitle] = useState<string>('Paris');
+export const WikiNavigationProvider: React.FC<WikiNavigationProviderProps> = ({children, className}) => {
+    const [currentTitle, setCurrentTitle] = useState<string>("Paris");
     return (
         <div className={className}>
-            <WikiNavigationContext.Provider value={{ currentTitle, setCurrentTitle }}>
-                {children}
-            </WikiNavigationContext.Provider>
+            <WikiNavigationContext.Provider value={{currentTitle, setCurrentTitle}}>{children}</WikiNavigationContext.Provider>
         </div>
     );
 };
@@ -26,7 +24,7 @@ export const WikiNavigationProvider: React.FC<WikiNavigationProviderProps> = ({ 
 export const useWikiNavigation = () => {
     const context = useContext(WikiNavigationContext);
     if (!context) {
-        throw new Error('useWikiNavigation doit être utilisé dans un WikiNavigationProvider');
+        throw new Error("useWikiNavigation doit être utilisé dans un WikiNavigationProvider");
     }
     return context;
 };
