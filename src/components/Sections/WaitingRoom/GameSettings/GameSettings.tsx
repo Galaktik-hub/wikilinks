@@ -10,14 +10,14 @@ interface GameSettingsProps {
         timeLimit: number;
         articleCount: number;
         maxPlayers: number;
-        gameType: string;
+        gameType: "public" | "private";
     };
     setGameSettings: React.Dispatch<
         React.SetStateAction<{
             timeLimit: number;
             articleCount: number;
             maxPlayers: number;
-            gameType: string;
+            gameType: "public" | "private";
         }>
     >;
 }
@@ -49,7 +49,7 @@ const GameSettings: React.FC<GameSettingsProps> = ({isHost, gameSettings, setGam
                     timeLimit={gameSettings.timeLimit}
                     articleCount={gameSettings.articleCount}
                     maxPlayers={gameSettings.maxPlayers}
-                    gameType={gameSettings.gameType === "public" ? "public" : "private"}
+                    gameType={gameSettings.gameType}
                     setTimeLimit={value => setGameSettings(prev => ({...prev, timeLimit: value}))}
                     setArticleCount={value => setGameSettings(prev => ({...prev, articleCount: value}))}
                     setMaxPlayers={value => setGameSettings(prev => ({...prev, maxPlayers: value}))}
