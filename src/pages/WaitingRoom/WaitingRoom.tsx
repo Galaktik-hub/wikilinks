@@ -74,7 +74,7 @@ const WaitingRoom: React.FC = () => {
                     <div ref={leftRef} className="w-full flex flex-col gap-6 overflow-y-auto">
                         <GameRoomCard codegame={code} playerCount={players.length} maxPlayers={gameSettings.maxPlayers} />
                         <GameSettings isHost={isHost} gameSettings={gameSettings} setGameSettings={setGameSettings} />
-                        <PlayerList isHost={isHost} players={players} />
+                        <PlayerList isHost={isHost} players={players} currentUsername={socket?.username} />
                     </div>
                     <div ref={rightRef} className="hidden xl-custom:flex w-full flex-col gap-6 overflow-y-auto">
                         <TextLoungePanel />

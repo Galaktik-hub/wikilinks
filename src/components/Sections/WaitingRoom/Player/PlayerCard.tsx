@@ -7,9 +7,10 @@ interface PlayerCardProps {
     playerName: string | null | undefined;
     isPlayerAdmin?: boolean; // Indique si ce joueur est admin (affiche la couronne)
     isHost: boolean; // Indique si l'utilisateur actuel est admin (affiche les options)
+    currentUsername?: string | null;
 }
 
-export const PlayerCard: React.FC<PlayerCardProps> = ({playerName, isPlayerAdmin = false, isHost}) => {
+export const PlayerCard: React.FC<PlayerCardProps> = ({playerName, isPlayerAdmin = false, isHost, currentUsername}) => {
     const [isPopupOpen, setIsPopupOpen] = React.useState(false);
     const playerCardRef = React.useRef<HTMLDivElement>(null);
 
@@ -40,16 +41,20 @@ export const PlayerCard: React.FC<PlayerCardProps> = ({playerName, isPlayerAdmin
         };
     }, [isPopupOpen]);
 
+    const articleClass = `flex justify-between items-center py-2 ${playerName !== currentUsername ? "pr-1.5 pl-4 bg-gray-700" : "px-4 bg-gray-600"}  rounded relative`;
+
     return (
-        <article ref={playerCardRef} className="flex justify-between items-center py-2 pr-1.5 pl-4 bg-gray-700 rounded relative">
+        <article ref={playerCardRef} className={articleClass}>
             <div className="flex justify-center items-center gap-2">
                 <div className="flex gap-1.5 items-center self-stretch py-2 my-auto">
                     <span className="self-stretch my-auto">{playerName}</span>
                     {isPlayerAdmin && <CrownIcon className="text-yellow-500" />}
                 </div>
-                <button onClick={handleMoreClick} className="p-1 rounded hover:bg-gray-600">
-                    <MoreOptionsIcon className="w-[25px] h-[25px] text-gray-400" />
-                </button>
+                {playerName !== currentUsername && (
+                    <button onClick={handleMoreClick} className="p-1 rounded hover:bg-gray-600">
+                        <MoreOptionsIcon className="w-[25px] h-[25px] text-gray-400" />
+                    </button>
+                )}
             </div>
 
             {/* Popup Modal */}

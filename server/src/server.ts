@@ -2,7 +2,7 @@ import { WebSocketServer, WebSocket, RawData } from "ws";
 import { GameSessionManager } from "./gameSessions";
 import { handleMessage, ClientContext } from "./messageHandler";
 
-const wss = new WebSocketServer({ port: 2025 });
+const wss = new WebSocketServer({ host: "0.0.0.0", port: 2025 });
 console.log("WebSocket server is running on ws://localhost:2025");
 
 wss.on("connection", (ws: WebSocket) => {
