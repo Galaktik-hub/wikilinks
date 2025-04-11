@@ -47,7 +47,7 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({children}) => {
 
     useEffect(() => {
         const socket = new WebSocket(
-            import.meta.env.MODE === "prod"
+            import.meta.env.VITE_MODE === "prod"
                 ? import.meta.env.VITE_WS_DOMAIN_PROD
                 : import.meta.env.VITE_WS_DOMAIN_LOCAL
         );
