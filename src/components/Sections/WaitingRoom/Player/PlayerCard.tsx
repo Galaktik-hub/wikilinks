@@ -2,6 +2,8 @@ import * as React from "react";
 import CrownIcon from "../../../../assets/WaitingRoom/CrownSVG.tsx";
 import MoreOptionsIcon from "../../../../assets/WaitingRoom/MoreSVG.tsx";
 import PlayerSettingsOverlay from "./PlayerSettingsOverlay.tsx";
+import {useContext} from "react";
+import {SocketContext} from "../../../../context/SocketContext.tsx";
 
 interface PlayerCardProps {
     playerName: string | null | undefined;
@@ -10,6 +12,7 @@ interface PlayerCardProps {
 }
 
 export const PlayerCard: React.FC<PlayerCardProps> = ({playerName, isPlayerAdmin = false, isHost}) => {
+    const socket = useContext(SocketContext);
     const [isPopupOpen, setIsPopupOpen] = React.useState(false);
     const playerCardRef = React.useRef<HTMLDivElement>(null);
 

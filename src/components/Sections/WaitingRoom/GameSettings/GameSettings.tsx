@@ -40,7 +40,7 @@ const GameSettings: React.FC<GameSettingsProps> = ({isHost, gameSettings, setGam
                 timeLimit={gameSettings.timeLimit}
                 articleCount={gameSettings.articleCount}
                 maxPlayers={gameSettings.maxPlayers}
-                gameType={gameSettings.gameType.charAt(0).toUpperCase() + gameSettings.gameType.slice(1)}
+                gameType={gameSettings.gameType === "public" ? "Publique" : "Privé"}
             />
 
             {/* Modal Popup */}
@@ -49,7 +49,7 @@ const GameSettings: React.FC<GameSettingsProps> = ({isHost, gameSettings, setGam
                     timeLimit={gameSettings.timeLimit}
                     articleCount={gameSettings.articleCount}
                     maxPlayers={gameSettings.maxPlayers}
-                    gameType={gameSettings.gameType === "publique" ? gameSettings.gameType : "privé"}
+                    gameType={gameSettings.gameType === "public" ? "public" : "private"}
                     setTimeLimit={value => setGameSettings(prev => ({...prev, timeLimit: value}))}
                     setArticleCount={value => setGameSettings(prev => ({...prev, articleCount: value}))}
                     setMaxPlayers={value => setGameSettings(prev => ({...prev, maxPlayers: value}))}

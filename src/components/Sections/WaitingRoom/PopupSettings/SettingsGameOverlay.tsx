@@ -15,11 +15,11 @@ interface SettingsGameOverlayProps {
     timeLimit: number;
     articleCount: number;
     maxPlayers: number;
-    gameType: "publique" | "privé";
+    gameType: "public" | "private";
     setTimeLimit: (value: number) => void;
     setArticleCount: (value: number) => void;
     setMaxPlayers: (value: number) => void;
-    setGameType: (value: "publique" | "privé") => void;
+    setGameType: (value: "public" | "private") => void;
     closeModal: () => void;
 }
 
@@ -64,12 +64,12 @@ const SettingsGameOverlay: React.FC<SettingsGameOverlayProps> = ({
                 timeLimit,
                 numberOfArticles: articleCount,
                 maxPlayers,
-                type: gameType === "publique" ? "public" : "private",
+                type: gameType,
         });
     }, [timeLimit, articleCount, maxPlayers, gameType]);
 
     const togglePublicGame = () => {
-        setGameType(gameType === "publique" ? "privé" : "publique");
+        setGameType(gameType);
     };
 
     return (
@@ -94,11 +94,11 @@ const SettingsGameOverlay: React.FC<SettingsGameOverlayProps> = ({
                             <button
                                 onClick={togglePublicGame}
                                 className={`relative w-10 h-5 flex items-center rounded-full p-1 transition-all duration-300 ${
-                                    gameType === "publique" ? "bg-bluePrimary" : "bg-gray-400"
+                                    gameType === "public" ? "bg-bluePrimary" : "bg-gray-400"
                                 }`}>
                                 <div
                                     className={`w-4 h-4 bg-white rounded-full shadow-md transform transition-all duration-300 ${
-                                        gameType === "publique" ? "translate-x-5" : "translate-x-0"
+                                        gameType === "public" ? "translate-x-5" : "translate-x-0"
                                     }`}></div>
                             </button>
                         </div>
