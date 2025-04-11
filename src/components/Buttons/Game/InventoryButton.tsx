@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, {useState, useEffect, useRef} from "react";
 import InventorySVG from "../../../assets/Game/InventorySVG.tsx";
 import InventoryPanel from "../../Sections/Game/Inventory/InventoryPanel.tsx";
 
-const InventoryButton: React.FC<{ disabled?: boolean }> = ({ disabled = false }) => {
+const InventoryButton: React.FC<{disabled?: boolean}> = ({disabled = false}) => {
     const [isOpen, setIsOpen] = useState(false);
     const [showText, setShowText] = useState(true);
     const panelRef = useRef<HTMLDivElement>(null);
@@ -34,24 +34,16 @@ const InventoryButton: React.FC<{ disabled?: boolean }> = ({ disabled = false })
                 <button
                     onClick={() => setIsOpen(true)}
                     disabled={disabled}
-                    className="inline-flex gap-2 items-center p-4 bg-blue-700 rounded-lg cursor-pointer h-[50px]"
-                >
+                    className="inline-flex gap-2 items-center p-4 bg-blue-700 rounded-lg cursor-pointer h-[50px]">
                     <InventorySVG />
-                    {showText && (
-                        <span className="text-base text-white max-md:text-base max-sm:text-sm">
-                            Inventaire
-                        </span>
-                    )}
+                    {showText && <span className="text-base text-white max-md:text-base max-sm:text-sm">Inventaire</span>}
                 </button>
             </div>
         );
     }
 
     return (
-        <div
-            ref={panelRef}
-            className="absolute flex bottom-20 left-1/2 -translate-x-1/2 justify-center items-center mb-2.5"
-        >
+        <div ref={panelRef} className="absolute flex bottom-20 left-1/2 -translate-x-1/2 justify-center items-center mb-2.5">
             {/*Gérer les compteurs d'items en back, ici il recréé le composant avec les compteurs initiaux*/}
             <InventoryPanel gpsCount={5} retourCount={1} mineCount={3} />
         </div>

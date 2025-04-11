@@ -6,7 +6,7 @@ export class WikipediaService {
     public static async fetchRandomWikipediaPages(count: number): Promise<string[]> {
         interface WikipediaResponse {
             query: {
-                random: { title: string }[];
+                random: {title: string}[];
             };
         }
 
@@ -19,7 +19,7 @@ export class WikipediaService {
                 throw new Error("Unexpected API response format");
             }
 
-            return data.query.random.map((page) => page.title);
+            return data.query.random.map(page => page.title);
         } catch (error) {
             console.error("Error fetching Wikipedia articles:", error);
             return [];
@@ -60,13 +60,13 @@ export class WikipediaService {
         minViews: number,
         startDate: string,
         endDate: string,
-        batchSize: number = requiredCount * 2
+        batchSize: number = requiredCount * 2,
     ): Promise<string[]> {
         const validTitles = new Set<string>();
 
         while (validTitles.size < requiredCount) {
             const titles = await this.fetchRandomWikipediaPages(batchSize);
-            console.log(`Batch fetched: ${titles.join(', ')}`);
+            console.log(`Batch fetched: ${titles.join(", ")}`);
 
             for (const title of titles) {
                 const views = await this.getPageViews(title, startDate, endDate);
@@ -79,7 +79,7 @@ export class WikipediaService {
                 }
             }
         }
-        validTitles.forEach((title) => console.log("Result : " + title));
+        validTitles.forEach(title => console.log("Result : " + title));
         return Array.from(validTitles);
     }
 }

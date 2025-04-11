@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import CopySVG from "../../../../assets/WaitingRoom/CopySVG.tsx";
-import { PopupButton } from "../../../Buttons/WaitingRoom/PopupButton.tsx";
+import {PopupButton} from "../../../Buttons/WaitingRoom/PopupButton.tsx";
 import QrCodeSVG from "../../../../assets/WaitingRoom/QrCodeSVG.tsx";
 import {useModalContext} from "../../../Modals/ModalProvider.tsx";
 import {QRCodeCanvas} from "qrcode.react";
@@ -11,10 +11,10 @@ interface GameCodeProps {
     code: number;
 }
 
-export const GameCode: React.FC<GameCodeProps> = ({ code }) => {
+export const GameCode: React.FC<GameCodeProps> = ({code}) => {
     const [popupVisible, setPopupVisible] = React.useState(false);
     const [popupText, setPopupText] = React.useState("");
-    const { openModal, closeModal } = useModalContext();
+    const {openModal, closeModal} = useModalContext();
 
     const gameLink = `${window.location.origin}/?code=${code}`;
 
@@ -39,7 +39,7 @@ export const GameCode: React.FC<GameCodeProps> = ({ code }) => {
                         <QRCodeCanvas value={gameLink} size={200} fgColor="#000000" bgColor="#ffffff" />
                     </div>
                 ),
-                cancelButton: { label: "Annuler", onClick: () => closeModal() },
+                cancelButton: {label: "Annuler", onClick: () => closeModal()},
                 okButton: {
                     label: "OK",
                     onClick: () => {
@@ -59,8 +59,7 @@ export const GameCode: React.FC<GameCodeProps> = ({ code }) => {
                     <button
                         onClick={handleCopy}
                         className="flex gap-2 items-center bg-blueSecondary hover:bg-blue-900  transition-colors duration-300 text-white py-2 px-4 rounded focus:outline-none"
-                        aria-label={`Copier le code de jeu ${code}`}
-                    >
+                        aria-label={`Copier le code de jeu ${code}`}>
                         <span className="font-bold">{code}</span>
                         <CopySVG />
                     </button>
@@ -69,8 +68,7 @@ export const GameCode: React.FC<GameCodeProps> = ({ code }) => {
                     <button
                         onClick={() => handleOpenQR()}
                         className="flex items-center justify-center bg-gray-700 hover:bg-gray-800 transition-colors duration-300 text-white p-2 rounded focus:outline-none"
-                        aria-label="Afficher le QR Code"
-                    >
+                        aria-label="Afficher le QR Code">
                         <QrCodeSVG />
                     </button>
                 </div>
@@ -81,7 +79,6 @@ export const GameCode: React.FC<GameCodeProps> = ({ code }) => {
                     <PopupButton text={popupText} color="green" />
                 </div>
             )}
-
         </div>
     );
 };

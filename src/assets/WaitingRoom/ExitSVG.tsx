@@ -4,15 +4,15 @@ interface ExitSVGProps {
     className?: string;
 }
 
-const ExitSVG: React.FC<ExitSVGProps> = ({ className = "" }) => (
-    <svg
-        width="24"
-        height="24"
-        viewBox="0 0 24 24"
-        fill="none"
-        className={className}
-        xmlns="http://www.w3.org/2000/svg">
-        <path d="M15 4.00098H5V18.001C5 18.5314 5.21071 19.0401 5.58579 19.4152C5.96086 19.7903 6.46957 20.001 7 20.001H15M16 15.001L19 12.001M19 12.001L16 9.00098M19 12.001H9" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+const ExitSVG: React.FC<ExitSVGProps> = ({className = ""}) => (
+    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" className={className} xmlns="http://www.w3.org/2000/svg">
+        <path
+            d="M15 4.00098H5V18.001C5 18.5314 5.21071 19.0401 5.58579 19.4152C5.96086 19.7903 6.46957 20.001 7 20.001H15M16 15.001L19 12.001M19 12.001L16 9.00098M19 12.001H9"
+            stroke="white"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+        />
     </svg>
 );
 

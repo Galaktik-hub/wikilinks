@@ -1,8 +1,8 @@
 "use client";
 
 import * as React from "react";
-import { GameCode } from "./GameCode.tsx";
-import { PlayerCount } from "./PlayerCount.tsx";
+import {GameCode} from "./GameCode.tsx";
+import {PlayerCount} from "./PlayerCount.tsx";
 
 interface GameRoomCardProps {
     codegame: number;
@@ -10,7 +10,7 @@ interface GameRoomCardProps {
     maxPlayers: number;
 }
 
-export const GameRoomCard: React.FC<GameRoomCardProps> = ({ codegame, playerCount, maxPlayers }) => {
+export const GameRoomCard: React.FC<GameRoomCardProps> = ({codegame, playerCount, maxPlayers}) => {
     return (
         <div className="card-container whitespace-nowrap">
             <GameCode code={codegame} />

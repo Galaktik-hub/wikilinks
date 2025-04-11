@@ -12,8 +12,8 @@ import InventoryButton from "../../components/Buttons/Game/InventoryButton.tsx";
 import Header from "../../components/Header/Header.tsx";
 
 const Game: React.FC = () => {
-    const isMobile = useMediaQuery({ maxWidth: 767 });
-    const isDesktop = useMediaQuery({ minWidth: 1200 });
+    const isMobile = useMediaQuery({maxWidth: 767});
+    const isDesktop = useMediaQuery({minWidth: 1200});
     const isIntermediate = !isMobile && !isDesktop;
 
     const desktopLeft = (
@@ -25,11 +25,7 @@ const Game: React.FC = () => {
     );
 
     return (
-        <Layout
-            header={<Header />}
-            leftColumn={isDesktop ? desktopLeft : null}
-            rightColumn={isDesktop ? <TextLoungePanel /> : null}
-        >
+        <Layout header={<Header />} leftColumn={isDesktop ? desktopLeft : null} rightColumn={isDesktop ? <TextLoungePanel /> : null}>
             <div className="flex flex-col w-full h-full gap overflow-hidden items-center justify-center p-4 relative gap-5">
                 {(isMobile || isIntermediate) && (
                     <>
@@ -38,16 +34,14 @@ const Game: React.FC = () => {
                     </>
                 )}
                 <WikiPagePanel />
-                {(isMobile || isIntermediate) && (
-                    <ExitButton isHost={false} />
-                )}
+                {(isMobile || isIntermediate) && <ExitButton isHost={false} />}
             </div>
             {isDesktop && (
                 <div className="max-w-[769px]:hidden absolute flex bottom-0 left-1/2 -translate-x-1/2 justify-center items-center mb-2.5">
                     <InventoryPanel gpsCount={5} retourCount={1} mineCount={3} />
                 </div>
             )}
-            {(!isDesktop) && (
+            {!isDesktop && (
                 <>
                     <div className="flex justify-center items-center p-5 w-full">
                         <InventoryButton />
@@ -60,7 +54,5 @@ const Game: React.FC = () => {
         </Layout>
     );
 };
-
-
 
 export default Game;

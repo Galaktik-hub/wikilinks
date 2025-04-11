@@ -9,8 +9,8 @@ interface UsernameModalProps {
     shouldOpen: boolean;
 }
 
-const UsernameModal: React.FC<UsernameModalProps> = ({ onSubmit, shouldOpen }) => {
-    const { openModal, updateModal, closeModal } = useModalContext();
+const UsernameModal: React.FC<UsernameModalProps> = ({onSubmit, shouldOpen}) => {
+    const {openModal, updateModal, closeModal} = useModalContext();
     const [pseudo, setPseudo] = useState("");
     const isOpened = useRef(false);
     const lastContentRef = useRef<any>(null);
@@ -38,7 +38,7 @@ const UsernameModal: React.FC<UsernameModalProps> = ({ onSubmit, shouldOpen }) =
                             alert("Veuillez entrer un pseudo et un code valide à 6 chiffres.");
                         }
                     },
-                    disabled: !(pseudo.trim()),
+                    disabled: !pseudo.trim(),
                 },
                 isValid: pseudo.trim(),
             };

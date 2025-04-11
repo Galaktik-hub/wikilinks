@@ -11,11 +11,7 @@ interface OptionSelectorProps {
     onChange: (value: number | null) => void;
 }
 
-export const OptionSelector: React.FC<OptionSelectorProps> = ({
-                                                                  options,
-                                                                  selectedValue,
-                                                                  onChange,
-                                                              }) => {
+export const OptionSelector: React.FC<OptionSelectorProps> = ({options, selectedValue, onChange}) => {
     const handleClick = (value: number) => {
         if (selectedValue === value) {
             onChange(null);
@@ -26,16 +22,13 @@ export const OptionSelector: React.FC<OptionSelectorProps> = ({
 
     return (
         <div className="flex flex-wrap gap-2 text-sm font-light text-gray-400">
-            {options.map((option) => (
+            {options.map(option => (
                 <button
                     key={option.value}
                     className={`w-[50px] text-center py-1 rounded-md transition-colors ${
-                        selectedValue === option.value
-                            ? "text-bluePrimary font-semibold"
-                            : "hover:text-bluePrimary font-normal"
+                        selectedValue === option.value ? "text-bluePrimary font-semibold" : "hover:text-bluePrimary font-normal"
                     }`}
-                    onClick={() => handleClick(option.value)}
-                >
+                    onClick={() => handleClick(option.value)}>
                     {option.label}
                 </button>
             ))}

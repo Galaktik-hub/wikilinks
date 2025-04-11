@@ -15,10 +15,10 @@ export interface ResultProps {
 }
 
 const players: ResultProps[] = [
-    { rank: 1, name: "Alex", score: 2450 },
-    { rank: 2, name: "Maria", score: 2280 },
-    { rank: 3, name: "John", score: 2150 },
-    { rank: 4, name: "Joueur 4", score: 2000 },
+    {rank: 1, name: "Alex", score: 2450},
+    {rank: 2, name: "Maria", score: 2280},
+    {rank: 3, name: "John", score: 2150},
+    {rank: 4, name: "Joueur 4", score: 2000},
 ];
 
 // Si moins de 3 joueurs, on fournit uniquement ceux nécessaires
@@ -28,9 +28,7 @@ const Result: React.FC = () => {
     return (
         <Layout header={<Header />}>
             <div className="flex flex-col w-full overflow-hidden items-center justify-center p-4 gap-6 max-md:mb-16">
-                <div className="title-block">
-                    Résultats
-                </div>
+                <div className="title-block">Résultats</div>
                 <section className="w-full flex gap-6">
                     <div className="w-full flex flex-col gap-6">
                         <Podium players={podiumPlayers} />

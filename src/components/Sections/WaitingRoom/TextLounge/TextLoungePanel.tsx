@@ -1,9 +1,8 @@
 import * as React from "react";
-import { ChatInput } from "../../../Chat/ChatInput.tsx";
-import { SendButton } from "../../../Chat/SendButton.tsx";
-import RoomModal from "../../../Modals/WaitingRoom/RoomModal";
-import { useContext } from "react";
-import { SocketContext } from "../../../../context/SocketContext";
+import {ChatInput} from "../../../Chat/ChatInput.tsx";
+import {SendButton} from "../../../Chat/SendButton.tsx";
+import {useContext} from "react";
+import {SocketContext} from "../../../../context/SocketContext";
 
 export const TextLoungePanel: React.FC = () => {
     const socket = useContext(SocketContext);
@@ -31,7 +30,7 @@ export const TextLoungePanel: React.FC = () => {
             if (element) {
                 element.scrollTo({
                     top: element.scrollHeight,
-                    behavior: 'smooth'
+                    behavior: "smooth",
                 });
             }
         });
@@ -49,52 +48,43 @@ export const TextLoungePanel: React.FC = () => {
         }
     };
 
-    const MessageBubble = React.useCallback(({ msg, index }: { msg: any; index: number }) => (
-        <div key={index}
-            className={`mb-2 p-3 rounded-lg border border-gray-700/50 ${msg.sender === 'system' ? 'bg-yellow-950/50' :
-                msg.sender === socket?.username ? 'bg-sky-950/50' : 'bg-background'
-                }`}>
-            {msg.sender !== "Bot-JoinLeaveBot" && (
-                <>
-                    <strong className="text-bluePrimary">
-                        {msg.sender}
-                    </strong>
-                    <span className="mx-2 text-gray-500">:</span>
-                </>
-            )}
-            <span className="text-gray-100">{msg.content}</span>
-        </div>
-    ), [socket?.username]);
+    const MessageBubble = React.useCallback(
+        ({msg, index}: {msg: any; index: number}) => {
+            if (msg.kind !== "message_received") {
+                return null;
+            }
+
+            return (
+                <div
+                    key={index}
+                    className={`mb-2 p-3 rounded-lg border border-gray-700/50 ${
+                        msg.sender === "system" ? "bg-yellow-950/50" : msg.sender === socket?.username ? "bg-sky-950/50" : "bg-background"
+                    }`}>
+                    {msg.sender !== "Bot-JoinLeaveBot" && (
+                        <>
+                            <strong className="text-bluePrimary">{msg.sender}</strong>
+                            <span className="mx-2 text-gray-500">:</span>
+                        </>
+                    )}
+                    <span className="text-gray-100">{msg.content}</span>
+                </div>
+            );
+        },
+        [socket?.username],
+    );
 
     return (
         <>
-            <RoomModal
-                onSubmit={(username: string, roomCode: string) => {
-                    if (socket?.setUsername && socket?.setRoomCode) {
-                        socket.setUsername(username);
-                        socket.setRoomCode(roomCode);
-                    }
-                }}
-                shouldOpen={!socket?.username}
-            />
-
             {/* Desktop version */}
-            <div className="card-container hidden xl-custom:flex flex-col h-full gap-2.5">
+            <div className="card-container hidden xl-custom:flex flex-col h-full">
                 <div className="w-full flex justify-center">
-                    <h2 className="blue-title-effect">
-                        Salon Textuel
-                    </h2>
+                    <h2 className="blue-title-effect">Salon Textuel</h2>
                 </div>
 
-                <div className="flex flex-col flex-grow bg-darkBg rounded-lg h-full overflow-hidden">
-                    <div
-                        className="flex-grow overflow-auto p-4 scroll-smooth"
-                        ref={addToRefs}
-                    >
+                <div className="flex flex-col bg-darkBg rounded-lg overflow-hidden h-full mt-2.5">
+                    <div className="flex-1 overflow-auto p-4 scroll-smooth max-h-full" ref={addToRefs}>
                         {socket?.messages.length ? (
-                            socket.messages.map((msg, index) => (
-                                <MessageBubble key={index} msg={msg} index={index} />
-                            ))
+                            socket.messages.map((msg, index) => <MessageBubble key={index} msg={msg} index={index} />)
                         ) : (
                             <p className="text-gray-400 text-center">Aucun message pour l'instant...</p>
                         )}
@@ -104,7 +94,7 @@ export const TextLoungePanel: React.FC = () => {
                         <div className="flex items-center gap-2">
                             <ChatInput
                                 value={message}
-                                onChange={(e) => setMessage(e.target.value)}
+                                onChange={e => setMessage(e.target.value)}
                                 onKeyDown={handleKeyDown}
                                 placeholder="Écrivez un message..."
                                 disabled={!socket?.isConnected}
@@ -126,26 +116,19 @@ export const TextLoungePanel: React.FC = () => {
                 />
 
                 {/* Chat panel that slides up from bottom */}
-                <div className={`fixed bottom-16 left-0 right-0 bg-darkBg transition-transform duration-300 ease-out ${isInputFocused ? 'translate-y-0' : 'translate-y-full'
+                <div
+                    className={`fixed bottom-16 left-0 right-0 bg-darkBg transition-transform duration-300 ease-out ${
+                        isInputFocused ? "translate-y-0" : "translate-y-full"
                     }`}>
                     <div className="w-full flex justify-center my-4">
-                        <h2 className="blue-title-effect">
-                            Salon Textuel
-                        </h2>
+                        <h2 className="blue-title-effect">Salon Textuel</h2>
                     </div>
 
-                    <div
-                        className="min-h-[15vh] max-h-[50vh] overflow-auto px-4 pb-4 scroll-smooth"
-                        ref={addToRefs}
-                    >
+                    <div className="h-[300px] overflow-auto px-4 pb-4 scroll-smooth" ref={addToRefs}>
                         {socket?.messages.length ? (
-                            socket.messages.map((msg, index) => (
-                                <MessageBubble key={index} msg={msg} index={index} />
-                            ))
+                            socket.messages.map((msg, index) => <MessageBubble key={index} msg={msg} index={index} />)
                         ) : (
-                            <p className="text-gray-400 text-center">
-                                Aucun message pour l'instant...
-                            </p>
+                            <p className="text-gray-400 text-center">Aucun message pour l'instant...</p>
                         )}
                     </div>
                 </div>
@@ -155,16 +138,13 @@ export const TextLoungePanel: React.FC = () => {
                     <div className="flex items-center gap-2">
                         <ChatInput
                             value={message}
-                            onChange={(e) => setMessage(e.target.value)}
+                            onChange={e => setMessage(e.target.value)}
                             onKeyDown={handleKeyDown}
                             onFocus={() => setIsInputFocused(true)}
                             placeholder="Écrivez un message..."
                             disabled={!socket?.isConnected}
                         />
-                        <SendButton
-                            onClick={handleSendMessage}
-                            disabled={!socket?.isConnected || !message.trim()}
-                        />
+                        <SendButton onClick={handleSendMessage} disabled={!socket?.isConnected || !message.trim()} />
                     </div>
                 </div>
             </div>

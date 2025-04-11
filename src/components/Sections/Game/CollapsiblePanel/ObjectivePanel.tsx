@@ -12,19 +12,15 @@ interface Objective {
 
 const ObjectivesPanel: React.FC = () => {
     const objectives: Objective[] = [
-        { id: "obj1", text: "Title of the page reached", isReached: true },
-        { id: "obj2", text: "Page title not reached", isReached: false },
-        { id: "obj3", text: "Page title not reached", isReached: false },
+        {id: "obj1", text: "Title of the page reached", isReached: true},
+        {id: "obj2", text: "Page title not reached", isReached: false},
+        {id: "obj3", text: "Page title not reached", isReached: false},
     ];
 
     return (
         <CollapsiblePanel title="Objectifs" contentId="objectives-content">
-            {objectives.map((objective) => (
-                <ObjectiveItem
-                    key={objective.id}
-                    text={objective.text}
-                    isReached={objective.isReached}
-                />
+            {objectives.map(objective => (
+                <ObjectiveItem key={objective.id} text={objective.text} isReached={objective.isReached} />
             ))}
         </CollapsiblePanel>
     );

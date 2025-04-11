@@ -1,19 +1,20 @@
 export abstract class Bot {
-    constructor(public name: string, protected sendMessage: (content: string, destination: string | null) => void) {}
+    constructor(
+        public name: string,
+        protected sendMessage: (content: string, destination: string | null) => void,
+    ) {}
     abstract notifyMemberJoin(name: string): void;
     abstract notifyMemberLeave(name: string): void;
     abstract notifyReceivedMessage(sender: string, content: string): boolean;
 }
 
 export class UpperCaseBot extends Bot {
-    notifyMemberJoin(name: string): void {
-    }
-    notifyMemberLeave(name: string): void {
-    }
+    notifyMemberJoin(name: string): void {}
+    notifyMemberLeave(name: string): void {}
     notifyReceivedMessage(sender: string, content: string): boolean {
         console.log(`UpperCaseBot (${this.name}) received message from ${sender}: ${content}`);
-        if (content.startsWith('/upper')) {
-            const response = `${content.replace('/upper', '').toUpperCase()}`;
+        if (content.startsWith("/upper")) {
+            const response = `${content.replace(/\/upper\s*/gm, "").toUpperCase()}`;
             console.log(`UpperCaseBot (${this.name}) intercepts message, sending private response: ${response}`);
             this.sendMessage(response, sender);
             return true;

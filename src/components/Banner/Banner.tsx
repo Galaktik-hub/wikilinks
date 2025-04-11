@@ -1,10 +1,10 @@
-import React from 'react';
-import BannerItem from './BannerItem';
+import React from "react";
+import BannerItem from "./BannerItem";
 import CupSVG from "../../assets/Banner/CupSVG.tsx";
 import StarSVG from "../../assets/Banner/StarSVG.tsx";
 import DiceSVG from "../../assets/Banner/DiceSVG.tsx";
-import { CircularBorder } from './CircularBorder';
-import { DecorativeLines } from './DecorativeLines';
+import {CircularBorder} from "./CircularBorder";
+import {DecorativeLines} from "./DecorativeLines";
 
 const Banner: React.FC = () => {
     return (
@@ -13,10 +13,7 @@ const Banner: React.FC = () => {
             <div className="absolute inset-0 z-0">
                 <div className="flex flex-wrap">
                     {[...Array(5)].map((_, index) => (
-                        <div
-                            key={index}
-                            className="flex flex-1 shrink py-2.5 basis-0 h-[200px] w-[110px]"
-                        />
+                        <div key={index} className="flex flex-1 shrink py-2.5 basis-0 h-[200px] w-[110px]" />
                     ))}
                 </div>
                 <img
@@ -36,27 +33,14 @@ const Banner: React.FC = () => {
             {/* Content */}
             <div className="relative md:flex md:justify-around md:items-center">
                 <div className="text-white text-lg md:text-2xl mb-8 md:mb-0 font-inter px-8 md:ml-2 md:px-0 md:max-w-2xl md:flex-1">
-                    Affrontez vos amis à travers les pages de{' '}
-                    <span className="font-bold">Wikipédia</span> en vous aidant des {' '}
+                    Affrontez vos amis à travers les pages de <span className="font-bold">Wikipédia</span> en vous aidant des{" "}
                     <span className="font-bold">bonus</span> que vous trouverez en chemin !
                 </div>
-                
+
                 <div className="flex justify-evenly items-center md:justify-center md:gap-16 md:flex-1">
-                    <BannerItem
-                        icon={<CupSVG />}
-                        number="1500+"
-                        text="Joueurs actifs"
-                    />
-                    <BannerItem
-                        icon={<StarSVG />}
-                        number="1.5K"
-                        text="Parties jouées"
-                    />
-                    <BannerItem
-                        icon={<DiceSVG />}
-                        number="200+"
-                        text="Parties actives"
-                    />
+                    <BannerItem icon={<CupSVG />} number="1500+" text="Joueurs actifs" />
+                    <BannerItem icon={<StarSVG />} number="1.5K" text="Parties jouées" />
+                    <BannerItem icon={<DiceSVG />} number="200+" text="Parties actives" />
                 </div>
             </div>
         </div>

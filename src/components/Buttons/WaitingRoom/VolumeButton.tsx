@@ -2,15 +2,18 @@
 
 import * as React from "react";
 import VolumeSVG from "../../../assets/WaitingRoom/VolumeSVG.tsx";
-import {useState} from "react";
 
-const VolumeButton: React.FC<{ onClick?: (muted: boolean) => void; disabled?: boolean }> = ({ onClick, disabled = false }) => {
-    const [muted, setMuted] = useState(false);
+interface VolumeButtonProps {
+    onClick?: (newMuted: boolean) => void;
+    muted: boolean;
+    disabled?: boolean;
+}
 
+const VolumeButton: React.FC<VolumeButtonProps> = ({onClick, muted, disabled = false}) => {
     const handleClick = () => {
-        const newMuted = !muted;
-        setMuted(newMuted);
-        if (onClick) onClick(newMuted);
+        if (onClick) {
+            onClick(!muted);
+        }
     };
 
     return (
@@ -18,8 +21,7 @@ const VolumeButton: React.FC<{ onClick?: (muted: boolean) => void; disabled?: bo
             onClick={handleClick}
             disabled={disabled}
             className="w-[48px] h-[48px] bg-gray-800 rounded-lg border-2 border-solid flex justify-center items-center"
-            style={{ borderColor: "#00F7FF" }}
-        >
+            style={{borderColor: "#00F7FF"}}>
             <VolumeSVG muted={muted} />
         </button>
     );
