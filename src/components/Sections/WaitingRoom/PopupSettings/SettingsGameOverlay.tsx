@@ -69,7 +69,7 @@ const SettingsGameOverlay: React.FC<SettingsGameOverlayProps> = ({
     }, [timeLimit, articleCount, maxPlayers, gameType]);
 
     const togglePublicGame = () => {
-        setGameType(gameType);
+        setGameType(gameType === "public" ? "private" : "public");
     };
 
     return (
@@ -95,11 +95,13 @@ const SettingsGameOverlay: React.FC<SettingsGameOverlayProps> = ({
                                 onClick={togglePublicGame}
                                 className={`relative w-10 h-5 flex items-center rounded-full p-1 transition-all duration-300 ${
                                     gameType === "public" ? "bg-bluePrimary" : "bg-gray-400"
-                                }`}>
+                                }`}
+                            >
                                 <div
                                     className={`w-4 h-4 bg-white rounded-full shadow-md transform transition-all duration-300 ${
                                         gameType === "public" ? "translate-x-5" : "translate-x-0"
-                                    }`}></div>
+                                    }`}
+                                />
                             </button>
                         </div>
                     </SettingsOption>
