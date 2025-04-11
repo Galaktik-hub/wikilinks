@@ -5,14 +5,15 @@ import PlayerSettingsOverlay from "./PlayerSettingsOverlay.tsx";
 
 interface PlayerCardProps {
     playerName: string | null | undefined;
-    isPlayerAdmin?: boolean; // Indique si ce joueur est admin (affiche la couronne)
-    isHost: boolean; // Indique si l'utilisateur actuel est admin (affiche les options)
+    isPlayerAdmin?: boolean; // Indicates if the player is an admin (shows the crown)
+    isHost: boolean; // Indicates if the current user is admin (shows the options)
     currentUsername?: string | null;
 }
 
-export const PlayerCard: React.FC<PlayerCardProps> = ({playerName, isPlayerAdmin = false, isHost, currentUsername}) => {
+export const PlayerCard: React.FC<PlayerCardProps> = ({ playerName, isPlayerAdmin = false, isHost, currentUsername }) => {
     const [isPopupOpen, setIsPopupOpen] = React.useState(false);
     const playerCardRef = React.useRef<HTMLDivElement>(null);
+    const [isPlayerMuted, setIsPlayerMuted] = React.useState(false);
 
     const handleMoreClick = (event: React.MouseEvent<HTMLButtonElement>) => {
         event.stopPropagation();
@@ -41,7 +42,13 @@ export const PlayerCard: React.FC<PlayerCardProps> = ({playerName, isPlayerAdmin
         };
     }, [isPopupOpen]);
 
-    const articleClass = `flex justify-between items-center py-2 ${playerName !== currentUsername ? "pr-1.5 pl-4 bg-gray-700" : "px-4 bg-gray-600"}  rounded relative`;
+    const articleClass = `flex justify-between items-center py-2 ${
+        playerName !== currentUsername ? "pr-1.5 pl-4 bg-gray-700" : "px-4 bg-gray-600"
+    } rounded relative`;
+
+    const toggleMute = () => {
+        setIsPlayerMuted((prevMuted) => !prevMuted);
+    };
 
     return (
         <article ref={playerCardRef} className={articleClass}>
@@ -60,7 +67,12 @@ export const PlayerCard: React.FC<PlayerCardProps> = ({playerName, isPlayerAdmin
             {/* Popup Modal */}
             {isPopupOpen && (
                 <div className="absolute z-10 right-0 -translate-y-[75px]">
-                    <PlayerSettingsOverlay muted={false} isHost={isHost} playerName={playerName}/>
+                    <PlayerSettingsOverlay
+                        muted={isPlayerMuted}
+                        onToggleMute={toggleMute}
+                        isHost={isHost}
+                        playerName={playerName}
+                    />
                 </div>
             )}
         </article>
