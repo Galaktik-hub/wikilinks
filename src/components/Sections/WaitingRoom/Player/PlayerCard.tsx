@@ -10,7 +10,7 @@ interface PlayerCardProps {
     currentUsername?: string | null;
 }
 
-export const PlayerCard: React.FC<PlayerCardProps> = ({ playerName, isPlayerAdmin = false, isHost, currentUsername }) => {
+export const PlayerCard: React.FC<PlayerCardProps> = ({playerName, isPlayerAdmin = false, isHost, currentUsername}) => {
     const [isPopupOpen, setIsPopupOpen] = React.useState(false);
     const playerCardRef = React.useRef<HTMLDivElement>(null);
     const [isPlayerMuted, setIsPlayerMuted] = React.useState(false);
@@ -47,7 +47,7 @@ export const PlayerCard: React.FC<PlayerCardProps> = ({ playerName, isPlayerAdmi
     } rounded relative`;
 
     const toggleMute = () => {
-        setIsPlayerMuted((prevMuted) => !prevMuted);
+        setIsPlayerMuted(prevMuted => !prevMuted);
     };
 
     return (
@@ -67,12 +67,7 @@ export const PlayerCard: React.FC<PlayerCardProps> = ({ playerName, isPlayerAdmi
             {/* Popup Modal */}
             {isPopupOpen && (
                 <div className="absolute z-10 right-0 -translate-y-[75px]">
-                    <PlayerSettingsOverlay
-                        muted={isPlayerMuted}
-                        onToggleMute={toggleMute}
-                        isHost={isHost}
-                        playerName={playerName}
-                    />
+                    <PlayerSettingsOverlay muted={isPlayerMuted} onToggleMute={toggleMute} isHost={isHost} playerName={playerName} />
                 </div>
             )}
         </article>

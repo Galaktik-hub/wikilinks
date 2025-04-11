@@ -3,8 +3,8 @@
 import * as React from "react";
 import VolumeButton from "../../../Buttons/WaitingRoom/VolumeButton.tsx";
 import ExcludeButton from "../../../Buttons/WaitingRoom/ExcludeButton.tsx";
-import { useContext } from "react";
-import { SocketContext } from "../../../../context/SocketContext.tsx";
+import {useContext} from "react";
+import {SocketContext} from "../../../../context/SocketContext.tsx";
 
 interface PlayerSettingsOverlayProps {
     muted: boolean;
@@ -13,16 +13,16 @@ interface PlayerSettingsOverlayProps {
     playerName: string | null | undefined;
 }
 
-export const PlayerSettingsOverlay: React.FC<PlayerSettingsOverlayProps> = (props) => {
+export const PlayerSettingsOverlay: React.FC<PlayerSettingsOverlayProps> = props => {
     const socket = useContext(SocketContext);
 
     const handleMuteClick = () => {
-        socket?.sendMessageToServer({ kind: "mute_player", playerName: props.playerName });
+        socket?.sendMessageToServer({kind: "mute_player", playerName: props.playerName});
         props.onToggleMute();
     };
 
     const handleExcludeClick = () => {
-        socket?.sendMessageToServer({ kind: "exclude_player", playerName: props.playerName });
+        socket?.sendMessageToServer({kind: "exclude_player", playerName: props.playerName});
     };
 
     return (

@@ -61,10 +61,10 @@ const SettingsGameOverlay: React.FC<SettingsGameOverlayProps> = ({
 
     useEffect(() => {
         socket?.updateSettings({
-                timeLimit,
-                numberOfArticles: articleCount,
-                maxPlayers,
-                type: gameType,
+            timeLimit,
+            numberOfArticles: articleCount,
+            maxPlayers,
+            type: gameType,
         });
     }, [timeLimit, articleCount, maxPlayers, gameType]);
 
@@ -95,8 +95,7 @@ const SettingsGameOverlay: React.FC<SettingsGameOverlayProps> = ({
                                 onClick={togglePublicGame}
                                 className={`relative w-10 h-5 flex items-center rounded-full p-1 transition-all duration-300 ${
                                     gameType === "public" ? "bg-bluePrimary" : "bg-gray-400"
-                                }`}
-                            >
+                                }`}>
                                 <div
                                     className={`w-4 h-4 bg-white rounded-full shadow-md transform transition-all duration-300 ${
                                         gameType === "public" ? "translate-x-5" : "translate-x-0"

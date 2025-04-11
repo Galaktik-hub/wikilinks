@@ -1,8 +1,8 @@
-import { WebSocketServer, WebSocket, RawData } from "ws";
-import { GameSessionManager } from "./gameSessions";
-import { handleMessage, ClientContext } from "./messageHandler";
+import {WebSocketServer, WebSocket, RawData} from "ws";
+import {GameSessionManager} from "./gameSessions";
+import {handleMessage, ClientContext} from "./messageHandler";
 
-const wss = new WebSocketServer({ host: "0.0.0.0", port: 2025 });
+const wss = new WebSocketServer({host: "0.0.0.0", port: 2025});
 console.log("WebSocket server is running on ws://localhost:2025");
 
 wss.on("connection", (ws: WebSocket) => {
@@ -20,7 +20,7 @@ wss.on("connection", (ws: WebSocket) => {
             handleMessage(ws, message, context);
         } catch (e) {
             console.error("Error processing message:", e);
-            ws.send(JSON.stringify({ kind: "error", message: "Invalid message format" }));
+            ws.send(JSON.stringify({kind: "error", message: "Invalid message format"}));
         }
     });
 
@@ -33,10 +33,12 @@ wss.on("connection", (ws: WebSocket) => {
                     console.log(`The leader ${context.currentUser.name} disconnected. Clossing session ${context.currentGameSessionId}.`);
                     session.members.forEach(member => {
                         if (member.ws.readyState === WebSocket.OPEN) {
-                            member.ws.send(JSON.stringify({
-                                kind: "redirect_home",
-                                message: "The leader left the game. Going going back to home page.",
-                            }));
+                            member.ws.send(
+                                JSON.stringify({
+                                    kind: "redirect_home",
+                                    message: "The leader left the game. Going going back to home page.",
+                                }),
+                            );
                             member.ws.close();
                         }
                     });

@@ -1,7 +1,9 @@
 # WikiLinks Development Guide
+
 This guide provides step-by-step instructions on setting up and developing the WikiLinks project. Follow these steps to get your development environment ready and running.
 
 ## Prerequisites
+
 Before you begin, ensure that you have the following installed on your machine:
 
 - Node.js: Download and install the latest LTS version from [nodejs.org](nodejs.org).
@@ -14,6 +16,7 @@ Before you begin, ensure that you have the following installed on your machine:
 ## Installation Steps
 
 ### Install Dependencies
+
 The project uses npm for dependency management. To install all project dependencies, run:
 
 ```bash
@@ -21,6 +24,7 @@ The project uses npm for dependency management. To install all project dependenc
 ```
 
 ## Running the Development Server
+
 To start the development server, with only the Frontend, run:
 
 ```bash
@@ -40,6 +44,7 @@ To run both the Frontend and the Backend concurrently, execute:
 ```
 
 ## Building the Project
+
 To build the project, the repository offers two build commands:
 
 - ### Frontend Build:
@@ -47,6 +52,7 @@ To build the project, the repository offers two build commands:
 ```bash
   npm run build
 ```
+
 This command compiles the TypeScript files and runs the Vite build process.
 
 - ### Full Build (Frontend + Backend):
@@ -54,8 +60,8 @@ This command compiles the TypeScript files and runs the Vite build process.
 ```bash
   npm run build:full
 ```
-This command first builds the frontend, then navigates to the server folder and triggers its build using npm.
 
+This command first builds the frontend, then navigates to the server folder and triggers its build using npm.
 
 ## Code Quality and Formatting
 
@@ -72,6 +78,7 @@ This command first builds the frontend, then navigates to the server folder and 
 ```
 
 ## Clean Installation
+
 If you face issues with your dependencies, you can perform a clean installation:
 
 - ### Frontend Only:
@@ -85,4 +92,5 @@ If you face issues with your dependencies, you can perform a clean installation:
 ```bash
   npm run clean-install:full
 ```
+
 These commands remove the existing node_modules, lock files, and build artifacts, then reinstall all dependencies from scratch.

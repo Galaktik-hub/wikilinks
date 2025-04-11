@@ -1,8 +1,8 @@
-import { randomInt } from "node:crypto";
-import { WebSocket } from "ws";
-import { Player } from "./player/player";
-import { WikipediaService } from "./WikipediaService";
-import { Bot, JoinLeaveBot, BOTS } from "./bots";
+import {randomInt} from "node:crypto";
+import {WebSocket} from "ws";
+import {Player} from "./player/player";
+import {WikipediaService} from "./WikipediaService";
+import {Bot, JoinLeaveBot, BOTS} from "./bots";
 
 export type GameType = "public" | "private";
 
@@ -25,15 +25,7 @@ export class GameSession {
     public members: Map<string, SessionMember>;
     public bots: Map<string, Bot>;
 
-    constructor(
-        id: number,
-        timeLimit: number,
-        numberOfArticles: number,
-        maxPlayers: number,
-        type: GameType,
-        leader: Player,
-        ws: WebSocket
-    ) {
+    constructor(id: number, timeLimit: number, numberOfArticles: number, maxPlayers: number, type: GameType, leader: Player, ws: WebSocket) {
         this.id = id;
         this.timeLimit = timeLimit;
         this.numberOfArticles = numberOfArticles;
@@ -44,7 +36,7 @@ export class GameSession {
 
         this.leader = leader;
         this.members = new Map();
-        this.members.set(leader.name, { ws, role: "creator", muted: new Set<string>() });
+        this.members.set(leader.name, {ws, role: "creator", muted: new Set<string>()});
 
         this.bots = new Map();
         BOTS.forEach(BotClass => {
@@ -52,11 +44,11 @@ export class GameSession {
                 if (destination) {
                     const member = this.members.get(destination);
                     if (member) {
-                        member.ws.send(JSON.stringify({ kind: "message_received", content, sender: botInstance.name }));
+                        member.ws.send(JSON.stringify({kind: "message_received", content, sender: botInstance.name}));
                     }
                 } else {
                     this.members.forEach(member => {
-                        member.ws.send(JSON.stringify({ kind: "message_received", content, sender: botInstance.name }));
+                        member.ws.send(JSON.stringify({kind: "message_received", content, sender: botInstance.name}));
                     });
                 }
             });
@@ -70,7 +62,7 @@ export class GameSession {
      */
     public addPlayer(player: Player, ws: WebSocket): boolean {
         if (this.members.size >= this.maxPlayers) return false;
-        this.members.set(player.name, { ws, role: "client", muted: new Set<string>() });
+        this.members.set(player.name, {ws, role: "client", muted: new Set<string>()});
         this.bots.forEach(bot => {
             if (bot instanceof JoinLeaveBot) {
                 bot.notifyMemberJoin(player.name);
@@ -103,13 +95,13 @@ export class GameSession {
      * Updated the players list and notify all clients.
      */
     public refreshPlayers(): void {
-        const playersArray = Array.from(this.members.entries()).map(([username, { role }]) => ({
+        const playersArray = Array.from(this.members.entries()).map(([username, {role}]) => ({
             username,
             role,
         }));
         this.members.forEach(member => {
             if (member.ws.readyState === member.ws.OPEN) {
-                member.ws.send(JSON.stringify({ kind: "players_update", players: playersArray }));
+                member.ws.send(JSON.stringify({kind: "players_update", players: playersArray}));
             }
         });
     }
@@ -129,12 +121,12 @@ export class GameSession {
             if (destination) {
                 const member = this.members.get(destination);
                 if (member && !member.muted.has(sender)) {
-                    member.ws.send(JSON.stringify({ kind: "message_received", content, sender }));
+                    member.ws.send(JSON.stringify({kind: "message_received", content, sender}));
                 }
             } else {
                 this.members.forEach(member => {
                     if (member.ws.readyState === WebSocket.OPEN && !member.muted.has(sender)) {
-                        member.ws.send(JSON.stringify({ kind: "message_received", content, sender }));
+                        member.ws.send(JSON.stringify({kind: "message_received", content, sender}));
                     }
                 });
             }
@@ -165,7 +157,7 @@ export class GameSession {
         const requester = this.members.get(requestorName);
         if (!requester || requester.role !== "creator") return false;
         this.members.forEach(member => {
-            member.ws.send(JSON.stringify({ kind: "room_closed", message: "The room was closed by the leader" }));
+            member.ws.send(JSON.stringify({kind: "room_closed", message: "The room was closed by the leader"}));
             member.ws.close();
         });
         return true;
@@ -178,21 +170,20 @@ export class GameSessionManager {
     /**
      * Creates a new game session with a unique ID.
      */
-    public static createSession(params: { timeLimit: number; numberOfArticles: number; maxPlayers: number; type: GameType; leader: Player; ws: WebSocket }): GameSession {
+    public static createSession(params: {
+        timeLimit: number;
+        numberOfArticles: number;
+        maxPlayers: number;
+        type: GameType;
+        leader: Player;
+        ws: WebSocket;
+    }): GameSession {
         let id: number;
         do {
             id = randomInt(100000, 1000000);
         } while (this.sessions.has(id));
 
-        const session = new GameSession(
-            id,
-            params.timeLimit,
-            params.numberOfArticles,
-            params.maxPlayers,
-            params.type,
-            params.leader,
-            params.ws
-        );
+        const session = new GameSession(id, params.timeLimit, params.numberOfArticles, params.maxPlayers, params.type, params.leader, params.ws);
 
         this.sessions.set(id, session);
         return session;
