@@ -164,6 +164,32 @@ export async function handleMessage(ws: WebSocket, message: any, context: Client
             });
             break;
         }
+        case "mute_player": {
+            const { currentGameSessionId, currentUser } = context;
+            if (!currentGameSessionId || !currentUser) {
+                ws.send(JSON.stringify({
+                    kind: "error",
+                    message: "Not in a game session",
+                }));
+                return;
+            }
+            const session = GameSessionManager.getSession(currentGameSessionId);
+            if (!session) {
+                ws.send(JSON.stringify({
+                    kind: "error",
+                    message: "Game session not found",
+                }));
+                return;
+            }
+            const targetPlayerName = message.playerName;
+            const currentMember = session.members.get(currentUser.name);
+            if (currentMember.muted.has(targetPlayerName)) {
+                currentMember.muted.delete(targetPlayerName);
+            } else {
+                currentMember.muted.add(targetPlayerName);
+            }
+            break;
+        }
         case "disconnect": {
             const { currentRoomId, currentUser } = context;
             if (currentRoomId && currentUser) {

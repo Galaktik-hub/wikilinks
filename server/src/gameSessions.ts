@@ -6,6 +6,12 @@ import { Bot, JoinLeaveBot, BOTS } from "./bots";
 
 export type GameType = "public" | "private";
 
+export interface SessionMember {
+    ws: WebSocket;
+    role: "creator" | "client";
+    muted: Set<string>;
+}
+
 export class GameSession {
     public id: number;
     public timeLimit: number;
@@ -16,7 +22,7 @@ export class GameSession {
     public startArticle: string;
 
     public leader: Player;
-    public members: Map<string, { ws: WebSocket; role: "creator" | "client" }>;
+    public members: Map<string, SessionMember>;
     public bots: Map<string, Bot>;
 
     constructor(
@@ -38,7 +44,7 @@ export class GameSession {
 
         this.leader = leader;
         this.members = new Map();
-        this.members.set(leader.name, { ws, role: "creator" });
+        this.members.set(leader.name, { ws, role: "creator", muted: new Set<string>() });
 
         this.bots = new Map();
         BOTS.forEach(BotClass => {
@@ -64,7 +70,7 @@ export class GameSession {
      */
     public addPlayer(player: Player, ws: WebSocket): boolean {
         if (this.members.size >= this.maxPlayers) return false;
-        this.members.set(player.name, { ws, role: "client" });
+        this.members.set(player.name, { ws, role: "client", muted: new Set<string>() });
         this.bots.forEach(bot => {
             if (bot instanceof JoinLeaveBot) {
                 bot.notifyMemberJoin(player.name);
@@ -110,6 +116,7 @@ export class GameSession {
 
     /**
      * Dispatches a message to all members or to a specific member if destination is specified.
+     * Doesn't send the message if the members was muted.
      */
     public sendMessage(sender: string, content: string, destination: string | null = null): void {
         let intercepted = false;
@@ -121,12 +128,14 @@ export class GameSession {
         if (!intercepted) {
             if (destination) {
                 const member = this.members.get(destination);
-                if (member) {
+                if (member && !member.muted.has(sender)) {
                     member.ws.send(JSON.stringify({ kind: "message_received", content, sender }));
                 }
             } else {
                 this.members.forEach(member => {
-                    member.ws.send(JSON.stringify({ kind: "message_received", content, sender }));
+                    if (member.ws.readyState === WebSocket.OPEN && !member.muted.has(sender)) {
+                        member.ws.send(JSON.stringify({ kind: "message_received", content, sender }));
+                    }
                 });
             }
         }
