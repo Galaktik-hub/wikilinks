@@ -13,7 +13,7 @@ export const GameSettingsHeader: React.FC<GameSettingsHeaderProps> = ({onEdit, i
             {isHost && (
                 <button
                     onClick={onEdit}
-                    className="flex items-center gap-1.5 px-3.5 py-1.5 text-sm text-center text-white bg-blueSecondary hover:bg-blue-900 rounded-md w-[70px] transition">
+                    className="flex items-center gap-1.5 px-3.5 py-1.5 text-sm text-center text-white bg-blueSecondary hover:bg-blue-900 rounded-md transition">
                     <EditSVG className="w-4 h-4" />
                     <span>Modifier</span>
                 </button>

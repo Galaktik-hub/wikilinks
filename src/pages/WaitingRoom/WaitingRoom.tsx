@@ -80,7 +80,7 @@ const WaitingRoom: React.FC = () => {
                         <TextLoungePanel />
                     </div>
                 </section>
-                <section className="w-full flex flex-wrap-reverse justify-center gap-x-12 mt-8">
+                <section className="w-full flex flex-wrap-reverse justify-center gap-x-12 gap-y-4 mt-6 max-md:mt-2">
                     <ExitButton isHost={isHost} />
                     <LaunchButton isHost={isHost} />
                 </section>

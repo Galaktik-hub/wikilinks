@@ -38,7 +38,7 @@
     }
 
     .blue-title-effect {
-        @apply self-stretch my-auto py-1 text-lg text-center font-bold leading-none text-bluePrimary text-shadow-sky whitespace-nowrap;
+        @apply self-stretch my-auto py-1 text-lg text-center font-bold leading-none text-bluePrimary text-shadow-sky text-wrap text-start;
     }
 
     .title-block {
