@@ -17,7 +17,7 @@ const Banner: React.FC = () => {
                     ))}
                 </div>
                 <img
-                    src="src/assets/wikiplanet.png"
+                    src="/wikiplanet.png"
                     className="absolute bottom-0 right-0 object-contain aspect-[1.57] min-w-60 w-[314px] shadow-md brightness-[0.4] contrast-75"
                     alt=""
                 />
