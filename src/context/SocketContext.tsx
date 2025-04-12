@@ -68,6 +68,10 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({children}) => {
                     setType(data.type);
                 } else if (data.kind === "players_update") {
                     setPlayers(data.players);
+                } else if (data.kind === "room_closed") {
+                    // Return to the home page
+                    window.location.href = "/";
+                    socket.close();
                 } else {
                     setMessages(prev => [...prev, data]);
                 }

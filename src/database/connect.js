@@ -1,13 +1,13 @@
-import mongoose from 'mongoose';
-import { database_url_connect } from './credentials.js';
-import {Artifact, Challenge} from './models/models.js';
+import mongoose from "mongoose";
+import {database_url_connect} from "./credentials.js";
+import {Artifact, Challenge} from "./models/models.js";
 
 async function run() {
     await mongoose.connect(database_url_connect, {
-        dbName: 'Wikilinks',
+        dbName: "Wikilinks",
     });
 
-    console.log('Connecté à Wikilinks.');
+    console.log("Connecté à Wikilinks.");
 
     const challengeDocument = new Challenge({
         challenge_date: new Date("2023-04-08"),
@@ -19,7 +19,7 @@ async function run() {
                 name: "Joueur 1",
                 points: 100,
                 start_article: "Article de départ",
-                visited_articles: ["Article A", "Article B", "Article C"]
+                visited_articles: ["Article A", "Article B", "Article C"],
             },
             {
                 start_timestamp: new Date("2023-04-08T11:00:00Z"),
@@ -27,9 +27,9 @@ async function run() {
                 name: "Joueur 2",
                 points: 80,
                 start_article: "Article de départ",
-                visited_articles: ["Article D", "Article E"]
-            }
-        ]
+                visited_articles: ["Article D", "Article E"],
+            },
+        ],
     });
 
     const artifactDefinitions = {
@@ -44,7 +44,8 @@ async function run() {
             positive: true,
         },
         Mine: {
-            definition: "Piège un article (sauf une page objectif) et fait reculer un adversaire de 5 articles s’il tombe dans l’explosion. Choisissez votre article cible.",
+            definition:
+                "Piège un article (sauf une page objectif) et fait reculer un adversaire de 5 articles s’il tombe dans l’explosion. Choisissez votre article cible.",
             immediate: false,
             positive: true,
         },
@@ -79,7 +80,7 @@ async function run() {
         name,
         definition: data.definition,
         positive: data.positive,
-        stackable: !data.immediate
+        stackable: !data.immediate,
     }));
 
     try {

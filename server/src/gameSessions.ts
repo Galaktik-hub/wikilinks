@@ -57,8 +57,8 @@ export class GameSession {
     }
 
     /**
-     * Add a player into the session if the capacity is not reached.
-     * The player is added to the map of members with the role "client".
+     * Adds a player into the session if the capacity is not reached.
+     * The player is added with the role "client".
      */
     public addPlayer(player: Player, ws: WebSocket): boolean {
         if (this.members.size >= this.maxPlayers) return false;
@@ -73,8 +73,8 @@ export class GameSession {
     }
 
     /**
-     * Removes the player from the map of members.
-     * The leader cannot be removed.
+     * Removes the player from the session if they are not the leader.
+     * Returns true if the player was removed.
      */
     public removePlayer(player: Player): boolean {
         const member = this.members.get(player.name);
@@ -92,7 +92,7 @@ export class GameSession {
     }
 
     /**
-     * Updated the players list and notify all clients.
+     * Refreshes the list of players and notifies all clients.
      */
     public refreshPlayers(): void {
         const playersArray = Array.from(this.members.entries()).map(([username, {role}]) => ({
@@ -107,8 +107,8 @@ export class GameSession {
     }
 
     /**
-     * Dispatches a message to all members or to a specific member if destination is specified.
-     * Doesn't send the message if the members was muted.
+     * Dispatches a message to all members or to a specific destination.
+     * The message is not sent if the sender has been muted.
      */
     public sendMessage(sender: string, content: string, destination: string | null = null): void {
         let intercepted = false;
@@ -134,8 +134,8 @@ export class GameSession {
     }
 
     /**
-     * Initialize the Wikipedia articles for the session.
-     * Fetches (numberOfArticles + 1) pages and uses the last one as the start article.
+     * Initializes the Wikipedia articles for the session.
+     * Fetches (numberOfArticles + 1) pages and sets the last one as the start article.
      */
     public async initializeArticles(): Promise<void> {
         const totalCount = this.numberOfArticles + 1;
@@ -150,17 +150,23 @@ export class GameSession {
     }
 
     /**
-     * Closes the session and notifies all members.
-     * Only the leader can close the session.
+     * Centralized function to handle player departure from the session.
+     * If the departing player is the leader, the room closure message is sent to every member and the session is ended.
+     * Otherwise, the player is simply removed from the session.
      */
-    public closeSession(requestorName: string): boolean {
-        const requester = this.members.get(requestorName);
-        if (!requester || requester.role !== "creator") return false;
-        this.members.forEach(member => {
-            member.ws.send(JSON.stringify({kind: "room_closed", message: "The room was closed by the leader"}));
-            member.ws.close();
-        });
-        return true;
+    public handlePlayerDeparture(player: Player): void {
+        if (player.name === this.leader.name) {
+            this.members.forEach(member => {
+                if (member.ws.readyState === member.ws.OPEN) {
+                    member.ws.send(JSON.stringify({kind: "room_closed", message: "The room was closed because the leader has left"}));
+                }
+            });
+            GameSessionManager.endSession(this.id);
+        } else {
+            if (this.removePlayer(player)) {
+                console.log(`Player ${player.name} has been removed from session ${this.id}`);
+            }
+        }
     }
 }
 
@@ -184,13 +190,12 @@ export class GameSessionManager {
         } while (this.sessions.has(id));
 
         const session = new GameSession(id, params.timeLimit, params.numberOfArticles, params.maxPlayers, params.type, params.leader, params.ws);
-
         this.sessions.set(id, session);
         return session;
     }
 
     /**
-     * Fetches the session by its ID.
+     * Returns the session by its ID.
      */
     public static getSession(sessionId: number): GameSession | undefined {
         return this.sessions.get(sessionId);
