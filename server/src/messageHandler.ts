@@ -28,7 +28,7 @@ export async function handleMessage(ws: WebSocket, message: any, context: Client
                 maxPlayers: message.maxPlayers,
                 type: message.type,
                 leader,
-                ws
+                ws,
             });
             context.currentGameSessionId = session.id;
             context.currentRoomId = session.id;
@@ -238,14 +238,14 @@ export async function handleMessage(ws: WebSocket, message: any, context: Client
             const targetPlayerName = message.playerName;
             const targetMember = session.members.get(targetPlayerName);
             if (targetMember) {
-                session.handlePlayerDeparture(targetMember)
+                session.handlePlayerDeparture(targetMember);
             }
             // We simulate the closing of the room for the excluded player
             targetMember.ws.send(
                 JSON.stringify({
                     kind: "room_closed",
-                })
-            )
+                }),
+            );
             break;
         }
         case "check_room": {
