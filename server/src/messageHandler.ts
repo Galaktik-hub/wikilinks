@@ -143,6 +143,30 @@ export async function handleMessage(ws: WebSocket, message: any, context: Client
             console.log(`Game started in session ${session.id}`);
             break;
         }
+        case "game_event": {
+            const {currentGameSessionId, currentUser} = context;
+            if (!currentGameSessionId || !currentUser) {
+                ws.send(
+                    JSON.stringify({
+                        kind: "error",
+                        message: "Not in a game session",
+                    }),
+                );
+                return;
+            }
+            const session = GameSessionManager.getSession(currentGameSessionId);
+            if (!session) {
+                ws.send(
+                    JSON.stringify({
+                        kind: "error",
+                        message: "Game session not found",
+                    }),
+                );
+                return;
+            }
+            session.handleGameEvent(currentUser, message.event);
+            break;
+        }
         case "update_settings": {
             const {currentGameSessionId, currentUser} = context;
             if (!currentGameSessionId || !currentUser) {

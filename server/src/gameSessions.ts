@@ -184,6 +184,47 @@ export class GameSession {
             }
         }
     }
+
+    /**
+     * Handles game events (e.g., player actions) and dispatches them to everyone.
+     */
+    public handleGameEvent(player: Player, data: any): void {
+        switch (data.type) {
+            case "page_visited":
+                player.history.addStep("visitedPage", { page_name: data.page_name });
+                break;
+            case "page_found":
+                player.history.addStep("foundPage", { page_name: data.page_name });
+                break;
+            case "artifact_found":
+                player.history.addStep("foundArtifact", { artefact: data.artefact });
+                break;
+            case "artifact_used":
+                player.history.addStep("usedArtifact", { artefact: data.artefact });
+                break;
+            default:
+                console.error(`Unknown event type: ${data.type}`);
+        }
+        this.members.forEach(member => {
+            if (member.ws.readyState === WebSocket.OPEN) {
+                member.ws.send(JSON.stringify({kind: "game_update", event: data}));
+            }
+        });
+    }
+
+    /**
+     * Returns the game history of all players in the session.
+     */
+    public getHistory(): any[] {
+        const history = [];
+        this.members.forEach(member => {
+            history.push({
+                player: member.name,
+                history: member.history.getHistory(),
+            });
+        });
+        return history;
+    }
 }
 
 export class GameSessionManager {
