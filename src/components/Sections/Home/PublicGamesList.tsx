@@ -106,9 +106,8 @@ export const PublicGamesList: React.FC = () => {
                         className="p-2 text-white rounded hover:bg-blue-600 transition-colors cursor-pointer"
                         title="Rafraîchir"
                         onClick={fetchSessions}
-                        disabled={loading}
-                    >
-                        <IconRefresh className={loading ? "animate-spin" : ""} style={{ animationDirection: "reverse" }}/>
+                        disabled={loading}>
+                        <IconRefresh className={loading ? "animate-spin" : ""} style={{animationDirection: "reverse"}} />
                     </button>
                 </div>
             </div>

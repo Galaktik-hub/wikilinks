@@ -46,11 +46,7 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({children}) => {
     const [players, setPlayers] = useState<{username: string; role: string}[]>([]);
 
     useEffect(() => {
-        const socket = new WebSocket(
-            import.meta.env.VITE_MODE === "prod"
-                ? import.meta.env.VITE_WS_DOMAIN_PROD
-                : import.meta.env.VITE_WS_DOMAIN_LOCAL
-        );
+        const socket = new WebSocket(import.meta.env.VITE_MODE === "prod" ? import.meta.env.VITE_WS_DOMAIN_PROD : import.meta.env.VITE_WS_DOMAIN_LOCAL);
         socketRef.current = socket;
 
         socket.onopen = () => {

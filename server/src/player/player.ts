@@ -1,4 +1,4 @@
-import {randomUUID} from 'node:crypto';
+import {randomUUID} from "node:crypto";
 import {PlayerHistory} from "./history/playerHistory";
 import {Inventory} from "./inventory/inventory";
 import {ArtifactName} from "./inventory/inventoryProps";
