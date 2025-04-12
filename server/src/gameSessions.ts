@@ -3,6 +3,7 @@ import {WebSocket} from "ws";
 import {Player} from "./player/player";
 import {WikipediaService} from "./WikipediaService";
 import {Bot, JoinLeaveBot, BOTS} from "./bots";
+import logger from "./logger";
 
 export type GameType = "public" | "private";
 
@@ -159,9 +160,9 @@ export class GameSession {
         if (articles.length > 0) {
             this.articles = articles.map(item => item.replace(/\s+/g, "_"));
             this.startArticle = this.articles.pop()!;
-            console.log(`Session ${this.id} initialized with ${this.articles.length} articles and startArticle: ${this.startArticle}`);
+            logger.info(`Session ${this.id} initialized with ${this.articles.length} articles and startArticle: "${this.startArticle}"`);
         } else {
-            console.error("No articles found");
+            logger.error("No articles found");
         }
     }
 
@@ -180,7 +181,7 @@ export class GameSession {
             GameSessionManager.endSession(this.id);
         } else {
             if (this.removePlayer(player)) {
-                console.log(`Player ${player.name} has been removed from session ${this.id}`);
+                logger.info(`Player "${player.name}" has been removed from session ${this.id} by host "${this.leader.name}"`);
             }
         }
     }
@@ -192,7 +193,7 @@ export class GameSession {
         switch (data.type) {
             case "visitedPage": {
                 const article = this.articles.find(article => article === data.page_name);
-                console.log(`Article: ${article}`);
+                logger.info(`Article: "${article}"`);
                 if (article) {
                     const index = this.articles.indexOf(article);
                     if (index !== -1) {
@@ -212,7 +213,7 @@ export class GameSession {
                 player.history.addStep("usedArtifact", {artefact: data.artefact});
                 break;
             default:
-                console.error(`Unknown event type: ${data.type}`);
+                logger.error(`Unknown event type: ${data.type}`);
         }
         this.members.forEach(member => {
             if (member.ws.readyState === WebSocket.OPEN) {

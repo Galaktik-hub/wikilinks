@@ -1,6 +1,7 @@
 import {WebSocket} from "ws";
 import {GameSessionManager} from "./gameSessions";
 import {Player} from "./player/player";
+import logger from "./logger";
 
 export interface ClientContext {
     currentRoomId: number | null;
@@ -34,7 +35,7 @@ export async function handleMessage(ws: WebSocket, message: any, context: Client
             context.currentRoomId = session.id;
             context.currentUser = leader;
 
-            console.log(`Session ${session.id} created by ${leader.name}`);
+            logger.info(`Session ${session.id} created by "${leader.name}"`);
             session.refreshPlayers();
             ws.send(
                 JSON.stringify({
@@ -88,7 +89,7 @@ export async function handleMessage(ws: WebSocket, message: any, context: Client
             context.currentRoomId = message.sessionId;
             context.currentUser = player;
 
-            console.log(`${player.name} joined the session ${message.sessionId}`);
+            logger.info(`Player "${player.name}" joined the session ${message.sessionId}`);
             ws.send(
                 JSON.stringify({
                     kind: "game_session_created",
@@ -149,7 +150,7 @@ export async function handleMessage(ws: WebSocket, message: any, context: Client
                 }
             });
             await session.startGame();
-            console.log(`Game started in session ${session.id}`);
+            logger.info(`Game started in session ${session.id}`);
             break;
         }
         case "game_event": {
@@ -403,7 +404,7 @@ export async function handleMessage(ws: WebSocket, message: any, context: Client
         }
         case "get_all_sessions": {
             const allSessions = GameSessionManager.getAllPublicSessions();
-            console.log(`Number of sessions : ${allSessions.size}`);
+            logger.info(`Number of sessions : ${allSessions.size}`);
             const sessionsArray: any[] = [];
             allSessions.forEach((session, id) => {
                 sessionsArray.push({
