@@ -157,8 +157,8 @@ export class GameSession {
         const totalCount = this.numberOfArticles + 1;
         const articles = await WikipediaService.fetchRandomPopularWikipediaPages(totalCount, 5000, "20250101", "20250325");
         if (articles.length > 0) {
-            this.startArticle = articles.pop()!;
-            this.articles = articles;
+            this.articles = articles.map(item => item.replace(/\s+/g, "_"));
+            this.startArticle = this.articles.pop()!;
             console.log(`Session ${this.id} initialized with ${this.articles.length} articles and startArticle: ${this.startArticle}`);
         } else {
             console.error("No articles found");
@@ -190,8 +190,9 @@ export class GameSession {
      */
     public handleGameEvent(player: Player, data: any): void {
         switch (data.type) {
-            case "visitedPage":
-                { const article = this.articles.find(article => article === data.page_name);
+            case "visitedPage": {
+                const article = this.articles.find(article => article === data.page_name);
+                console.log(`Article: ${article}`);
                 if (article) {
                     const index = this.articles.indexOf(article);
                     if (index !== -1) {
@@ -202,7 +203,8 @@ export class GameSession {
                         player.history.addStep("visitedPage", {page_name: data.page_name});
                     }
                 }
-                break; }
+                break;
+            }
             case "foundArtifact":
                 player.history.addStep("foundArtifact", {artefact: data.artefact});
                 break;

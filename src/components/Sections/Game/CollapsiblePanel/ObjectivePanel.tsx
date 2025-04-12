@@ -23,7 +23,7 @@ const ObjectivesPanel: React.FC = () => {
                 console.log("Articles:", article);
                 updatedObjectives.push({
                     id: `objective-${index}`,
-                    text: `${article.name}`,
+                    text: `${article.name.replace(/_+/g, " ")}`,
                     isReached: article.found,
                 });
             });

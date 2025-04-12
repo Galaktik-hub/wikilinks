@@ -106,7 +106,7 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({children}) => {
                     const {type, data: eventData} = data.event;
                     const playerName = eventData?.player || eventData?.playerName;
                     if (playerName) {
-                        const cleanedData = type === "visitedPage" ? {page_name: eventData.page_name} : {...eventData};
+                        const cleanedData = {...eventData};
 
                         const timelineStep = {
                             id: Date.now(),
@@ -117,6 +117,17 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({children}) => {
                             ...prev,
                             [playerName]: [...(prev[playerName] || []), timelineStep],
                         }));
+
+                        if (type == "foundPage" && playerName === username) {
+                            const updatedArticles = articles.map(article => {
+                                if (article.name === eventData.page_name) {
+                                    return {...article, found: true};
+                                }
+                                return article;
+                            });
+                            setArticles(updatedArticles);
+                            console.log("Articles mis à jour :", updatedArticles);
+                        }
                     }
                 } else {
                     setMessages(prev => [...prev, data]);
