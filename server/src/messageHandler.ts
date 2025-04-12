@@ -28,7 +28,7 @@ export async function handleMessage(ws: WebSocket, message: any, context: Client
                 maxPlayers: message.maxPlayers,
                 type: message.type,
                 leader,
-                ws
+                ws,
             });
             context.currentGameSessionId = session.id;
             context.currentRoomId = session.id;
@@ -238,14 +238,46 @@ export async function handleMessage(ws: WebSocket, message: any, context: Client
             const targetPlayerName = message.playerName;
             const targetMember = session.members.get(targetPlayerName);
             if (targetMember) {
-                session.handlePlayerDeparture(targetMember)
+                session.handlePlayerDeparture(targetMember);
             }
             // We simulate the closing of the room for the excluded player
             targetMember.ws.send(
                 JSON.stringify({
                     kind: "room_closed",
-                })
-            )
+                }),
+            );
+            break;
+        }
+        case "check_room": {
+            const roomCodeToCheck = message.roomCode;
+            const session = GameSessionManager.getSession(roomCodeToCheck);
+            ws.send(
+                JSON.stringify({
+                    kind: "room_check_result",
+                    exists: !!session,
+                }),
+            );
+            break;
+        }
+        case "check_username": {
+            const session = GameSessionManager.getSession(message.roomCode);
+            if (!session) {
+                ws.send(
+                    JSON.stringify({
+                        kind: "error",
+                        message: "Game session not found",
+                    }),
+                );
+                return;
+            }
+            const usernameToCheck = message.username;
+            const isTaken = session.members.has(usernameToCheck);
+            ws.send(
+                JSON.stringify({
+                    kind: "username_check_result",
+                    taken: isTaken,
+                }),
+            );
             break;
         }
         case "disconnect": {

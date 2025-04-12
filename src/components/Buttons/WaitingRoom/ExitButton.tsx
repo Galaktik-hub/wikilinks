@@ -14,10 +14,10 @@ const ExitButton: React.FC<DeleteButtonProps> = ({isHost}) => {
 
     const handleClick = useCallback(() => {
         if (isHost) {
-            socket?.sendMessageToServer({ kind: "close_room" });
+            socket?.sendMessageToServer({kind: "close_room"});
             window.location.href = "/";
         } else {
-            socket?.sendMessageToServer({ kind: "disconnect" });
+            socket?.sendMessageToServer({kind: "disconnect"});
             window.location.href = "/";
         }
     }, [isHost, socket]);
