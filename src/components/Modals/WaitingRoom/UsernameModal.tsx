@@ -33,9 +33,6 @@ const UsernameModal: React.FC<UsernameModalProps> = ({onSubmit, shouldOpen}) => 
                     onClick: () => {
                         if (pseudo.trim()) {
                             onSubmit(pseudo.trim());
-                            closeModal();
-                        } else {
-                            alert("Veuillez entrer un pseudo et un code valide à 6 chiffres.");
                         }
                     },
                     disabled: !pseudo.trim(),

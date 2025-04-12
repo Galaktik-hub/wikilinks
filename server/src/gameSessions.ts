@@ -101,7 +101,7 @@ export class GameSession {
         }));
         this.members.forEach(player => {
             if (player.ws.readyState === WebSocket.OPEN) {
-                player.ws.send(JSON.stringify({ kind: "players_update", players: playersArray }));
+                player.ws.send(JSON.stringify({kind: "players_update", players: playersArray}));
             }
         });
     }
@@ -121,12 +121,12 @@ export class GameSession {
             if (destination) {
                 const player = this.members.get(destination);
                 if (player && !player.muted.has(sender)) {
-                    player.ws.send(JSON.stringify({ kind: "message_received", content, sender }));
+                    player.ws.send(JSON.stringify({kind: "message_received", content, sender}));
                 }
             } else {
                 this.members.forEach(player => {
                     if (player.ws.readyState === WebSocket.OPEN && !player.muted.has(sender)) {
-                        player.ws.send(JSON.stringify({ kind: "message_received", content, sender }));
+                        player.ws.send(JSON.stringify({kind: "message_received", content, sender}));
                     }
                 });
             }
