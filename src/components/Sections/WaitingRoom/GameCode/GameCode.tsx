@@ -2,29 +2,27 @@
 
 import * as React from "react";
 import CopySVG from "../../../../assets/WaitingRoom/CopySVG.tsx";
-import {PopupButton} from "../../../Buttons/WaitingRoom/PopupButton.tsx";
 import QrCodeSVG from "../../../../assets/WaitingRoom/QrCodeSVG.tsx";
 import {useModalContext} from "../../../Modals/ModalProvider.tsx";
 import {QRCodeCanvas} from "qrcode.react";
+import {usePopup} from "../../../../context/PopupContext.tsx";
 
 interface GameCodeProps {
     code: number;
 }
 
 export const GameCode: React.FC<GameCodeProps> = ({code}) => {
-    const [popupVisible, setPopupVisible] = React.useState(false);
-    const [popupText, setPopupText] = React.useState("");
     const {openModal, closeModal} = useModalContext();
+    const {showPopup} = usePopup();
 
     const gameLink = `${window.location.origin}/?code=${code}`;
 
     const handleCopy = async () => {
         try {
             await navigator.clipboard.writeText(gameLink);
-            setPopupText("Lien copié !");
-            setPopupVisible(true);
-            setTimeout(() => setPopupVisible(false), 1500);
+            showPopup("info", "Lien copié");
         } catch (err) {
+            showPopup("error", "Échec de la copie");
             console.error("Échec de la copie :", err);
         }
     };
@@ -73,12 +71,6 @@ export const GameCode: React.FC<GameCodeProps> = ({code}) => {
                     </button>
                 </div>
             </section>
-
-            {popupVisible && (
-                <div className="absolute top-full mt-1 left-1/2 transform -translate-x-1/2 flex items-center justify-center z-50 pointer-events-none">
-                    <PopupButton text={popupText} color="green" />
-                </div>
-            )}
         </div>
     );
 };
