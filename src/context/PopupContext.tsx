@@ -42,7 +42,7 @@ export function PopupProvider({children}: PopupProviderProps) {
         <PopupContext.Provider value={{showPopup}}>
             {children}
             {popup.visible && (
-                <div className="fixed bottom-5 right-5">
+                <div className="fixed bottom-5 right-5 z-50">
                     <div className={`popup ${bgPopup}`}>
                         {popup.message}
                         <div className="w-full">

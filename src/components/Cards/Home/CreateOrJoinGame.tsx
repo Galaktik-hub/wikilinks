@@ -6,6 +6,7 @@ import {useNavigate, useLocation} from "react-router-dom";
 import UsernameModal from "../../Modals/WaitingRoom/UsernameModal";
 import {IconPlus} from "@tabler/icons-react";
 import {SocketContext} from "../../../context/SocketContext.tsx";
+import {usePopup} from "../../../context/PopupContext.tsx";
 
 export const CreateOrJoinGame: React.FC = () => {
     const navigate = useNavigate();
@@ -15,8 +16,7 @@ export const CreateOrJoinGame: React.FC = () => {
     const [tempRoomCode, setTempRoomCode] = useState(-1);
     const [roomCodeInput, setRoomCodeInput] = useState("");
     const [isCheckingRoom, setIsCheckingRoom] = useState(false);
-    const [pseudoError, setPseudoError] = useState<string | null>(null);
-    const [roomError, setRoomError] = useState<string | null>(null);
+    const {showPopup} = usePopup();
 
     useEffect(() => {
         const urlParams = new URLSearchParams(location.search);
@@ -33,8 +33,12 @@ export const CreateOrJoinGame: React.FC = () => {
         if (!username.trim()) return;
 
         if (username.length > 25) {
-            setPseudoError("Le pseudo ne doit pas dépasser 25 caractères");
-            setTimeout(() => setPseudoError(null), 3000);
+            showPopup("error", "Le pseudo ne doit pas dépasser 25 caractères");
+            return;
+        }
+
+        if (username.match(/^[a-zA-Z0-9_]+$/) === null) {
+            showPopup("error", "Le pseudo ne doit contenir que des lettres, chiffres et underscores");
             return;
         }
 
@@ -58,7 +62,6 @@ export const CreateOrJoinGame: React.FC = () => {
         const parsedRoomCode = parseInt(roomCode, 10);
 
         setIsCheckingRoom(true);
-        setRoomError(null);
         try {
             const roomExists = await socket?.checkRoomExists(parsedRoomCode);
 
@@ -66,12 +69,10 @@ export const CreateOrJoinGame: React.FC = () => {
                 setTempRoomCode(parsedRoomCode);
                 setShowUsernameModal(true);
             } else {
-                setRoomError("Cette partie n'existe pas");
-                setTimeout(() => setRoomError(null), 3000);
+                showPopup("error", "Cette partie n'existe pas");
             }
         } catch (err) {
-            setRoomError(err instanceof Error ? err.message : "Erreur lors de la vérification");
-            setTimeout(() => setRoomError(null), 3000);
+            showPopup("error", err instanceof Error ? err.message : "Erreur lors de la vérification");
         } finally {
             setIsCheckingRoom(false);
         }
@@ -82,14 +83,12 @@ export const CreateOrJoinGame: React.FC = () => {
         if (!username.trim()) return;
 
         if (username.length > 25) {
-            setPseudoError("Le pseudo ne doit pas dépasser 25 caractères");
-            setTimeout(() => setPseudoError(null), 3000);
+            showPopup("error", "Le pseudo ne doit pas dépasser 25 caractères");
             return;
         }
 
         if (username.match(/^[a-zA-Z0-9_]+$/) === null) {
-            setPseudoError("Le pseudo ne doit contenir que des lettres, chiffres et underscores");
-            setTimeout(() => setPseudoError(null), 3000);
+            showPopup("error", "Le pseudo ne doit contenir que des lettres, chiffres et underscores");
             return;
         }
 
@@ -98,8 +97,7 @@ export const CreateOrJoinGame: React.FC = () => {
         const usernameTaken = await socket?.checkUsernameTaken(username, parsedRoomCode);
 
         if (usernameTaken) {
-            setPseudoError("Ce pseudo est déjà utilisé");
-            setTimeout(() => setPseudoError(null), 3000);
+            showPopup("error", "Ce pseudo est déjà utilisé");
             return;
         }
 
@@ -129,14 +127,12 @@ export const CreateOrJoinGame: React.FC = () => {
                 value=""
                 onChange={() => {}}
                 onSubmit={handleCreateGame}
-                error={pseudoError}
             />
             <LobbyCard
                 inputPlaceholder="Entrez le code de la partie"
                 buttonText={isCheckingRoom ? "Chargement..." : "Rejoindre la partie"}
                 maxLength={6}
                 onSubmit={handleJoinGame}
-                error={roomError}
                 value={roomCodeInput} // Utilisez l'état pour la valeur du champ
                 onChange={e => setRoomCodeInput(e.target.value)}
             />

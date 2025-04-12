@@ -46,6 +46,6 @@
     }
 
     .popup {
-        @apply card-container h-full flex flex-col items-center justify-center gap-1 text-sm text-white z-50;
+        @apply card-container h-full flex flex-col items-center justify-center gap-1 text-sm text-white;
     }
 }
