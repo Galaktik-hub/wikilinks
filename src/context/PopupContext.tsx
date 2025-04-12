@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useState, useContext, ReactNode } from "react";
+import {createContext, useState, useContext, ReactNode} from "react";
 
 export type PopupType = "info" | "error";
 
@@ -30,12 +30,12 @@ export function PopupProvider({children}: PopupProviderProps) {
     });
 
     const showPopup = (type: PopupType, message: string) => {
-        setPopup({ visible: true, type, message });
+        setPopup({visible: true, type, message});
         setTimeout(() => {
-            setPopup((prev) => ({ ...prev, visible: false }));
+            setPopup(prev => ({...prev, visible: false}));
         }, 5000);
     };
-    
+
     const bgPopup = popup.type === "info" ? "border-green-700" : "border-red-700";
 
     return (
@@ -55,6 +55,6 @@ export function PopupProvider({children}: PopupProviderProps) {
             )}
         </PopupContext.Provider>
     );
-};
+}
 
 export const usePopup = () => useContext(PopupContext);
