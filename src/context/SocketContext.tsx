@@ -29,6 +29,7 @@ export interface SocketContextType {
     startArticle: string;
     players: {username: string; role: string}[];
     playerHistories: {[playerName: string]: TimelineStep[]};
+    loadingGame: boolean;
 }
 
 export const SocketContext = createContext<SocketContextType | undefined>(undefined);
@@ -44,6 +45,7 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({children}) => {
     const [username, setUsername] = useState<string | null>(null);
     const [roomCode, setRoomCode] = useState<number>(-1);
     const socketRef = useRef<WebSocket | null>(null);
+    const [loadingGame, setLoadingGame] = useState(false);
 
     const [gameTimeLimit, setGameTimeLimit] = useState<number>(10);
     const [gameNumberOfArticles, setNumberOfArticles] = useState<number>(4);
@@ -89,6 +91,8 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({children}) => {
                     });
                 } else if (data.kind === "room_closed") {
                     socket.close();
+                } else if (data.kind === "game_launched") {
+                    setLoadingGame(true);
                 } else if (data.kind === "game_started") {
                     setStartArticle(data.startArticle);
                     const updatedArticles = data.articles.map((name: string) => ({
@@ -96,6 +100,7 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({children}) => {
                         found: false,
                     }));
                     setArticles(updatedArticles);
+                    setLoadingGame(false);
                 } else if (data.kind === "history" && data.history) {
                     const histories: {[playerName: string]: any[]} = {};
                     data.history.forEach((item: {player: string; history: any[]}) => {
@@ -325,6 +330,7 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({children}) => {
                 players,
                 playerHistories,
                 getHistory,
+                loadingGame,
             }}>
             {children}
         </SocketContext.Provider>

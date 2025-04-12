@@ -139,6 +139,15 @@ export async function handleMessage(ws: WebSocket, message: any, context: Client
                 );
                 return;
             }
+            session.members.forEach(member => {
+                if (member.ws.readyState === member.ws.OPEN) {
+                    member.ws.send(
+                        JSON.stringify({
+                            kind: "game_launched",
+                        }),
+                    );
+                }
+            });
             await session.startGame();
             console.log(`Game started in session ${session.id}`);
             break;

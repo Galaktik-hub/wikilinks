@@ -3,27 +3,18 @@
 import * as React from "react";
 import PlaySVG from "../../../assets/WaitingRoom/PlaySVG.tsx";
 import MainButton from "../MainButton.tsx";
-import {SocketContext} from "../../../context/SocketContext.tsx";
 
 type LaunchButtonProps = {
-    onClick?: () => void;
+    onLaunch: () => void;
     disabled?: boolean;
     isHost: boolean;
 };
 
-const LaunchButton: React.FC<LaunchButtonProps> = ({disabled = false, isHost}) => {
-    const socket = React.useContext(SocketContext);
-
-    const handleClick = React.useCallback(() => {
-        if (isHost) {
-            socket?.sendMessageToServer({kind: "start_game"});
-        }
-    }, [isHost, socket]);
-
+const LaunchButton: React.FC<LaunchButtonProps> = ({onLaunch, disabled = false, isHost}) => {
     return (
         <MainButton
             color=""
-            onClick={handleClick}
+            onClick={onLaunch}
             disabled={!isHost || disabled}
             className={`${
                 isHost
