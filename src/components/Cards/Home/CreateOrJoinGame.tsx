@@ -14,8 +14,9 @@ export const CreateOrJoinGame: React.FC = () => {
     const [showUsernameModal, setShowUsernameModal] = useState(false);
     const [tempRoomCode, setTempRoomCode] = useState(-1);
     const [roomCodeInput, setRoomCodeInput] = useState("");
-    const [error, setError] = useState<string | null>(null);
     const [isCheckingRoom, setIsCheckingRoom] = useState(false);
+    const [pseudoError, setPseudoError] = useState<string | null>(null);
+    const [roomError, setRoomError] = useState<string | null>(null);
 
     useEffect(() => {
         const urlParams = new URLSearchParams(location.search);
@@ -30,6 +31,18 @@ export const CreateOrJoinGame: React.FC = () => {
     // Function to create a game with just a username
     const handleCreateGame = (username: string) => {
         if (!username.trim()) return;
+
+        if (username.length > 25) {
+            setPseudoError("Le pseudo ne doit pas dépasser 25 caractères");
+            setTimeout(() => setPseudoError(null), 3000);
+            return;
+        }
+
+        if (socket?.players && socket.players.some(p => p.username === username)) {
+            setPseudoError("Ce pseudo est déjà utilisé");
+            setTimeout(() => setPseudoError(null), 3000);
+            return;
+        }
 
         if (socket?.setUsername && socket?.createGameSession) {
             socket.setUsername(username);
@@ -52,13 +65,13 @@ export const CreateOrJoinGame: React.FC = () => {
         const parsedRoomCode = parseInt(roomCode, 10);
 
         if (parsedRoomCode < 100000 || parsedRoomCode > 999999) {
-            setError("Code de partie invalide");
-            setTimeout(() => setError(null), 3000);
+            setRoomError("Code de partie invalide");
+            setTimeout(() => setRoomError(null), 3000);
             return;
         }
 
         setIsCheckingRoom(true);
-        setError(null);
+        setRoomError(null);
         try {
             // Use the context function to check if the room exists
             const roomExists = await socket?.checkRoomExists(parsedRoomCode);
@@ -68,12 +81,12 @@ export const CreateOrJoinGame: React.FC = () => {
                 setTempRoomCode(parsedRoomCode);
                 setShowUsernameModal(true);
             } else {
-                setError("Cette partie n'existe pas");
-                setTimeout(() => setError(null), 3000);
+                setRoomError("Cette partie n'existe pas");
+                setTimeout(() => setRoomError(null), 3000);
             }
         } catch (err) {
-            setError(err instanceof Error ? err.message : "Erreur lors de la vérification");
-            setTimeout(() => setError(null), 3000);
+            setRoomError(err instanceof Error ? err.message : "Erreur lors de la vérification");
+            setTimeout(() => setRoomError(null), 3000);
         } finally {
             setIsCheckingRoom(false);
         }
@@ -82,6 +95,18 @@ export const CreateOrJoinGame: React.FC = () => {
     // Lors de la soumission du username dans le modal pour rejoindre une partie existante
     const handleUsernameSubmit = (username: string) => {
         if (!username.trim()) return;
+
+        if (username.length > 25) {
+            setPseudoError("Le pseudo ne doit pas dépasser 25 caractères");
+            setTimeout(() => setPseudoError(null), 3000);
+            return;
+        }
+
+        if (socket?.players && socket.players.some(p => p.username === username)) {
+            setPseudoError("Ce pseudo est déjà utilisé");
+            setTimeout(() => setPseudoError(null), 3000);
+            return;
+        }
 
         if (socket?.setUsername && socket?.joinGameSession) {
             socket.setUsername(username);
@@ -104,18 +129,19 @@ export const CreateOrJoinGame: React.FC = () => {
             <LobbyCard
                 inputPlaceholder="Saisissez votre pseudo"
                 buttonText="Créer une partie"
+                maxLength={25}
                 icon={<IconPlus size={18} color="white" />}
                 value=""
                 onChange={() => {}}
                 onSubmit={handleCreateGame}
-                error={null}
+                error={pseudoError}
             />
             <LobbyCard
                 inputPlaceholder="Entrez le code de la partie"
                 buttonText={isCheckingRoom ? "Chargement..." : "Rejoindre la partie"}
                 maxLength={6}
                 onSubmit={handleJoinGame}
-                error={error}
+                error={roomError}
                 value={roomCodeInput} // Utilisez l'état pour la valeur du champ
                 onChange={e => setRoomCodeInput(e.target.value)}
             />
