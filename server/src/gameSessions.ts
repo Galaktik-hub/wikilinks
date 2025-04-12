@@ -20,6 +20,7 @@ export class GameSession {
     public type: GameType;
     public articles: string[];
     public startArticle: string;
+    public hasStarted: boolean;
 
     public leader: Player;
     public members: Map<string, Player>;
@@ -33,6 +34,7 @@ export class GameSession {
         this.type = type;
         this.articles = [];
         this.startArticle = "";
+        this.hasStarted = false;
 
         this.leader = leader;
         this.members = new Map();
@@ -131,6 +133,20 @@ export class GameSession {
                 });
             }
         }
+    }
+
+    /**
+     * Starts the game session.
+     * Sets the start article and initializes the articles.
+     */
+    public async startGame(): Promise<void> {
+        await this.initializeArticles();
+        this.hasStarted = true;
+        this.members.forEach(member => {
+            if (member.ws.readyState === member.ws.OPEN) {
+                member.ws.send(JSON.stringify({kind: "game_started", startArticle: this.startArticle, articles: this.articles}));
+            }
+        });
     }
 
     /**

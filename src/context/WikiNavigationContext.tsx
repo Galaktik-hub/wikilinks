@@ -5,15 +5,16 @@ interface WikiNavigationContextType {
     setCurrentTitle: (title: string) => void;
 }
 
-const WikiNavigationContext = createContext<WikiNavigationContextType | undefined>(undefined);
+export const WikiNavigationContext = createContext<WikiNavigationContextType | undefined>(undefined);
 
 interface WikiNavigationProviderProps {
     children: React.ReactNode;
     className?: string;
+    startArticle: string;
 }
 
-export const WikiNavigationProvider: React.FC<WikiNavigationProviderProps> = ({children, className}) => {
-    const [currentTitle, setCurrentTitle] = useState<string>("Paris");
+export const WikiNavigationProvider: React.FC<WikiNavigationProviderProps> = ({children, className, startArticle}) => {
+    const [currentTitle, setCurrentTitle] = useState<string>(startArticle);
     return (
         <div className={className}>
             <WikiNavigationContext.Provider value={{currentTitle, setCurrentTitle}}>{children}</WikiNavigationContext.Provider>

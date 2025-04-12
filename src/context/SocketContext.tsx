@@ -1,3 +1,5 @@
+"use client";
+
 import React, {createContext, useEffect, useRef, useState} from "react";
 
 export interface SocketContextType {
@@ -13,13 +15,16 @@ export interface SocketContextType {
     roomCode: number;
     setRoomCode: (code: number) => void;
     checkRoomExists: (roomCode: number) => Promise<boolean>;
-    updateSettings: (payload: {timeLimit: number; numberOfArticles: number; maxPlayers: number; type: string}) => void;
+    checkGameHasStarted: (roomCode: number) => Promise<boolean>;
     checkUsernameTaken: (username: string, roomCode: number) => Promise<boolean>;
+    updateSettings: (payload: {timeLimit: number; numberOfArticles: number; maxPlayers: number; type: string}) => void;
     // Game session settings
     gameTimeLimit: number;
     gameNumberOfArticles: number;
     gameMaxPlayers: number;
     gameType: string;
+    articles: string[];
+    startArticle: string;
     players: {username: string; role: string}[];
 }
 
@@ -41,6 +46,8 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({children}) => {
     const [gameNumberOfArticles, setNumberOfArticles] = useState<number>(4);
     const [gameMaxPlayers, setMaxPlayers] = useState<number>(10);
     const [gameType, setType] = useState<string>("private");
+    const [startArticle, setStartArticle] = useState<string>("");
+    const [articles, setArticles] = useState<string[]>([]);
 
     const [players, setPlayers] = useState<{username: string; role: string}[]>([]);
 
@@ -68,8 +75,10 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({children}) => {
                 } else if (data.kind === "players_update") {
                     setPlayers(data.players);
                 } else if (data.kind === "room_closed") {
-                    window.location.href = "/";
                     socket.close();
+                } else if (data.kind === "game_started") {
+                    setStartArticle(data.startArticle);
+                    setArticles(data.articles);
                 } else {
                     setMessages(prev => [...prev, data]);
                 }
@@ -80,6 +89,7 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({children}) => {
 
         socket.onclose = () => {
             setIsConnected(false);
+            window.location.href = "/";
             console.log("Déconnecté du serveur WebSocket");
         };
 
@@ -200,6 +210,38 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({children}) => {
         });
     };
 
+    const checkGameHasStarted = async (roomCodeToCheck: number): Promise<boolean> => {
+        if (!socketRef.current || socketRef.current.readyState !== WebSocket.OPEN) {
+            await waitForConnection();
+        }
+
+        return new Promise(resolve => {
+            const handler = (event: MessageEvent) => {
+                try {
+                    const data = JSON.parse(event.data);
+                    if (data.kind === "game_started_check_result") {
+                        socketRef.current?.removeEventListener("message", handler);
+                        resolve(data.started);
+                    }
+                } catch (error) {
+                    console.error("checkGameHasStarted error: ", error);
+                }
+            };
+
+            socketRef.current?.addEventListener("message", handler);
+
+            sendMessageToServer({
+                kind: "check_game_started",
+                roomCode: roomCodeToCheck,
+            });
+
+            setTimeout(() => {
+                socketRef.current?.removeEventListener("message", handler);
+                resolve(false);
+            }, 2000);
+        });
+    }
+
     return (
         <SocketContext.Provider
             value={{
@@ -214,14 +256,17 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({children}) => {
                 roomCode,
                 setRoomCode,
                 leaderName,
+                checkUsernameTaken,
                 checkRoomExists,
+                checkGameHasStarted,
                 updateSettings,
                 gameTimeLimit,
                 gameNumberOfArticles,
                 gameMaxPlayers,
                 gameType,
+                articles,
+                startArticle,
                 players,
-                checkUsernameTaken,
             }}>
             {children}
         </SocketContext.Provider>

@@ -10,11 +10,13 @@ import PlayerList from "../../components/Sections/WaitingRoom/Player/PlayerList.
 import TextLoungePanel from "../../components/Sections/WaitingRoom/TextLounge/TextLoungePanel.tsx";
 import Header from "../../components/Header/Header.tsx";
 import {SocketContext} from "../../context/SocketContext.tsx";
+import {useNavigate} from "react-router-dom";
 
 const WaitingRoom: React.FC = () => {
     const socket = useContext(SocketContext);
     const leftRef = useRef<HTMLDivElement>(null);
     const rightRef = useRef<HTMLDivElement>(null);
+    const navigate = useNavigate();
     const isHost: boolean = socket?.leaderName === socket?.username;
 
     const [gameSettings, setGameSettings] = React.useState({
@@ -65,6 +67,12 @@ const WaitingRoom: React.FC = () => {
             window.removeEventListener("resize", updateHeights);
         };
     }, [players, gameSettings]);
+
+    useEffect(() => {
+        if (socket?.startArticle) {
+            navigate("/game");
+        }
+    }, [socket?.startArticle, navigate]);
 
     return (
         <Layout header={<Header />}>

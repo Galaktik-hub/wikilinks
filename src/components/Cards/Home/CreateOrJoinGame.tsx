@@ -103,6 +103,14 @@ export const CreateOrJoinGame: React.FC = () => {
             return;
         }
 
+        const hasStarted = await socket?.checkGameHasStarted(parsedRoomCode);
+
+        if (hasStarted) {
+            setRoomError("Cette partie a déjà commencé");
+            setTimeout(() => setRoomError(null), 3000);
+            return;
+        }
+
         if (socket?.setUsername && socket?.joinGameSession) {
             socket.setUsername(username);
 

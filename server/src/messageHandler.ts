@@ -65,6 +65,15 @@ export async function handleMessage(ws: WebSocket, message: any, context: Client
                 );
                 return;
             }
+            if (session.hasStarted) {
+                ws.send(
+                    JSON.stringify({
+                        kind: "error",
+                        message: "Game session has already started",
+                    }),
+                );
+                return;
+            }
             const player = new Player(message.playerName, ws, "client", false);
             if (!session.addPlayer(player)) {
                 ws.send(
@@ -130,7 +139,8 @@ export async function handleMessage(ws: WebSocket, message: any, context: Client
                 );
                 return;
             }
-            await session.initializeArticles();
+            await session.startGame();
+            console.log(`Game started in session ${session.id}`);
             break;
         }
         case "update_settings": {
@@ -276,6 +286,25 @@ export async function handleMessage(ws: WebSocket, message: any, context: Client
                 JSON.stringify({
                     kind: "username_check_result",
                     taken: isTaken,
+                }),
+            );
+            break;
+        }
+        case "check_game_started": {
+            const session = GameSessionManager.getSession(message.roomCode);
+            if (!session) {
+                ws.send(
+                    JSON.stringify({
+                        kind: "error",
+                        message: "Game session not found",
+                    }),
+                );
+                return;
+            }
+            ws.send(
+                JSON.stringify({
+                    kind: "game_started_check_result",
+                    started: session.hasStarted,
                 }),
             );
             break;
