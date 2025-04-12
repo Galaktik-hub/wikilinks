@@ -219,7 +219,7 @@ export async function handleMessage(ws: WebSocket, message: any, context: Client
             if (currentRoomId && currentUser) {
                 const session = GameSessionManager.getSession(currentRoomId);
                 if (session) {
-                    session.removePlayer(currentUser);
+                    session.handlePlayerDeparture(currentUser);
                 }
             }
             ws.close();
@@ -230,7 +230,9 @@ export async function handleMessage(ws: WebSocket, message: any, context: Client
             if (currentRoomId && currentUser) {
                 const session = GameSessionManager.getSession(currentRoomId);
                 if (session) {
-                    if (!session.closeSession(currentUser.name)) {
+                    if (session.leader.name === currentUser.name) {
+                        session.handlePlayerDeparture(currentUser);
+                    } else {
                         ws.send(
                             JSON.stringify({
                                 kind: "error",

@@ -29,25 +29,7 @@ wss.on("connection", (ws: WebSocket) => {
         if (context.currentGameSessionId && context.currentUser) {
             const session = GameSessionManager.getSession(context.currentGameSessionId);
             if (session) {
-                if (session.leader.name === context.currentUser.name) {
-                    console.log(`The leader ${context.currentUser.name} disconnected. Clossing session ${context.currentGameSessionId}.`);
-                    session.members.forEach(member => {
-                        if (member.ws.readyState === WebSocket.OPEN) {
-                            member.ws.send(
-                                JSON.stringify({
-                                    kind: "redirect_home",
-                                    message: "The leader left the game. Going going back to home page.",
-                                }),
-                            );
-                            member.ws.close();
-                        }
-                    });
-                    GameSessionManager.endSession(context.currentGameSessionId);
-                } else {
-                    if (session.removePlayer(context.currentUser)) {
-                        console.log(`Player ${context.currentUser.name} has been removed from the session ${context.currentGameSessionId}`);
-                    }
-                }
+                session.handlePlayerDeparture(context.currentUser);
             }
         }
     });
