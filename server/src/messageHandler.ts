@@ -248,6 +248,38 @@ export async function handleMessage(ws: WebSocket, message: any, context: Client
             )
             break;
         }
+        case "check_room": {
+            const roomCodeToCheck = message.roomCode;
+            const session = GameSessionManager.getSession(roomCodeToCheck);
+            ws.send(
+                JSON.stringify({
+                    kind: "room_check_result",
+                    exists: !!session,
+                }),
+            );
+            break;
+        }
+        case "check_username": {
+            const session = GameSessionManager.getSession(message.roomCode);
+            if (!session) {
+                ws.send(
+                    JSON.stringify({
+                        kind: "error",
+                        message: "Game session not found",
+                    }),
+                );
+                return;
+            }
+            const usernameToCheck = message.username;
+            const isTaken = session.members.has(usernameToCheck);
+            ws.send(
+                JSON.stringify({
+                    kind: "username_check_result",
+                    taken: isTaken,
+                }),
+            );
+            break;
+        }
         case "disconnect": {
             const {currentRoomId, currentUser} = context;
             if (currentRoomId && currentUser) {

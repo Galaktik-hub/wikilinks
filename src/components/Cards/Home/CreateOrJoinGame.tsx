@@ -38,12 +38,6 @@ export const CreateOrJoinGame: React.FC = () => {
             return;
         }
 
-        if (socket?.players && socket.players.some(p => p.username === username)) {
-            setPseudoError("Ce pseudo est déjà utilisé");
-            setTimeout(() => setPseudoError(null), 3000);
-            return;
-        }
-
         if (socket?.setUsername && socket?.createGameSession) {
             socket.setUsername(username);
 
@@ -60,24 +54,15 @@ export const CreateOrJoinGame: React.FC = () => {
         }
     };
 
-    // Rejoindre une partie : on vérifie d'abord si le code existe
     const handleJoinGame = async (roomCode: string) => {
         const parsedRoomCode = parseInt(roomCode, 10);
-
-        if (parsedRoomCode < 100000 || parsedRoomCode > 999999) {
-            setRoomError("Code de partie invalide");
-            setTimeout(() => setRoomError(null), 3000);
-            return;
-        }
 
         setIsCheckingRoom(true);
         setRoomError(null);
         try {
-            // Use the context function to check if the room exists
             const roomExists = await socket?.checkRoomExists(parsedRoomCode);
 
             if (roomExists) {
-                // Si la room existe, on sauvegarde le code temporairement et on affiche le modal pour renseigner le username
                 setTempRoomCode(parsedRoomCode);
                 setShowUsernameModal(true);
             } else {
@@ -93,7 +78,7 @@ export const CreateOrJoinGame: React.FC = () => {
     };
 
     // Lors de la soumission du username dans le modal pour rejoindre une partie existante
-    const handleUsernameSubmit = (username: string) => {
+    const handleUsernameSubmit = async (username: string) => {
         if (!username.trim()) return;
 
         if (username.length > 25) {
@@ -102,7 +87,17 @@ export const CreateOrJoinGame: React.FC = () => {
             return;
         }
 
-        if (socket?.players && socket.players.some(p => p.username === username)) {
+        if (username.match(/^[a-zA-Z0-9_]+$/) === null) {
+            setPseudoError("Le pseudo ne doit contenir que des lettres, chiffres et underscores");
+            setTimeout(() => setPseudoError(null), 3000);
+            return;
+        }
+
+        const parsedRoomCode = parseInt(roomCodeInput, 10);
+
+        const usernameTaken = await socket?.checkUsernameTaken(username, parsedRoomCode);
+
+        if (usernameTaken) {
             setPseudoError("Ce pseudo est déjà utilisé");
             setTimeout(() => setPseudoError(null), 3000);
             return;
@@ -116,12 +111,12 @@ export const CreateOrJoinGame: React.FC = () => {
                 playerName: username,
             });
 
+            setShowUsernameModal(false);
+            setTempRoomCode(-1);
+
             // Reste connecté et redirige vers la salle d'attente
             navigate("/room");
         }
-        // Réinitialise le modal et le code temporaire
-        setShowUsernameModal(false);
-        setTempRoomCode(-1);
     };
 
     return (
