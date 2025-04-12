@@ -17,7 +17,7 @@ export const PlayerCard: React.FC<PlayerCardProps> = ({playerName, isPlayerAdmin
 
     const handleMoreClick = (event: React.MouseEvent<HTMLButtonElement>) => {
         event.stopPropagation();
-        setIsPopupOpen(true);
+        setIsPopupOpen(prevOpened => !prevOpened);
     };
 
     const closePopup = () => {

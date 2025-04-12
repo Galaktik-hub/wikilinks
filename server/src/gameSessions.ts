@@ -22,7 +22,7 @@ export class GameSession {
     public startArticle: string;
 
     public leader: Player;
-    public members: Map<string, SessionMember>;
+    public members: Map<string, Player>;
     public bots: Map<string, Bot>;
 
     constructor(id: number, timeLimit: number, numberOfArticles: number, maxPlayers: number, type: GameType, leader: Player, ws: WebSocket) {
@@ -36,7 +36,7 @@ export class GameSession {
 
         this.leader = leader;
         this.members = new Map();
-        this.members.set(leader.name, {ws, role: "creator", muted: new Set<string>()});
+        this.members.set(leader.name, leader);
 
         this.bots = new Map();
         BOTS.forEach(BotClass => {
@@ -60,9 +60,9 @@ export class GameSession {
      * Adds a player into the session if the capacity is not reached.
      * The player is added with the role "client".
      */
-    public addPlayer(player: Player, ws: WebSocket): boolean {
+    public addPlayer(player: Player): boolean {
         if (this.members.size >= this.maxPlayers) return false;
-        this.members.set(player.name, {ws, role: "client", muted: new Set<string>()});
+        this.members.set(player.name, player);
         this.bots.forEach(bot => {
             if (bot instanceof JoinLeaveBot) {
                 bot.notifyMemberJoin(player.name);
@@ -95,13 +95,13 @@ export class GameSession {
      * Refreshes the list of players and notifies all clients.
      */
     public refreshPlayers(): void {
-        const playersArray = Array.from(this.members.entries()).map(([username, {role}]) => ({
-            username,
-            role,
+        const playersArray = Array.from(this.members.values()).map(player => ({
+            username: player.name,
+            role: player.role,
         }));
-        this.members.forEach(member => {
-            if (member.ws.readyState === member.ws.OPEN) {
-                member.ws.send(JSON.stringify({kind: "players_update", players: playersArray}));
+        this.members.forEach(player => {
+            if (player.ws.readyState === WebSocket.OPEN) {
+                player.ws.send(JSON.stringify({ kind: "players_update", players: playersArray }));
             }
         });
     }
@@ -119,14 +119,14 @@ export class GameSession {
         });
         if (!intercepted) {
             if (destination) {
-                const member = this.members.get(destination);
-                if (member && !member.muted.has(sender)) {
-                    member.ws.send(JSON.stringify({kind: "message_received", content, sender}));
+                const player = this.members.get(destination);
+                if (player && !player.muted.has(sender)) {
+                    player.ws.send(JSON.stringify({ kind: "message_received", content, sender }));
                 }
             } else {
-                this.members.forEach(member => {
-                    if (member.ws.readyState === WebSocket.OPEN && !member.muted.has(sender)) {
-                        member.ws.send(JSON.stringify({kind: "message_received", content, sender}));
+                this.members.forEach(player => {
+                    if (player.ws.readyState === WebSocket.OPEN && !player.muted.has(sender)) {
+                        player.ws.send(JSON.stringify({ kind: "message_received", content, sender }));
                     }
                 });
             }
