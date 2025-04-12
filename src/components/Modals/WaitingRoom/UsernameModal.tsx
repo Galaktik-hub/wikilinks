@@ -26,6 +26,7 @@ const UsernameModal: React.FC<UsernameModalProps> = ({onSubmit, shouldOpen}) => 
                         onChange: setPseudo,
                         placeholder: "Votre pseudo",
                         autoFocus: true,
+                        maxLength: 25,
                     },
                 ],
                 submitButton: {
