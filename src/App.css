@@ -78,3 +78,12 @@
     width: 4px;
     height: 4px;
 }
+
+@keyframes progress {
+    from { width: 0%; }
+    to { width: 100%; }
+}
+
+.animate-progress {
+    animation: progress 5s linear forwards;
+}
