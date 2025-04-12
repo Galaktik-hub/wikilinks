@@ -21,14 +21,14 @@ export async function handleMessage(ws: WebSocket, message: any, context: Client
                 return;
             }
 
-            const leader = new Player(message.leaderName, true);
+            const leader = new Player(message.leaderName, ws, "creator", true);
             const session = GameSessionManager.createSession({
                 timeLimit: message.timeLimit,
                 numberOfArticles: message.numberOfArticles,
                 maxPlayers: message.maxPlayers,
                 type: message.type,
                 leader,
-                ws,
+                ws
             });
             context.currentGameSessionId = session.id;
             context.currentRoomId = session.id;
@@ -65,8 +65,8 @@ export async function handleMessage(ws: WebSocket, message: any, context: Client
                 );
                 return;
             }
-            const player = new Player(message.playerName);
-            if (!session.addPlayer(player, ws)) {
+            const player = new Player(message.playerName, ws, "client", false);
+            if (!session.addPlayer(player)) {
                 ws.send(
                     JSON.stringify({
                         kind: "error",
@@ -212,6 +212,40 @@ export async function handleMessage(ws: WebSocket, message: any, context: Client
             } else {
                 currentMember.muted.add(targetPlayerName);
             }
+            break;
+        }
+        case "exclude_player": {
+            const {currentGameSessionId, currentUser} = context;
+            if (!currentGameSessionId || !currentUser) {
+                ws.send(
+                    JSON.stringify({
+                        kind: "error",
+                        message: "Not in a game session",
+                    }),
+                );
+                return;
+            }
+            const session = GameSessionManager.getSession(currentGameSessionId);
+            if (!session) {
+                ws.send(
+                    JSON.stringify({
+                        kind: "error",
+                        message: "Game session not found",
+                    }),
+                );
+                return;
+            }
+            const targetPlayerName = message.playerName;
+            const targetMember = session.members.get(targetPlayerName);
+            if (targetMember) {
+                session.handlePlayerDeparture(targetMember)
+            }
+            // We simulate the closing of the room for the excluded player
+            targetMember.ws.send(
+                JSON.stringify({
+                    kind: "room_closed",
+                })
+            )
             break;
         }
         case "disconnect": {
