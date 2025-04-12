@@ -25,7 +25,7 @@ export interface SocketContextType {
     gameNumberOfArticles: number;
     gameMaxPlayers: number;
     gameType: string;
-    articles: string[];
+    articles: {name: string, found: boolean}[];
     startArticle: string;
     players: {username: string; role: string}[];
     playerHistories: {[playerName: string]: TimelineStep[]};
@@ -50,7 +50,7 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({children}) => {
     const [gameMaxPlayers, setMaxPlayers] = useState<number>(10);
     const [gameType, setType] = useState<string>("private");
     const [startArticle, setStartArticle] = useState<string>("");
-    const [articles, setArticles] = useState<string[]>([]);
+    const [articles, setArticles] = useState<{name: string, found: boolean}[]>([]);
 
     const [players, setPlayers] = useState<{username: string; role: string}[]>([]);
     const [playerHistories, setPlayerHistories] = useState<{[playerName: string]: TimelineStep[]}>({});
@@ -91,7 +91,11 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({children}) => {
                     socket.close();
                 } else if (data.kind === "game_started") {
                     setStartArticle(data.startArticle);
-                    setArticles(data.articles);
+                    const updatedArticles = data.articles.map((name: string) => ({
+                        name: name,
+                        found: false,
+                    }));
+                    setArticles(updatedArticles);
                 } else if (data.kind === "history" && data.history) {
                     const histories: {[playerName: string]: any[]} = {};
                     data.history.forEach((item: {player: string; history: any[]}) => {

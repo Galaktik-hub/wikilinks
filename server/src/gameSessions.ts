@@ -155,7 +155,7 @@ export class GameSession {
      */
     public async initializeArticles(): Promise<void> {
         const totalCount = this.numberOfArticles + 1;
-        const articles = await WikipediaService.fetchRandomPopularWikipediaPages(totalCount, 1000, "20250101", "20250325");
+        const articles = await WikipediaService.fetchRandomPopularWikipediaPages(totalCount, 5000, "20250101", "20250325");
         if (articles.length > 0) {
             this.startArticle = articles.pop()!;
             this.articles = articles;
@@ -191,11 +191,18 @@ export class GameSession {
     public handleGameEvent(player: Player, data: any): void {
         switch (data.type) {
             case "visitedPage":
-                player.history.addStep("visitedPage", {page_name: data.page_name});
-                break;
-            case "foundPage":
-                player.history.addStep("foundPage", {page_name: data.page_name});
-                break;
+                { const article = this.articles.find(article => article === data.page_name);
+                if (article) {
+                    const index = this.articles.indexOf(article);
+                    if (index !== -1) {
+                        this.articles.splice(index, 1);
+                        player.history.addStep("foundPage", {page_name: data.page_name});
+                        data.type = "foundPage";
+                    } else {
+                        player.history.addStep("visitedPage", {page_name: data.page_name});
+                    }
+                }
+                break; }
             case "foundArtifact":
                 player.history.addStep("foundArtifact", {artefact: data.artefact});
                 break;
