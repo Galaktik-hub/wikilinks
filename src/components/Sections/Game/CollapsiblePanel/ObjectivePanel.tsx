@@ -30,7 +30,7 @@ const ObjectivesPanel: React.FC = () => {
             )
             setObjectives(updatedObjectives);
         }
-    }, [objectives, socket?.articles]);
+    }, [socket?.articles]);
 
     return (
         <CollapsiblePanel title="Objectifs" contentId="objectives-content">
