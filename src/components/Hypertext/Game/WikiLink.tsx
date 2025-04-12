@@ -17,7 +17,7 @@ const WikiLink: React.FC<WikiLinkProps> = ({title, children, ...props}) => {
         socket?.sendMessageToServer({
             kind: "game_event",
             event: {
-                type: "page_visited",
+                type: "visitedPage",
                 page_name: title,
             },
         });

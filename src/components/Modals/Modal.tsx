@@ -79,6 +79,13 @@ const Modal: React.FC<ModalProps> = ({isOpen, onClose, title, description, type,
                         <Timeline active={(content as ModalTimelineProps).timelineSteps.length} bulletSize={24} lineWidth={2}>
                             {(content as ModalTimelineProps).timelineSteps.map(step => {
                                 const config = timelineConfig[step.type];
+                                if (step.data) {
+                                    Object.keys(step.data).forEach(key => {
+                                        if (step.data) {
+                                            step.data[key] = step.data[key].replace(/_/g, " ");
+                                        }
+                                    });
+                                }
                                 const stepContent =
                                     config.content && step.data ? formatContent(config.content, (content as ModalTimelineProps).username, step.data) : null;
                                 return (

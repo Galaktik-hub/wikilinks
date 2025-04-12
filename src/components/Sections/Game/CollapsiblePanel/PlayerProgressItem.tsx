@@ -1,7 +1,7 @@
 "use client";
 import * as React from "react";
 import {useModalContext} from "../../../Modals/ModalProvider.tsx";
-import {TimelineStep} from "../../../Modals/ModalProps.ts";
+import {TimelineStep} from "./PlayerProgressPanel.tsx";
 
 interface PlayerProgressBarProps {
     playerName: string;

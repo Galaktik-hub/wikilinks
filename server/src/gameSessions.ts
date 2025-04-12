@@ -190,16 +190,16 @@ export class GameSession {
      */
     public handleGameEvent(player: Player, data: any): void {
         switch (data.type) {
-            case "page_visited":
+            case "visitedPage":
                 player.history.addStep("visitedPage", { page_name: data.page_name });
                 break;
-            case "page_found":
+            case "foundPage":
                 player.history.addStep("foundPage", { page_name: data.page_name });
                 break;
-            case "artifact_found":
+            case "foundArtifact":
                 player.history.addStep("foundArtifact", { artefact: data.artefact });
                 break;
-            case "artifact_used":
+            case "usedArtifact":
                 player.history.addStep("usedArtifact", { artefact: data.artefact });
                 break;
             default:
@@ -207,7 +207,16 @@ export class GameSession {
         }
         this.members.forEach(member => {
             if (member.ws.readyState === WebSocket.OPEN) {
-                member.ws.send(JSON.stringify({kind: "game_update", event: data}));
+                member.ws.send(JSON.stringify({
+                    kind: "game_update",
+                    event: {
+                        type: data.type,
+                        data: {
+                            player: player.name,
+                            ...data,
+                        }
+                    }
+                }));
             }
         });
     }

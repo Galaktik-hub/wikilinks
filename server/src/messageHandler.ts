@@ -218,6 +218,35 @@ export async function handleMessage(ws: WebSocket, message: any, context: Client
             });
             break;
         }
+        case "get_history": {
+            const {currentGameSessionId, currentUser} = context;
+            if (!currentGameSessionId || !currentUser) {
+                ws.send(
+                    JSON.stringify({
+                        kind: "error",
+                        message: "Not in a game session",
+                    }),
+                );
+                return;
+            }
+            const session = GameSessionManager.getSession(currentGameSessionId);
+            if (!session) {
+                ws.send(
+                    JSON.stringify({
+                        kind: "error",
+                        message: "Game session not found",
+                    }),
+                );
+                return;
+            }
+            ws.send(
+                JSON.stringify({
+                    kind: "history",
+                    history: session.getHistory(),
+                }),
+            );
+            break;
+        }
         case "mute_player": {
             const {currentGameSessionId, currentUser} = context;
             if (!currentGameSessionId || !currentUser) {
