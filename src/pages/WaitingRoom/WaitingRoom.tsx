@@ -19,7 +19,7 @@ const WaitingRoom: React.FC = () => {
     const rightRef = useRef<HTMLDivElement>(null);
     const navigate = useNavigate();
     const isHost: boolean = socket?.leaderName === socket?.username;
-    const [isLaunch, setIsLaunch] = React.useState(false);
+    const [isLaunched, setIsLaunched] = React.useState(false);
 
     const [gameSettings, setGameSettings] = React.useState({
         timeLimit: socket?.gameTimeLimit || 10,
@@ -78,13 +78,13 @@ const WaitingRoom: React.FC = () => {
 
     useEffect(() => {
         if (socket?.loadingGame) {
-            setIsLaunch(true);
+            setIsLaunched(true);
         }
     }, [socket?.loadingGame]);
 
     useEffect(() => {
         if (socket?.startArticle) {
-            setIsLaunch(false);
+            setIsLaunched(false);
             navigate("/game");
         }
     }, [socket?.startArticle, navigate]);
@@ -113,7 +113,7 @@ const WaitingRoom: React.FC = () => {
             <div className="xl-custom:hidden">
                 <TextLoungePanel />
             </div>
-            {isLaunch && <LoadingScreen />}
+            {isLaunched && <LoadingScreen />}
         </Layout>
     );
 };
