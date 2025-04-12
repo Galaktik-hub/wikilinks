@@ -191,32 +191,34 @@ export class GameSession {
     public handleGameEvent(player: Player, data: any): void {
         switch (data.type) {
             case "visitedPage":
-                player.history.addStep("visitedPage", { page_name: data.page_name });
+                player.history.addStep("visitedPage", {page_name: data.page_name});
                 break;
             case "foundPage":
-                player.history.addStep("foundPage", { page_name: data.page_name });
+                player.history.addStep("foundPage", {page_name: data.page_name});
                 break;
             case "foundArtifact":
-                player.history.addStep("foundArtifact", { artefact: data.artefact });
+                player.history.addStep("foundArtifact", {artefact: data.artefact});
                 break;
             case "usedArtifact":
-                player.history.addStep("usedArtifact", { artefact: data.artefact });
+                player.history.addStep("usedArtifact", {artefact: data.artefact});
                 break;
             default:
                 console.error(`Unknown event type: ${data.type}`);
         }
         this.members.forEach(member => {
             if (member.ws.readyState === WebSocket.OPEN) {
-                member.ws.send(JSON.stringify({
-                    kind: "game_update",
-                    event: {
-                        type: data.type,
-                        data: {
-                            player: player.name,
-                            ...data,
-                        }
-                    }
-                }));
+                member.ws.send(
+                    JSON.stringify({
+                        kind: "game_update",
+                        event: {
+                            type: data.type,
+                            data: {
+                                player: player.name,
+                                ...data,
+                            },
+                        },
+                    }),
+                );
             }
         });
     }

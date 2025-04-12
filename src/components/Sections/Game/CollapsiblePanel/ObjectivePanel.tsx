@@ -19,15 +19,13 @@ const ObjectivesPanel: React.FC = () => {
     useEffect(() => {
         if (socket?.articles) {
             const updatedObjectives: Objective[] = [];
-            socket?.articles.forEach(
-                (article: string, index: number) => {
-                    updatedObjectives.push({
-                        id: `objective-${index}`,
-                        text: `${article}`,
-                        isReached: false,
-                    });
-                }
-            )
+            socket?.articles.forEach((article: string, index: number) => {
+                updatedObjectives.push({
+                    id: `objective-${index}`,
+                    text: `${article}`,
+                    isReached: false,
+                });
+            });
             setObjectives(updatedObjectives);
         }
     }, [socket?.articles]);
