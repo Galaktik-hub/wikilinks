@@ -105,6 +105,8 @@ export const CreateOrJoinGame: React.FC = () => {
 
         if (hasStarted) {
             showPopup("error", "Cette partie a déjà commencé");
+            setShowUsernameModal(false);
+            setTempRoomCode(-1);
             return;
         }
 
