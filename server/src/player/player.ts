@@ -1,3 +1,4 @@
+import {randomUUID} from "node:crypto";
 import {PlayerHistory} from "./history/playerHistory";
 import {Inventory} from "./inventory/inventory";
 import {ArtifactName} from "./inventory/inventoryProps";
@@ -10,7 +11,7 @@ export class Player {
     history: PlayerHistory;
 
     constructor(name: string, isLeader: boolean = false) {
-        this.id = crypto.randomUUID();
+        this.id = randomUUID();
         this.name = name;
         this.isLeader = isLeader;
         this.inventory = new Inventory();

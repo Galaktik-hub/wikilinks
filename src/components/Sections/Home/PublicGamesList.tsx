@@ -2,6 +2,7 @@
 import React, {useState, useEffect, useContext} from "react";
 import {PublicGameCard} from "../../Cards/Home/PublicGameCard.tsx";
 import {SocketContext} from "../../../context/SocketContext.tsx";
+import {IconRefresh} from "@tabler/icons-react";
 
 // Interface pour les sessions reçues du serveur
 interface GameSession {
@@ -28,9 +29,6 @@ export const PublicGamesList: React.FC = () => {
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
 
-    // Référence pour stocker l'ID de l'intervalle
-    const intervalRef = React.useRef<NodeJS.Timeout | null>(null);
-
     // Référence pour suivre les messages déjà traités
     const processedMessagesRef = React.useRef<Set<string>>(new Set());
 
@@ -41,12 +39,9 @@ export const PublicGamesList: React.FC = () => {
             setError(null);
             socket.sendMessageToServer({kind: "get_all_sessions"});
 
-            // Timeout pour éviter un état de chargement infini
             setTimeout(() => {
-                if (loading) {
-                    setLoading(false);
-                }
-            }, 5000);
+                setLoading(false);
+            }, 2000);
         } else {
             setError("Socket non disponible");
         }
@@ -99,27 +94,22 @@ export const PublicGamesList: React.FC = () => {
     useEffect(() => {
         if (socket?.isConnected) {
             fetchSessions();
-
-            // Configurer un intervalle pour rafraîchir les sessions toutes les 60 secondes
-            intervalRef.current = setInterval(fetchSessions, 60000);
         }
-
-        // Nettoyer les ressources lors du démontage
-        return () => {
-            if (intervalRef.current) {
-                clearInterval(intervalRef.current);
-                intervalRef.current = null;
-            }
-        };
     }, [socket?.isConnected]);
 
     return (
         <section className="flex flex-col items-center py-6 px-2.5 w-full">
             <div className="flex justify-between items-center w-full px-2.5 mb-4">
-                <div className="title-block">Parties publiques</div>
-                <button className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors" onClick={fetchSessions} disabled={loading}>
-                    {loading ? "Chargement..." : "Rafraîchir"}
-                </button>
+                <div className="title-block gap-2">
+                    Parties publiques
+                    <button
+                        className="p-2 text-white rounded hover:bg-blue-600 transition-colors cursor-pointer"
+                        title="Rafraîchir"
+                        onClick={fetchSessions}
+                        disabled={loading}>
+                        <IconRefresh className={loading ? "animate-spin" : ""} style={{animationDirection: "reverse"}} />
+                    </button>
+                </div>
             </div>
 
             {error && <div className="w-full p-4 mb-4 bg-red-100 text-red-700 rounded">{error}</div>}
