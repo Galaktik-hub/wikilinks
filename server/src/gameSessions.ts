@@ -25,7 +25,7 @@ export class GameSession {
     public members: Map<string, Player>;
     public bots: Map<string, Bot>;
 
-    constructor(id: number, timeLimit: number, numberOfArticles: number, maxPlayers: number, type: GameType, leader: Player, ws: WebSocket) {
+    constructor(id: number, timeLimit: number, numberOfArticles: number, maxPlayers: number, type: GameType, leader: Player) {
         this.id = id;
         this.timeLimit = timeLimit;
         this.numberOfArticles = numberOfArticles;
@@ -189,7 +189,7 @@ export class GameSessionManager {
             id = randomInt(100000, 1000000);
         } while (this.sessions.has(id));
 
-        const session = new GameSession(id, params.timeLimit, params.numberOfArticles, params.maxPlayers, params.type, params.leader, params.ws);
+        const session = new GameSession(id, params.timeLimit, params.numberOfArticles, params.maxPlayers, params.type, params.leader);
         this.sessions.set(id, session);
         return session;
     }
