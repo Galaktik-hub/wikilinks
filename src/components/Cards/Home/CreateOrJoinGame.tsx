@@ -104,8 +104,7 @@ export const CreateOrJoinGame: React.FC = () => {
         const hasStarted = await socket?.checkGameHasStarted(parsedRoomCode);
 
         if (hasStarted) {
-            setRoomError("Cette partie a déjà commencé");
-            setTimeout(() => setRoomError(null), 3000);
+            showPopup("error", "Cette partie a déjà commencé");
             return;
         }
 
