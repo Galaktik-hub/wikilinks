@@ -10,12 +10,16 @@ import PlayerList from "../../components/Sections/WaitingRoom/Player/PlayerList.
 import TextLoungePanel from "../../components/Sections/WaitingRoom/TextLounge/TextLoungePanel.tsx";
 import Header from "../../components/Header/Header.tsx";
 import {SocketContext} from "../../context/SocketContext.tsx";
+import {useNavigate} from "react-router-dom";
+import LoadingScreen from "../../components/Sections/WaitingRoom/LoadingScreen.tsx";
 
 const WaitingRoom: React.FC = () => {
     const socket = useContext(SocketContext);
     const leftRef = useRef<HTMLDivElement>(null);
     const rightRef = useRef<HTMLDivElement>(null);
+    const navigate = useNavigate();
     const isHost: boolean = socket?.leaderName === socket?.username;
+    const [isLaunched, setIsLaunched] = React.useState(false);
 
     const [gameSettings, setGameSettings] = React.useState({
         timeLimit: socket?.gameTimeLimit || 10,
@@ -66,6 +70,25 @@ const WaitingRoom: React.FC = () => {
         };
     }, [players, gameSettings]);
 
+    const handleLaunchClick = () => {
+        if (isHost && socket) {
+            socket.sendMessageToServer({kind: "start_game"});
+        }
+    };
+
+    useEffect(() => {
+        if (socket?.loadingGame) {
+            setIsLaunched(true);
+        }
+    }, [socket?.loadingGame]);
+
+    useEffect(() => {
+        if (socket?.startArticle) {
+            setIsLaunched(false);
+            navigate("/game");
+        }
+    }, [socket?.startArticle, navigate]);
+
     return (
         <Layout header={<Header />}>
             <div className="flex flex-col w-full overflow-hidden items-center justify-center p-4 gap-6 max-md:mb-16">
@@ -82,13 +105,14 @@ const WaitingRoom: React.FC = () => {
                 </section>
                 <section className="w-full flex flex-wrap-reverse justify-center gap-x-12 gap-y-4 mt-6 max-md:mt-2">
                     <ExitButton isHost={isHost} />
-                    <LaunchButton isHost={isHost} />
+                    <LaunchButton isHost={isHost} onLaunch={handleLaunchClick} />
                 </section>
             </div>
             {/* Version mobile du chat */}
             <div className="xl-custom:hidden">
                 <TextLoungePanel />
             </div>
+            {isLaunched && <LoadingScreen />}
         </Layout>
     );
 };

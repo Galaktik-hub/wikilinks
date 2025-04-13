@@ -1,3 +1,5 @@
+import logger from "./logger";
+
 export class WikipediaService {
     /**
      * Fetches random Wikipedia page titles using the MediaWiki API.
@@ -21,7 +23,7 @@ export class WikipediaService {
 
             return data.query.random.map(page => page.title);
         } catch (error) {
-            console.error("Error fetching Wikipedia articles:", error);
+            logger.error(`Error fetching Wikipedia articles: ${error}`);
             return [];
         }
     }
@@ -45,7 +47,7 @@ export class WikipediaService {
             }
             return totalViews;
         } catch (error) {
-            console.error(`Error fetching page views for "${title}":`, error);
+            logger.error(`Error fetching page views for "${title}": ${error}`);
             return 0;
         }
     }
@@ -66,12 +68,12 @@ export class WikipediaService {
 
         while (validTitles.size < requiredCount) {
             const titles = await this.fetchRandomWikipediaPages(batchSize);
-            console.log(`Batch fetched: ${titles.join(", ")}`);
+            logger.info(`Batch fetched: "${titles.join('", "')}"`);
 
             for (const title of titles) {
                 const views = await this.getPageViews(title, startDate, endDate);
                 if (views >= minViews) {
-                    console.log(`Page "${title}" has ${views} views between ${startDate} and ${endDate}`);
+                    logger.info(`Page "${title}" has ${views} views between ${startDate} and ${endDate}`);
                     validTitles.add(title);
                     if (validTitles.size >= requiredCount) {
                         break;
@@ -79,7 +81,7 @@ export class WikipediaService {
                 }
             }
         }
-        validTitles.forEach(title => console.log("Result : " + title));
+        logger.info(`Result: [${Array.from(validTitles).join('", "')}]`);
         return Array.from(validTitles);
     }
 }

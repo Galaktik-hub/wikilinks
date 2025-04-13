@@ -1,5 +1,5 @@
 import * as React from "react";
-import {TimelineType} from "./TimelineConfig.tsx";
+import {TimelineStep} from "../Sections/Game/CollapsiblePanel/PlayerProgressPanel.tsx";
 
 export interface InputField {
     id: string;
@@ -32,13 +32,6 @@ export interface ModalConfirmationProps {
     message: string;
     cancelButton: ButtonField;
     okButton: ButtonField;
-}
-
-// Interface pour une étape de timeline
-export interface TimelineStep {
-    id: number;
-    type: TimelineType;
-    data?: Record<string, string>;
 }
 
 // Interface pour le contenu de type timeline

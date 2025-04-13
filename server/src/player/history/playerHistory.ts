@@ -13,8 +13,8 @@ export class PlayerHistory {
     addStep(type: HistoryType, data?: Record<string, string>): void {
         const step: HistoryStep = {
             type,
-            data: {player: this.player.name, ...data},
-            date: new Date(),
+            data: {...data},
+            id: new Date(),
         };
         this.steps.push(step);
     }

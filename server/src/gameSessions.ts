@@ -3,6 +3,7 @@ import {WebSocket} from "ws";
 import {Player} from "./player/player";
 import {WikipediaService} from "./WikipediaService";
 import {Bot, JoinLeaveBot, BOTS} from "./bots";
+import logger from "./logger";
 
 export type GameType = "public" | "private";
 
@@ -20,6 +21,7 @@ export class GameSession {
     public type: GameType;
     public articles: string[];
     public startArticle: string;
+    public hasStarted: boolean;
 
     public leader: Player;
     public members: Map<string, Player>;
@@ -33,6 +35,7 @@ export class GameSession {
         this.type = type;
         this.articles = [];
         this.startArticle = "";
+        this.hasStarted = false;
 
         this.leader = leader;
         this.members = new Map();
@@ -134,18 +137,32 @@ export class GameSession {
     }
 
     /**
+     * Starts the game session.
+     * Sets the start article and initializes the articles.
+     */
+    public async startGame(): Promise<void> {
+        await this.initializeArticles();
+        this.hasStarted = true;
+        this.members.forEach(member => {
+            if (member.ws.readyState === member.ws.OPEN) {
+                member.ws.send(JSON.stringify({kind: "game_started", startArticle: this.startArticle, articles: this.articles}));
+            }
+        });
+    }
+
+    /**
      * Initializes the Wikipedia articles for the session.
      * Fetches (numberOfArticles + 1) pages and sets the last one as the start article.
      */
     public async initializeArticles(): Promise<void> {
         const totalCount = this.numberOfArticles + 1;
-        const articles = await WikipediaService.fetchRandomPopularWikipediaPages(totalCount, 1000, "20250101", "20250325");
+        const articles = await WikipediaService.fetchRandomPopularWikipediaPages(totalCount, 20000, "20250101", "20250325");
         if (articles.length > 0) {
-            this.startArticle = articles.pop()!;
-            this.articles = articles;
-            console.log(`Session ${this.id} initialized with ${this.articles.length} articles and startArticle: ${this.startArticle}`);
+            this.articles = articles.map(item => item.replace(/\s+/g, "_"));
+            this.startArticle = this.articles.pop()!;
+            logger.info(`Session ${this.id} initialized with ${this.articles.length} articles and startArticle: "${this.startArticle}"`);
         } else {
-            console.error("No articles found");
+            logger.error("No articles found");
         }
     }
 
@@ -164,9 +181,70 @@ export class GameSession {
             GameSessionManager.endSession(this.id);
         } else {
             if (this.removePlayer(player)) {
-                console.log(`Player ${player.name} has been removed from session ${this.id}`);
+                logger.info(`Player "${player.name}" has been removed from session ${this.id} by host "${this.leader.name}"`);
             }
         }
+    }
+
+    /**
+     * Handles game events (e.g., player actions) and dispatches them to everyone.
+     */
+    public handleGameEvent(player: Player, data: any): void {
+        switch (data.type) {
+            case "visitedPage": {
+                const article = this.articles.find(article => article === data.page_name);
+                logger.info(`Article: "${article}"`);
+                if (article) {
+                    const index = this.articles.indexOf(article);
+                    if (index !== -1) {
+                        this.articles.splice(index, 1);
+                        player.history.addStep("foundPage", {page_name: data.page_name});
+                        data.type = "foundPage";
+                    } else {
+                        player.history.addStep("visitedPage", {page_name: data.page_name});
+                    }
+                }
+                break;
+            }
+            case "foundArtifact":
+                player.history.addStep("foundArtifact", {artefact: data.artefact});
+                break;
+            case "usedArtifact":
+                player.history.addStep("usedArtifact", {artefact: data.artefact});
+                break;
+            default:
+                logger.error(`Unknown event type: ${data.type}`);
+        }
+        this.members.forEach(member => {
+            if (member.ws.readyState === WebSocket.OPEN) {
+                member.ws.send(
+                    JSON.stringify({
+                        kind: "game_update",
+                        event: {
+                            type: data.type,
+                            data: {
+                                player: player.name,
+                                ...data,
+                            },
+                        },
+                    }),
+                );
+            }
+        });
+    }
+
+    /**
+     * Returns the game history of all players in the session.
+     */
+    public getHistory(): any[] {
+        const history = [];
+        this.members.forEach(member => {
+            history.push({
+                player: member.name,
+                history: member.history.getHistory(),
+            });
+        });
+        return history;
     }
 }
 

@@ -78,7 +78,16 @@ const Modal: React.FC<ModalProps> = ({isOpen, onClose, title, description, type,
                     <div className="overflow-auto text-white pt-2 pb-2 max-h-[400px]">
                         <Timeline active={(content as ModalTimelineProps).timelineSteps.length} bulletSize={24} lineWidth={2}>
                             {(content as ModalTimelineProps).timelineSteps.map(step => {
+                                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                                // @ts-expect-error
                                 const config = timelineConfig[step.type];
+                                if (step.data) {
+                                    Object.keys(step.data).forEach(key => {
+                                        if (step.data) {
+                                            step.data[key] = step.data[key].replace(/_/g, " ");
+                                        }
+                                    });
+                                }
                                 const stepContent =
                                     config.content && step.data ? formatContent(config.content, (content as ModalTimelineProps).username, step.data) : null;
                                 return (

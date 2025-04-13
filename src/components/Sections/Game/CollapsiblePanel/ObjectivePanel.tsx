@@ -3,6 +3,8 @@
 import * as React from "react";
 import ObjectiveItem from "./ObjectiveItem.tsx";
 import CollapsiblePanel from "./CollapsiblePanel.tsx";
+import {useContext, useEffect} from "react";
+import {SocketContext} from "../../../../context/SocketContext.tsx";
 
 interface Objective {
     id: string;
@@ -11,11 +13,23 @@ interface Objective {
 }
 
 const ObjectivesPanel: React.FC = () => {
-    const objectives: Objective[] = [
-        {id: "obj1", text: "Title of the page reached", isReached: true},
-        {id: "obj2", text: "Page title not reached", isReached: false},
-        {id: "obj3", text: "Page title not reached", isReached: false},
-    ];
+    const socket = useContext(SocketContext);
+    const [objectives, setObjectives] = React.useState<Objective[]>([]);
+
+    useEffect(() => {
+        if (socket?.articles) {
+            const updatedObjectives: Objective[] = [];
+            socket?.articles.forEach((article: {name: string; found: boolean}, index: number) => {
+                console.log("Articles:", article);
+                updatedObjectives.push({
+                    id: `objective-${index}`,
+                    text: `${article.name.replace(/_+/g, " ")}`,
+                    isReached: article.found,
+                });
+            });
+            setObjectives(updatedObjectives);
+        }
+    }, [socket?.articles]);
 
     return (
         <CollapsiblePanel title="Objectifs" contentId="objectives-content">

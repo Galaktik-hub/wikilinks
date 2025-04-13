@@ -1,4 +1,7 @@
+"use client";
+
 import React, {createContext, useEffect, useRef, useState} from "react";
+import {TimelineStep} from "../components/Sections/Game/CollapsiblePanel/PlayerProgressPanel.tsx";
 
 export interface SocketContextType {
     isConnected: boolean;
@@ -13,14 +16,20 @@ export interface SocketContextType {
     roomCode: number;
     setRoomCode: (code: number) => void;
     checkRoomExists: (roomCode: number) => Promise<boolean>;
-    updateSettings: (payload: {timeLimit: number; numberOfArticles: number; maxPlayers: number; type: string}) => void;
+    checkGameHasStarted: (roomCode: number) => Promise<boolean>;
     checkUsernameTaken: (username: string, roomCode: number) => Promise<boolean>;
+    updateSettings: (payload: {timeLimit: number; numberOfArticles: number; maxPlayers: number; type: string}) => void;
+    getHistory: () => void;
     // Game session settings
     gameTimeLimit: number;
     gameNumberOfArticles: number;
     gameMaxPlayers: number;
     gameType: string;
+    articles: {name: string; found: boolean}[];
+    startArticle: string;
     players: {username: string; role: string}[];
+    playerHistories: {[playerName: string]: TimelineStep[]};
+    loadingGame: boolean;
 }
 
 export const SocketContext = createContext<SocketContextType | undefined>(undefined);
@@ -36,13 +45,19 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({children}) => {
     const [username, setUsername] = useState<string | null>(null);
     const [roomCode, setRoomCode] = useState<number>(-1);
     const socketRef = useRef<WebSocket | null>(null);
+    const usernameRef = useRef(username);
+    const [loadingGame, setLoadingGame] = useState(false);
 
     const [gameTimeLimit, setGameTimeLimit] = useState<number>(10);
     const [gameNumberOfArticles, setNumberOfArticles] = useState<number>(4);
     const [gameMaxPlayers, setMaxPlayers] = useState<number>(10);
     const [gameType, setType] = useState<string>("private");
+    const [startArticle, setStartArticle] = useState<string>("");
+    const [articles, setArticles] = useState<{name: string; found: boolean}[]>([]);
+    const articlesRef = useRef(articles);
 
     const [players, setPlayers] = useState<{username: string; role: string}[]>([]);
+    const [playerHistories, setPlayerHistories] = useState<{[playerName: string]: TimelineStep[]}>({});
 
     useEffect(() => {
         const socket = new WebSocket(import.meta.env.VITE_MODE === "prod" ? import.meta.env.VITE_WS_DOMAIN_PROD : import.meta.env.VITE_WS_DOMAIN_LOCAL);
@@ -60,6 +75,7 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({children}) => {
                 if (data.kind === "game_session_created") {
                     setRoomCode(data.sessionId);
                     setLeaderName(data.leaderName);
+                    setUsername(data.username);
                 } else if (data.kind === "settings_modified") {
                     setGameTimeLimit(data.timeLimit);
                     setNumberOfArticles(data.numberOfArticles);
@@ -67,9 +83,60 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({children}) => {
                     setType(data.type);
                 } else if (data.kind === "players_update") {
                     setPlayers(data.players);
+                    setPlayerHistories(prev => {
+                        const updated = {...prev};
+                        data.players.forEach((p: {username: string}) => {
+                            if (!updated[p.username]) {
+                                updated[p.username] = [];
+                            }
+                        });
+                        return updated;
+                    });
                 } else if (data.kind === "room_closed") {
-                    window.location.href = "/";
                     socket.close();
+                } else if (data.kind === "game_launched") {
+                    setLoadingGame(true);
+                } else if (data.kind === "game_started") {
+                    setStartArticle(data.startArticle);
+                    const updatedArticles = data.articles.map((name: string) => ({
+                        name: name,
+                        found: false,
+                    }));
+                    setArticles(updatedArticles);
+                    setLoadingGame(false);
+                } else if (data.kind === "history" && data.history) {
+                    const histories: {[playerName: string]: any[]} = {};
+                    data.history.forEach((item: {player: string; history: any[]}) => {
+                        histories[item.player] = item.history;
+                    });
+                    setPlayerHistories(histories);
+                } else if (data.kind === "game_update" && data.event) {
+                    const {type, data: eventData} = data.event;
+                    const playerName = eventData?.player || eventData?.playerName;
+                    if (playerName) {
+                        const cleanedData = {...eventData};
+
+                        const timelineStep = {
+                            id: Date.now(),
+                            type,
+                            data: cleanedData,
+                        };
+                        setPlayerHistories(prev => ({
+                            ...prev,
+                            [playerName]: [...(prev[playerName] || []), timelineStep],
+                        }));
+
+                        if (type == "foundPage" && playerName === usernameRef.current) {
+                            const updatedArticles = articlesRef.current.map(article => {
+                                if (article.name === cleanedData.page_name) {
+                                    return {...article, found: true};
+                                }
+                                return article;
+                            });
+                            setArticles(updatedArticles);
+                            console.log("Articles mis à jour :", updatedArticles);
+                        }
+                    }
                 } else {
                     setMessages(prev => [...prev, data]);
                 }
@@ -80,6 +147,7 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({children}) => {
 
         socket.onclose = () => {
             setIsConnected(false);
+            window.location.href = "/";
             console.log("Déconnecté du serveur WebSocket");
         };
 
@@ -87,6 +155,14 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({children}) => {
             console.error("Erreur WebSocket :", error);
         };
     }, []);
+
+    useEffect(() => {
+        usernameRef.current = username;
+    }, [username]);
+
+    useEffect(() => {
+        articlesRef.current = articles;
+    }, [articles]);
 
     const sendMessageToServer = (msg: any) => {
         if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {
@@ -120,6 +196,12 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({children}) => {
         sendMessageToServer({
             kind: "update_settings",
             ...payload,
+        });
+    };
+
+    const getHistory = () => {
+        sendMessageToServer({
+            kind: "get_history",
         });
     };
 
@@ -192,7 +274,39 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({children}) => {
                 roomCode: roomCodeToCheck,
             });
 
-            // Timeout to avoid waiting indefinitely
+            // Timeout
+            setTimeout(() => {
+                socketRef.current?.removeEventListener("message", handler);
+                resolve(false);
+            }, 2000);
+        });
+    };
+
+    const checkGameHasStarted = async (roomCodeToCheck: number): Promise<boolean> => {
+        if (!socketRef.current || socketRef.current.readyState !== WebSocket.OPEN) {
+            await waitForConnection();
+        }
+
+        return new Promise(resolve => {
+            const handler = (event: MessageEvent) => {
+                try {
+                    const data = JSON.parse(event.data);
+                    if (data.kind === "game_started_check_result") {
+                        socketRef.current?.removeEventListener("message", handler);
+                        resolve(data.started);
+                    }
+                } catch (error) {
+                    console.error("checkGameHasStarted error: ", error);
+                }
+            };
+
+            socketRef.current?.addEventListener("message", handler);
+
+            sendMessageToServer({
+                kind: "check_game_started",
+                roomCode: roomCodeToCheck,
+            });
+
             setTimeout(() => {
                 socketRef.current?.removeEventListener("message", handler);
                 resolve(false);
@@ -214,14 +328,20 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({children}) => {
                 roomCode,
                 setRoomCode,
                 leaderName,
+                checkUsernameTaken,
                 checkRoomExists,
+                checkGameHasStarted,
                 updateSettings,
                 gameTimeLimit,
                 gameNumberOfArticles,
                 gameMaxPlayers,
                 gameType,
+                articles,
+                startArticle,
                 players,
-                checkUsernameTaken,
+                playerHistories,
+                getHistory,
+                loadingGame,
             }}>
             {children}
         </SocketContext.Provider>

@@ -1,6 +1,7 @@
 import {WebSocket} from "ws";
 import {GameSessionManager} from "./gameSessions";
 import {Player} from "./player/player";
+import logger from "./logger";
 
 export interface ClientContext {
     currentRoomId: number | null;
@@ -34,13 +35,14 @@ export async function handleMessage(ws: WebSocket, message: any, context: Client
             context.currentRoomId = session.id;
             context.currentUser = leader;
 
-            console.log(`Session ${session.id} created by ${leader.name}`);
+            logger.info(`Session ${session.id} created by "${leader.name}"`);
             session.refreshPlayers();
             ws.send(
                 JSON.stringify({
                     kind: "game_session_created",
                     sessionId: session.id,
                     leaderName: session.leader.name,
+                    username: leader.name,
                 }),
             );
             break;
@@ -65,6 +67,15 @@ export async function handleMessage(ws: WebSocket, message: any, context: Client
                 );
                 return;
             }
+            if (session.hasStarted) {
+                ws.send(
+                    JSON.stringify({
+                        kind: "error",
+                        message: "Game session has already started",
+                    }),
+                );
+                return;
+            }
             const player = new Player(message.playerName, ws, "client", false);
             if (!session.addPlayer(player)) {
                 ws.send(
@@ -79,12 +90,13 @@ export async function handleMessage(ws: WebSocket, message: any, context: Client
             context.currentRoomId = message.sessionId;
             context.currentUser = player;
 
-            console.log(`${player.name} joined the session ${message.sessionId}`);
+            logger.info(`Player "${player.name}" joined the session ${message.sessionId}`);
             ws.send(
                 JSON.stringify({
                     kind: "game_session_created",
                     sessionId: session.id,
                     leaderName: session.leader.name,
+                    username: player.name,
                 }),
             );
             break;
@@ -130,7 +142,41 @@ export async function handleMessage(ws: WebSocket, message: any, context: Client
                 );
                 return;
             }
-            await session.initializeArticles();
+            session.members.forEach(member => {
+                if (member.ws.readyState === member.ws.OPEN) {
+                    member.ws.send(
+                        JSON.stringify({
+                            kind: "game_launched",
+                        }),
+                    );
+                }
+            });
+            await session.startGame();
+            logger.info(`Game started in session ${session.id}`);
+            break;
+        }
+        case "game_event": {
+            const {currentGameSessionId, currentUser} = context;
+            if (!currentGameSessionId || !currentUser) {
+                ws.send(
+                    JSON.stringify({
+                        kind: "error",
+                        message: "Not in a game session",
+                    }),
+                );
+                return;
+            }
+            const session = GameSessionManager.getSession(currentGameSessionId);
+            if (!session) {
+                ws.send(
+                    JSON.stringify({
+                        kind: "error",
+                        message: "Game session not found",
+                    }),
+                );
+                return;
+            }
+            session.handleGameEvent(currentUser, message.event);
             break;
         }
         case "update_settings": {
@@ -182,6 +228,35 @@ export async function handleMessage(ws: WebSocket, message: any, context: Client
                     );
                 }
             });
+            break;
+        }
+        case "get_history": {
+            const {currentGameSessionId, currentUser} = context;
+            if (!currentGameSessionId || !currentUser) {
+                ws.send(
+                    JSON.stringify({
+                        kind: "error",
+                        message: "Not in a game session",
+                    }),
+                );
+                return;
+            }
+            const session = GameSessionManager.getSession(currentGameSessionId);
+            if (!session) {
+                ws.send(
+                    JSON.stringify({
+                        kind: "error",
+                        message: "Game session not found",
+                    }),
+                );
+                return;
+            }
+            ws.send(
+                JSON.stringify({
+                    kind: "history",
+                    history: session.getHistory(),
+                }),
+            );
             break;
         }
         case "mute_player": {
@@ -280,6 +355,25 @@ export async function handleMessage(ws: WebSocket, message: any, context: Client
             );
             break;
         }
+        case "check_game_started": {
+            const session = GameSessionManager.getSession(message.roomCode);
+            if (!session) {
+                ws.send(
+                    JSON.stringify({
+                        kind: "error",
+                        message: "Game session not found",
+                    }),
+                );
+                return;
+            }
+            ws.send(
+                JSON.stringify({
+                    kind: "game_started_check_result",
+                    started: session.hasStarted,
+                }),
+            );
+            break;
+        }
         case "disconnect": {
             const {currentRoomId, currentUser} = context;
             if (currentRoomId && currentUser) {
@@ -312,7 +406,7 @@ export async function handleMessage(ws: WebSocket, message: any, context: Client
         }
         case "get_all_sessions": {
             const allSessions = GameSessionManager.getAllPublicSessions();
-            console.log(`Number of sessions : ${allSessions.size}`);
+            logger.info(`Number of sessions : ${allSessions.size}`);
             const sessionsArray: any[] = [];
             allSessions.forEach((session, id) => {
                 sessionsArray.push({

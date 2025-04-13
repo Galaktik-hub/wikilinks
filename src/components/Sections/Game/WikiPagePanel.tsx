@@ -5,7 +5,11 @@ import ArticleDisplay from "./ArticleDisplay.tsx";
 import {WikiNavigationProvider} from "../../../context/WikiNavigationContext.tsx";
 import {preventCtrlF} from "../../../functions/preventCtrlF.ts";
 
-const ObjectivesPanel: React.FC = () => {
+interface ObjectivesPanelProps {
+    startArticle: string;
+}
+
+const ObjectivesPanel: React.FC<ObjectivesPanelProps> = props => {
     preventCtrlF();
     return (
         <div className="card-container flex flex-col justify-center xl-custom:mb-32 mb-12">
@@ -13,7 +17,7 @@ const ObjectivesPanel: React.FC = () => {
                 <h2 className="blue-title-effect">Page Wikipedia</h2>
             </div>
 
-            <WikiNavigationProvider className="flex flex-col items-center gap-2 self-center mt-2 w-full text-base text-white">
+            <WikiNavigationProvider className="flex flex-col items-center gap-2 self-center mt-2 w-full text-base text-white" startArticle={props.startArticle}>
                 <ArticleDisplay className="w-full" />
             </WikiNavigationProvider>
         </div>

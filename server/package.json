@@ -21,6 +21,8 @@
     },
     "dependencies": {
         "node-fetch": "^3.3.2",
+        "winston": "^3.17.0",
+        "winston-daily-rotate-file": "^5.0.0",
         "ws": "^8.18.1"
     }
 }

@@ -5,16 +5,16 @@ import PlaySVG from "../../../assets/WaitingRoom/PlaySVG.tsx";
 import MainButton from "../MainButton.tsx";
 
 type LaunchButtonProps = {
-    onClick?: () => void;
+    onLaunch: () => void;
     disabled?: boolean;
     isHost: boolean;
 };
 
-const LaunchButton: React.FC<LaunchButtonProps> = ({onClick = () => {}, disabled = false, isHost}) => {
+const LaunchButton: React.FC<LaunchButtonProps> = ({onLaunch, disabled = false, isHost}) => {
     return (
         <MainButton
             color=""
-            onClick={onClick}
+            onClick={onLaunch}
             disabled={!isHost || disabled}
             className={`${
                 isHost

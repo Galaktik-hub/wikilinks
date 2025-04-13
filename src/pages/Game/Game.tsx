@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, {useContext} from "react";
 import Layout from "../../components/Layout";
 import ObjectivesPanel from "../../components/Sections/Game/CollapsiblePanel/ObjectivePanel.tsx";
 import PlayerProgressPanel from "../../components/Sections/Game/CollapsiblePanel/PlayerProgressPanel.tsx";
@@ -10,8 +10,13 @@ import TextLoungePanel from "../../components/Sections/WaitingRoom/TextLounge/Te
 import {useMediaQuery} from "react-responsive";
 import InventoryButton from "../../components/Buttons/Game/InventoryButton.tsx";
 import Header from "../../components/Header/Header.tsx";
+import {SocketContext} from "../../context/SocketContext.tsx";
 
 const Game: React.FC = () => {
+    const socket = useContext(SocketContext);
+
+    const startArticle = socket?.startArticle || "Paris";
+
     const isMobile = useMediaQuery({maxWidth: 767});
     const isDesktop = useMediaQuery({minWidth: 1200});
     const isIntermediate = !isMobile && !isDesktop;
@@ -33,7 +38,7 @@ const Game: React.FC = () => {
                         <ObjectivesPanel />
                     </>
                 )}
-                <WikiPagePanel />
+                <WikiPagePanel startArticle={startArticle} />
                 {(isMobile || isIntermediate) && <ExitButton isHost={false} />}
             </div>
             {isDesktop && (

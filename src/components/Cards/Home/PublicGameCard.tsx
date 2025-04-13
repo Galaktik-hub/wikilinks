@@ -3,7 +3,7 @@ import React from "react";
 import {useMediaQuery} from "react-responsive";
 import CopySVG from "../../../assets/Home/CopySVG.tsx";
 import PlayerCountBadge from "./PlayerCountBadge.tsx";
-import {copyToClipboard} from "../../../functions/copyToClipboard.ts";
+import {usePopup} from "../../../context/PopupContext.tsx";
 
 interface PublicGameCardProps {
     hostName: string;
@@ -15,6 +15,17 @@ interface PublicGameCardProps {
 
 export const PublicGameCard: React.FC<PublicGameCardProps> = ({hostName, playerCount, maxPlayers, gameCode, onJoin}) => {
     const isMobile = useMediaQuery({maxWidth: 767});
+    const {showPopup} = usePopup();
+
+    const handleCopy = async (gameCode: string) => {
+        try {
+            await navigator.clipboard.writeText(gameCode);
+            showPopup("info", "Lien copié");
+        } catch (err) {
+            showPopup("error", "Échec de la copie");
+            console.error("Échec de la copie :", err);
+        }
+    };
 
     if (isMobile) {
         return (
@@ -27,7 +38,7 @@ export const PublicGameCard: React.FC<PublicGameCardProps> = ({hostName, playerC
                     <div className="flex gap-2 items-center h-full">
                         <p className="self-stretch my-auto text-sm text-gray-400">Code : {gameCode}</p>
                         <button
-                            onClick={() => copyToClipboard(gameCode)}
+                            onClick={() => handleCopy(gameCode)}
                             className="flex overflow-hidden justify-center items-center self-stretch my-auto w-4 min-h-4">
                             <CopySVG />
                         </button>
@@ -51,7 +62,7 @@ export const PublicGameCard: React.FC<PublicGameCardProps> = ({hostName, playerC
                     <div className="flex gap-2 items-center h-full">
                         <p className="self-stretch my-auto text-sm text-gray-400">Code : {gameCode}</p>
                         <button
-                            onClick={() => copyToClipboard(gameCode)}
+                            onClick={() => handleCopy(gameCode)}
                             className="flex overflow-hidden justify-center items-center self-stretch my-auto w-4 min-h-4">
                             <CopySVG />
                         </button>
