@@ -25,7 +25,7 @@ export interface SocketContextType {
     gameNumberOfArticles: number;
     gameMaxPlayers: number;
     gameType: string;
-    articles: {name: string, found: boolean}[];
+    articles: {name: string; found: boolean}[];
     startArticle: string;
     players: {username: string; role: string}[];
     playerHistories: {[playerName: string]: TimelineStep[]};
@@ -45,6 +45,7 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({children}) => {
     const [username, setUsername] = useState<string | null>(null);
     const [roomCode, setRoomCode] = useState<number>(-1);
     const socketRef = useRef<WebSocket | null>(null);
+    const usernameRef = useRef(username);
     const [loadingGame, setLoadingGame] = useState(false);
 
     const [gameTimeLimit, setGameTimeLimit] = useState<number>(10);
@@ -52,7 +53,8 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({children}) => {
     const [gameMaxPlayers, setMaxPlayers] = useState<number>(10);
     const [gameType, setType] = useState<string>("private");
     const [startArticle, setStartArticle] = useState<string>("");
-    const [articles, setArticles] = useState<{name: string, found: boolean}[]>([]);
+    const [articles, setArticles] = useState<{name: string; found: boolean}[]>([]);
+    const articlesRef = useRef(articles);
 
     const [players, setPlayers] = useState<{username: string; role: string}[]>([]);
     const [playerHistories, setPlayerHistories] = useState<{[playerName: string]: TimelineStep[]}>({});
@@ -73,6 +75,7 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({children}) => {
                 if (data.kind === "game_session_created") {
                     setRoomCode(data.sessionId);
                     setLeaderName(data.leaderName);
+                    setUsername(data.username);
                 } else if (data.kind === "settings_modified") {
                     setGameTimeLimit(data.timeLimit);
                     setNumberOfArticles(data.numberOfArticles);
@@ -123,9 +126,9 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({children}) => {
                             [playerName]: [...(prev[playerName] || []), timelineStep],
                         }));
 
-                        if (type == "foundPage" && playerName === username) {
-                            const updatedArticles = articles.map(article => {
-                                if (article.name === eventData.page_name) {
+                        if (type == "foundPage" && playerName === usernameRef.current) {
+                            const updatedArticles = articlesRef.current.map(article => {
+                                if (article.name === cleanedData.page_name) {
                                     return {...article, found: true};
                                 }
                                 return article;
@@ -152,6 +155,14 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({children}) => {
             console.error("Erreur WebSocket :", error);
         };
     }, []);
+
+    useEffect(() => {
+        usernameRef.current = username;
+    }, [username]);
+
+    useEffect(() => {
+        articlesRef.current = articles;
+    }, [articles]);
 
     const sendMessageToServer = (msg: any) => {
         if (socketRef.current && socketRef.current.readyState === WebSocket.OPEN) {

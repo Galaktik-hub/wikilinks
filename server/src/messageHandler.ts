@@ -42,6 +42,7 @@ export async function handleMessage(ws: WebSocket, message: any, context: Client
                     kind: "game_session_created",
                     sessionId: session.id,
                     leaderName: session.leader.name,
+                    username: leader.name,
                 }),
             );
             break;
@@ -95,6 +96,7 @@ export async function handleMessage(ws: WebSocket, message: any, context: Client
                     kind: "game_session_created",
                     sessionId: session.id,
                     leaderName: session.leader.name,
+                    username: player.name,
                 }),
             );
             break;

@@ -42,20 +42,16 @@ export const CreateOrJoinGame: React.FC = () => {
             return;
         }
 
-        if (socket?.setUsername && socket?.createGameSession) {
-            socket.setUsername(username);
+        socket?.createGameSession({
+            timeLimit: 10,
+            numberOfArticles: 4,
+            maxPlayers: 5,
+            type: "private",
+            leaderName: username,
+        });
 
-            socket.createGameSession({
-                timeLimit: 10,
-                numberOfArticles: 4,
-                maxPlayers: 5,
-                type: "private",
-                leaderName: username,
-            });
-
-            // Reste connecté et redirige vers la salle d'attente
-            navigate("/room");
-        }
+        // Reste connecté et redirige vers la salle d'attente
+        navigate("/room");
     };
 
     const handleJoinGame = async (roomCode: string) => {
@@ -110,9 +106,7 @@ export const CreateOrJoinGame: React.FC = () => {
             return;
         }
 
-        if (socket?.setUsername && socket?.joinGameSession) {
-            socket.setUsername(username);
-
+        if (socket?.joinGameSession) {
             socket.joinGameSession({
                 sessionId: tempRoomCode,
                 playerName: username,

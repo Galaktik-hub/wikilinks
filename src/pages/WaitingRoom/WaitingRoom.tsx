@@ -89,7 +89,6 @@ const WaitingRoom: React.FC = () => {
         }
     }, [socket?.startArticle, navigate]);
 
-
     return (
         <Layout header={<Header />}>
             <div className="flex flex-col w-full overflow-hidden items-center justify-center p-4 gap-6 max-md:mb-16">

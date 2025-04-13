@@ -1,12 +1,7 @@
-import { useState, useEffect } from "react";
+import {useState, useEffect} from "react";
 
 export default function LoadingScreen() {
-    const phrases = [
-        "Initialisation des données",
-        "Récupération des pages de Wikipédia",
-        "Analyse des statistiques d'audience",
-        "Préparation de la partie",
-    ];
+    const phrases = ["Initialisation des données", "Récupération des pages de Wikipédia", "Analyse des statistiques d'audience", "Préparation de la partie"];
 
     const [currentPhraseIndex, setCurrentPhraseIndex] = useState(0);
     const [dotCount, setDotCount] = useState(0);
@@ -14,7 +9,7 @@ export default function LoadingScreen() {
     // Animation des points : incrémente de 0 à 3 puis recommence
     useEffect(() => {
         const dotInterval = setInterval(() => {
-            setDotCount((prev) => (prev + 1) % 4);
+            setDotCount(prev => (prev + 1) % 4);
         }, 500);
         return () => clearInterval(dotInterval);
     }, []);
@@ -22,7 +17,7 @@ export default function LoadingScreen() {
     // Changement de phrase toutes les 4 secondes
     useEffect(() => {
         const phraseInterval = setInterval(() => {
-            setCurrentPhraseIndex((prev) => (prev + 1) % phrases.length);
+            setCurrentPhraseIndex(prev => (prev + 1) % phrases.length);
             setDotCount(0);
         }, 4000);
         return () => clearInterval(phraseInterval);
@@ -34,7 +29,7 @@ export default function LoadingScreen() {
                 <span className="blue-title-effect w-full text-center text-xl">Lancement de la partie</span>
                 <span className="w-full text-lg text-gray-400 italic">
                     {phrases[currentPhraseIndex]}
-                    {'.'.repeat(dotCount)}
+                    {".".repeat(dotCount)}
                 </span>
             </div>
         </div>

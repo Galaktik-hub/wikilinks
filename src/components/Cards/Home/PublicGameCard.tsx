@@ -25,7 +25,7 @@ export const PublicGameCard: React.FC<PublicGameCardProps> = ({hostName, playerC
             showPopup("error", "Échec de la copie");
             console.error("Échec de la copie :", err);
         }
-    }
+    };
 
     if (isMobile) {
         return (

@@ -156,7 +156,7 @@ export class GameSession {
      */
     public async initializeArticles(): Promise<void> {
         const totalCount = this.numberOfArticles + 1;
-        const articles = await WikipediaService.fetchRandomPopularWikipediaPages(totalCount, 5000, "20250101", "20250325");
+        const articles = await WikipediaService.fetchRandomPopularWikipediaPages(totalCount, 20000, "20250101", "20250325");
         if (articles.length > 0) {
             this.articles = articles.map(item => item.replace(/\s+/g, "_"));
             this.startArticle = this.articles.pop()!;
