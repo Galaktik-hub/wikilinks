@@ -6,53 +6,48 @@ import { motion, AnimatePresence } from "framer-motion";
 
 interface GameEndScreenProps {
     isVisible: boolean;
-    onClose: () => void;
 }
 
-const GameEndScreen: React.FC<GameEndScreenProps> = ({ isVisible, onClose }) => {
+const GameEndScreen: React.FC<GameEndScreenProps> = ({ isVisible }) => {
     const navigate = useNavigate();
-    const [countdown, setCountdown] = useState(5);
-    const isHost = true;
+    const [progress, setProgress] = useState(0);
+    const redirectTime = 5000; // 5 seconds
 
-    // Countdown effect
+    // Progress effect for smooth transition
     useEffect(() => {
-        let timer: NodeJS.Timeout;
+        let animationFrame: number;
+        let startTime: number;
 
-        if (isVisible && countdown > 0) {
-            timer = setTimeout(() => {
-                setCountdown(prev => prev - 1);
-            }, 1000);
-        } else if (isVisible && countdown === 0) {
-            // Redirect to results page
-            navigate("/result");
+        const animate = (timestamp: number) => {
+            if (!startTime) startTime = timestamp;
+            const elapsed = timestamp - startTime;
+            const newProgress = Math.min(elapsed / redirectTime, 1);
+
+            setProgress(newProgress);
+
+            if (newProgress < 1) {
+                animationFrame = requestAnimationFrame(animate);
+            } else {
+                // Redirect to results page
+                navigate("/result");
+            }
+        };
+
+        if (isVisible) {
+            animationFrame = requestAnimationFrame(animate);
         }
 
         return () => {
-            if (timer) clearTimeout(timer);
+            if (animationFrame) cancelAnimationFrame(animationFrame);
         };
-    }, [isVisible, countdown, navigate]);
+    }, [isVisible, navigate]);
 
-    // Reset countdown when component re-opens
+    // Reset progress when component re-opens
     useEffect(() => {
         if (isVisible) {
-            setCountdown(5);
+            setProgress(0);
         }
     }, [isVisible]);
-
-    const handleReturnToLobby = () => {
-        onClose();
-        navigate("/room");
-    };
-
-    const handleReturnToHome = () => {
-        onClose();
-        navigate("/");
-    };
-
-    const handleStartNewGame = () => {
-        onClose();
-        navigate("/room");
-    };
 
     return (
         <AnimatePresence>
@@ -80,70 +75,55 @@ const GameEndScreen: React.FC<GameEndScreenProps> = ({ isVisible, onClose }) => 
                             Partie terminée !
                         </h2>
 
-                        <div className="text-center mb-8">
+                        <div className="text-center">
                             <motion.div
-                                className="text-6xl font-bold text-bluePrimary mb-4 font-righteous"
-                                key={countdown}
-                                initial={{ scale: 1.5, opacity: 0 }}
-                                animate={{ scale: 1, opacity: 1 }}
-                                transition={{ type: "spring", damping: 10 }}
-                            >
-                                {countdown}
-                            </motion.div>
-                            <motion.p
-                                className="text-white font-inter text-lg"
+                                className="flex justify-center mb-6"
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
-                                transition={{ delay: 0.3 }}
+                                transition={{ delay: 0.2 }}
                             >
-                                Redirection vers les résultats...
+                                <svg className="w-24 h-24 text-bluePrimary" viewBox="0 0 24 24">
+                                    <motion.path
+                                        fill="none"
+                                        strokeWidth="2"
+                                        stroke="currentColor"
+                                        strokeLinecap="round"
+                                        d="M22 11.08V12a10 10 0 1 1-5.93-9.14"
+                                        initial={{ pathLength: 0 }}
+                                        animate={{ pathLength: 1 }}
+                                        transition={{ duration: 2, ease: "easeInOut" }}
+                                    />
+                                    <motion.path
+                                        fill="none"
+                                        strokeWidth="2"
+                                        stroke="currentColor"
+                                        strokeLinecap="round"
+                                        d="M22 4L12 14.01l-3-3"
+                                        initial={{ pathLength: 0, opacity: 0 }}
+                                        animate={{ pathLength: 1, opacity: 1 }}
+                                        transition={{ delay: 1.5, duration: 0.5 }}
+                                    />
+                                </svg>
+                            </motion.div>
+
+                            <div className="w-full bg-gray-700 rounded-full h-2.5 mb-2">
+                                <motion.div
+                                    className="bg-bluePrimary h-2.5 rounded-full"
+                                    initial={{ width: 0 }}
+                                    animate={{ width: `${progress * 100}%` }}
+                                    transition={{ ease: "linear" }}
+                                />
+                            </div>
+
+                            <motion.p
+                                className="text-white font-inter text-sm"
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                transition={{ delay: 0.7 }}
+                            >
+                                Préparation des résultats...
                             </motion.p>
                         </div>
-
-                        <motion.div
-                            className="flex flex-col gap-4"
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: 0.4 }}
-                        >
-                            <motion.button
-                                onClick={() => navigate("/result")}
-                                className="w-full py-3 bg-bluePrimary hover:bg-blueSecondary text-white font-semibold rounded-lg transition-colors font-martian-mono"
-                                whileHover={{ scale: 1.02 }}
-                                whileTap={{ scale: 0.98 }}
-                            >
-                                Voir les résultats maintenant
-                            </motion.button>
-
-                            <motion.button
-                                onClick={handleReturnToLobby}
-                                className="w-full py-3 bg-bgSecondary hover:bg-gray-700 text-white font-semibold rounded-lg transition-colors font-martian-mono"
-                                whileHover={{ scale: 1.02 }}
-                                whileTap={{ scale: 0.98 }}
-                            >
-                                Retourner au salon d'attente
-                            </motion.button>
-
-                            {isHost && (
-                                <motion.button
-                                    onClick={handleStartNewGame}
-                                    className="w-full py-3 bg-bluePrimary hover:bg-blueSecondary text-white font-semibold rounded-lg transition-colors font-martian-mono"
-                                    whileHover={{ scale: 1.02 }}
-                                    whileTap={{ scale: 0.98 }}
-                                >
-                                    Lancer une nouvelle partie
-                                </motion.button>
-                            )}
-
-                            <motion.button
-                                onClick={handleReturnToHome}
-                                className="w-full py-3 border border-bluePrimary text-bluePrimary hover:bg-bluePrimary hover:text-white font-semibold rounded-lg transition-colors font-martian-mono"
-                                whileHover={{ scale: 1.02 }}
-                                whileTap={{ scale: 0.98 }}
-                            >
-                                Quitter et revenir à l'accueil
-                            </motion.button>
-                        </motion.div>
                     </motion.div>
                 </motion.div>
             )}
