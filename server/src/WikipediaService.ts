@@ -68,12 +68,12 @@ export class WikipediaService {
 
         while (validTitles.size < requiredCount) {
             const titles = await this.fetchRandomWikipediaPages(batchSize);
-            logger.info(`Batch fetched: "${titles.join('", "')}"`);
+            logger.log("batch", `Batch fetched: "${titles.join('", "')}"`);
 
             for (const title of titles) {
                 const views = await this.getPageViews(title, startDate, endDate);
                 if (views >= minViews) {
-                    logger.info(`Page "${title}" has ${views} views between ${startDate} and ${endDate}`);
+                    logger.log("batch", `Page "${title}" has ${views} views between ${startDate} and ${endDate}`);
                     validTitles.add(title);
                     if (validTitles.size >= requiredCount) {
                         break;
@@ -81,7 +81,7 @@ export class WikipediaService {
                 }
             }
         }
-        logger.info(`Result: [${Array.from(validTitles).join('", "')}]`);
+        logger.log("batch", `Result: [${Array.from(validTitles).join('", "')}]`);
         return Array.from(validTitles);
     }
 }
