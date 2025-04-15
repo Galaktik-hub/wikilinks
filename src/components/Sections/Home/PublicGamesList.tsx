@@ -1,11 +1,11 @@
 "use client";
-import React, { useState, useEffect, useContext } from "react";
-import { PublicGameCard } from "../../Cards/Home/PublicGameCard.tsx";
+import React, {useState, useEffect, useContext} from "react";
+import {PublicGameCard} from "../../Cards/Home/PublicGameCard.tsx";
 import UsernameModal from "../../Modals/WaitingRoom/UsernameModal.tsx";
-import { SocketContext } from "../../../context/SocketContext.tsx";
-import { IconRefresh } from "@tabler/icons-react";
-import { usePopup } from "../../../context/PopupContext.tsx";
-import { useNavigate } from "react-router-dom";
+import {SocketContext} from "../../../context/SocketContext.tsx";
+import {IconRefresh} from "@tabler/icons-react";
+import {usePopup} from "../../../context/PopupContext.tsx";
+import {useNavigate} from "react-router-dom";
 
 // Interface pour les sessions reçues du serveur
 interface GameSession {
@@ -29,7 +29,7 @@ interface Game {
 export const PublicGamesList: React.FC = () => {
     const socket = useContext(SocketContext);
     const navigate = useNavigate();
-    const { showPopup } = usePopup();
+    const {showPopup} = usePopup();
 
     const [games, setGames] = useState<Game[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
@@ -112,17 +112,17 @@ export const PublicGamesList: React.FC = () => {
     const handleJoinPublicGame = async (roomCode: string) => {
         const parsedRoomCode = parseInt(roomCode, 10);
         try {
-        // Vérifier que la salle existe
-        const roomExists = await socket?.checkRoomExists(parsedRoomCode);
-        if (roomExists) {
-            setTempRoomCode(parsedRoomCode);
-            setRoomCodeInput(roomCode);
-            setShowUsernameModal(true);
-        } else {
-            showPopup("error", "Cette partie n'existe pas");
-        }
+            // Vérifier que la salle existe
+            const roomExists = await socket?.checkRoomExists(parsedRoomCode);
+            if (roomExists) {
+                setTempRoomCode(parsedRoomCode);
+                setRoomCodeInput(roomCode);
+                setShowUsernameModal(true);
+            } else {
+                showPopup("error", "Cette partie n'existe pas");
+            }
         } catch (err) {
-        showPopup("error", err instanceof Error ? err.message : "Erreur lors de la vérification");
+            showPopup("error", err instanceof Error ? err.message : "Erreur lors de la vérification");
         }
     };
 
@@ -131,42 +131,42 @@ export const PublicGamesList: React.FC = () => {
         if (!username.trim()) return;
 
         if (username.length > 25) {
-        showPopup("error", "Le pseudo ne doit pas dépasser 25 caractères");
-        return;
+            showPopup("error", "Le pseudo ne doit pas dépasser 25 caractères");
+            return;
         }
 
         if (username.match(/^[a-zA-Z0-9_]+$/) === null) {
-        showPopup("error", "Le pseudo ne doit contenir que des lettres, chiffres et underscores");
-        return;
+            showPopup("error", "Le pseudo ne doit contenir que des lettres, chiffres et underscores");
+            return;
         }
 
         const parsedRoomCode = parseInt(roomCodeInput, 10);
 
         const usernameTaken = await socket?.checkUsernameTaken(username, parsedRoomCode);
         if (usernameTaken) {
-        showPopup("error", "Ce pseudo est déjà utilisé");
-        return;
+            showPopup("error", "Ce pseudo est déjà utilisé");
+            return;
         }
 
         const hasStarted = await socket?.checkGameHasStarted(parsedRoomCode);
         if (hasStarted) {
-        showPopup("error", "Cette partie a déjà commencé");
-        setShowUsernameModal(false);
-        setTempRoomCode(-1);
-        return;
+            showPopup("error", "Cette partie a déjà commencé");
+            setShowUsernameModal(false);
+            setTempRoomCode(-1);
+            return;
         }
 
         if (socket?.joinGameSession) {
-        socket.joinGameSession({
-            sessionId: tempRoomCode,
-            playerName: username,
-        });
+            socket.joinGameSession({
+                sessionId: tempRoomCode,
+                playerName: username,
+            });
 
-        setShowUsernameModal(false);
-        setTempRoomCode(-1);
+            setShowUsernameModal(false);
+            setTempRoomCode(-1);
 
-        // Reste connecté et redirige vers la salle d'attente
-        navigate("/room");
+            // Reste connecté et redirige vers la salle d'attente
+            navigate("/room");
         }
     };
 
@@ -186,19 +186,16 @@ export const PublicGamesList: React.FC = () => {
             </div>
 
             {error && <div className="w-full p-4 mb-4 bg-red-100 text-red-700 rounded">{error}</div>}
-        {error && <div className="w-full p-4 mb-4 bg-red-100 text-red-700 rounded">{error}</div>}
+            {error && <div className="w-full p-4 mb-4 bg-red-100 text-red-700 rounded">{error}</div>}
 
-        <div className="flex flex-wrap gap-5 justify-center items-start mt-5 w-full max-md:max-w-full">
-            {games.map((game) => (
-            <PublicGameCard
-                {...game}
-                onJoin={() => handleJoinPublicGame(game.gameCode)}
-            />
-            ))}
-        </div>
+            <div className="flex flex-wrap gap-5 justify-center items-start mt-5 w-full max-md:max-w-full">
+                {games.map(game => (
+                    <PublicGameCard {...game} onJoin={() => handleJoinPublicGame(game.gameCode)} />
+                ))}
+            </div>
 
-        {/* Modal pour renseigner le pseudo lors du join */}
-        <UsernameModal onSubmit={handleUsernameSubmit} shouldOpen={showUsernameModal} />
+            {/* Modal pour renseigner le pseudo lors du join */}
+            <UsernameModal onSubmit={handleUsernameSubmit} shouldOpen={showUsernameModal} />
         </section>
     );
 };
