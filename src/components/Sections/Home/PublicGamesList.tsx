@@ -1,8 +1,11 @@
 "use client";
 import React, {useState, useEffect, useContext} from "react";
 import {PublicGameCard} from "../../Cards/Home/PublicGameCard.tsx";
+import UsernameModal from "../../Modals/WaitingRoom/UsernameModal.tsx";
 import {SocketContext} from "../../../context/SocketContext.tsx";
 import {IconRefresh} from "@tabler/icons-react";
+import {usePopup} from "../../../context/PopupContext.tsx";
+import {useNavigate} from "react-router-dom";
 
 // Interface pour les sessions reçues du serveur
 interface GameSession {
@@ -25,9 +28,17 @@ interface Game {
 
 export const PublicGamesList: React.FC = () => {
     const socket = useContext(SocketContext);
+    const navigate = useNavigate();
+    const {showPopup} = usePopup();
+
     const [games, setGames] = useState<Game[]>([]);
     const [loading, setLoading] = useState<boolean>(false);
     const [error, setError] = useState<string | null>(null);
+
+    // États pour la logique de rejoindre une partie
+    const [showUsernameModal, setShowUsernameModal] = useState(false);
+    const [tempRoomCode, setTempRoomCode] = useState(-1);
+    const [roomCodeInput, setRoomCodeInput] = useState("");
 
     // Référence pour suivre les messages déjà traités
     const processedMessagesRef = React.useRef<Set<string>>(new Set());
@@ -97,6 +108,68 @@ export const PublicGamesList: React.FC = () => {
         }
     }, [socket?.isConnected]);
 
+    // Fonction pour initier le processus de rejoindre une partie publique
+    const handleJoinPublicGame = async (roomCode: string) => {
+        const parsedRoomCode = parseInt(roomCode, 10);
+        try {
+            // Vérifier que la salle existe
+            const roomExists = await socket?.checkRoomExists(parsedRoomCode);
+            if (roomExists) {
+                setTempRoomCode(parsedRoomCode);
+                setRoomCodeInput(roomCode);
+                setShowUsernameModal(true);
+            } else {
+                showPopup("error", "Cette partie n'existe pas");
+            }
+        } catch (err) {
+            showPopup("error", err instanceof Error ? err.message : "Erreur lors de la vérification");
+        }
+    };
+
+    // Handler du submit du modal pour rejoindre une partie existante
+    const handleUsernameSubmit = async (username: string) => {
+        if (!username.trim()) return;
+
+        if (username.length > 25) {
+            showPopup("error", "Le pseudo ne doit pas dépasser 25 caractères");
+            return;
+        }
+
+        if (username.match(/^[a-zA-Z0-9_]+$/) === null) {
+            showPopup("error", "Le pseudo ne doit contenir que des lettres, chiffres et underscores");
+            return;
+        }
+
+        const parsedRoomCode = parseInt(roomCodeInput, 10);
+
+        const usernameTaken = await socket?.checkUsernameTaken(username, parsedRoomCode);
+        if (usernameTaken) {
+            showPopup("error", "Ce pseudo est déjà utilisé");
+            return;
+        }
+
+        const hasStarted = await socket?.checkGameHasStarted(parsedRoomCode);
+        if (hasStarted) {
+            showPopup("error", "Cette partie a déjà commencé");
+            setShowUsernameModal(false);
+            setTempRoomCode(-1);
+            return;
+        }
+
+        if (socket?.joinGameSession) {
+            socket.joinGameSession({
+                sessionId: tempRoomCode,
+                playerName: username,
+            });
+
+            setShowUsernameModal(false);
+            setTempRoomCode(-1);
+
+            // Reste connecté et redirige vers la salle d'attente
+            navigate("/room");
+        }
+    };
+
     return (
         <section className="flex flex-col items-center py-6 px-2.5 w-full">
             <div className="flex justify-between items-center w-full px-2.5 mb-4">
@@ -113,12 +186,16 @@ export const PublicGamesList: React.FC = () => {
             </div>
 
             {error && <div className="w-full p-4 mb-4 bg-red-100 text-red-700 rounded">{error}</div>}
+            {error && <div className="w-full p-4 mb-4 bg-red-100 text-red-700 rounded">{error}</div>}
 
             <div className="flex flex-wrap gap-5 justify-center items-start mt-5 w-full max-md:max-w-full">
-                {games.map((game, index) => (
-                    <PublicGameCard key={index} {...game} onJoin={() => {}} />
+                {games.map(game => (
+                    <PublicGameCard {...game} onJoin={() => handleJoinPublicGame(game.gameCode)} />
                 ))}
             </div>
+
+            {/* Modal pour renseigner le pseudo lors du join */}
+            <UsernameModal onSubmit={handleUsernameSubmit} shouldOpen={showUsernameModal} />
         </section>
     );
 };
