@@ -160,7 +160,9 @@ export class GameSession {
         if (articles.length > 0) {
             this.articles = articles.map(item => item.replace(/\s+/g, "_"));
             this.startArticle = this.articles.pop()!;
-            logger.info(`Session ${this.id} initialized with ${this.articles.length} articles and startArticle: "${this.startArticle}"`);
+            logger.info(
+                `Session ${this.id} initialized with ${this.articles.length} articles and startArticle: "${this.startArticle}". List of articles: ${articles.join(", ")}`,
+            );
         } else {
             logger.error("No articles found");
         }

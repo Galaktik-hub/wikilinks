@@ -22,16 +22,12 @@ const customLevels = {
         error: 0,
         warn: 1,
         info: 2,
-        bot: 3,
-        batch: 4,
-        debug: 5,
+        debug: 3,
     },
     colors: {
         error: "red",
         warn: "yellow",
         info: "green",
-        bot: "black",
-        batch: "blue",
         debug: "magenta",
     },
 };
