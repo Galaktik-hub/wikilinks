@@ -36,8 +36,6 @@ export const cleanHTMLContent = (html: Element, sectionsToRemove?: string[]): st
     doc.querySelectorAll(".mw-editsection").forEach(el => el.remove());
     doc.querySelectorAll("img").forEach(img => img.remove());
 
-    // Supprimer tous les tableaux pour éviter un affichage déformé
-    doc.querySelectorAll("table").forEach(table => table.remove());
 
     // Supprimer tous les cite_note dans tous les éléments
     doc.querySelectorAll("sup").forEach(sup => {
