@@ -38,6 +38,6 @@ public class MainActivity extends AppCompatActivity {
         webView.getSettings().setDatabaseEnabled(true);
 
         webView.addJavascriptInterface(new JavaScriptObject(), "Android");
-        webView.loadUrl("https://192.168.1.38:5173/");
+        webView.loadUrl("http://192.168.1.30:5173/");
     }
 }
