@@ -1,7 +1,7 @@
 import {randomInt} from "node:crypto";
 import {WebSocket} from "ws";
 import {Player} from "./player/player";
-import {WikipediaService} from "./WikipediaService";
+import {WikipediaServices} from "./WikipediaService";
 import {Bot, JoinLeaveBot, BOTS} from "./bots";
 import logger from "./logger";
 
@@ -156,7 +156,7 @@ export class GameSession {
      */
     public async initializeArticles(): Promise<void> {
         const totalCount = this.numberOfArticles + 1;
-        const articles = await WikipediaService.fetchRandomPopularWikipediaPages(totalCount, 20000, "20250101", "20250410");
+        const articles = await WikipediaServices.fetchRandomPopularWikipediaPages(totalCount);
         if (articles.length > 0) {
             this.articles = articles.map(item => item.replace(/\s+/g, "_"));
             this.startArticle = this.articles.pop()!;
