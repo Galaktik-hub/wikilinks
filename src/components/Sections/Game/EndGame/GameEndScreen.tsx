@@ -60,7 +60,7 @@ const GameEndScreen: React.FC<GameEndScreenProps> = ({ isVisible }) => {
                     transition={{ duration: 0.3 }}
                 >
                     <motion.div
-                        className="bg-darkBg rounded-lg p-8 max-w-md w-full mx-4 border border-bluePrimary shadow-lg font-inter"
+                        className="bg-darkBg rounded-lg p-8 max-w-md w-full mx-4 border border-bluePrimary shadow-lg"
                         initial={{ scale: 0.9, y: 50, opacity: 0 }}
                         animate={{ scale: 1, y: 0, opacity: 1 }}
                         exit={{ scale: 0.9, y: 50, opacity: 0 }}
@@ -71,7 +71,7 @@ const GameEndScreen: React.FC<GameEndScreenProps> = ({ isVisible }) => {
                             delay: 0.1
                         }}
                     >
-                        <h2 className="text-2xl font-bold text-center text-white mb-6 font-righteous">
+                        <h2 className="text-2xl font-bold text-center text-white mb-6">
                             Partie terminée !
                         </h2>
 
@@ -116,7 +116,7 @@ const GameEndScreen: React.FC<GameEndScreenProps> = ({ isVisible }) => {
                             </div>
 
                             <motion.p
-                                className="text-white font-inter text-sm"
+                                className="text-white text-sm"
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
                                 transition={{ delay: 0.7 }}

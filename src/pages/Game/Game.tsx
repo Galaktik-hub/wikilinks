@@ -1,5 +1,5 @@
 "use client";
-import React, {useContext} from "react";
+import React, { useContext, useState } from "react";
 import Layout from "../../components/Layout";
 import ObjectivesPanel from "../../components/Sections/Game/CollapsiblePanel/ObjectivePanel.tsx";
 import PlayerProgressPanel from "../../components/Sections/Game/CollapsiblePanel/PlayerProgressPanel.tsx";
@@ -7,18 +7,20 @@ import WikiPagePanel from "../../components/Sections/Game/WikiPagePanel.tsx";
 import InventoryPanel from "../../components/Sections/Game/Inventory/InventoryPanel.tsx";
 import ExitButton from "../../components/Buttons/WaitingRoom/ExitButton.tsx";
 import TextLoungePanel from "../../components/Sections/WaitingRoom/TextLounge/TextLoungePanel.tsx";
-import {useMediaQuery} from "react-responsive";
+import { useMediaQuery } from "react-responsive";
 import InventoryButton from "../../components/Buttons/Game/InventoryButton.tsx";
 import Header from "../../components/Header/Header.tsx";
-import {SocketContext} from "../../context/SocketContext.tsx";
+import { SocketContext } from "../../context/SocketContext.tsx";
+import GameEndScreen from "../../components/Sections/Game/EndGame/GameEndScreen.tsx";
 
 const Game: React.FC = () => {
     const socket = useContext(SocketContext);
-
+    // TODO : For test the end screen animation set this at true
+    const [isGameEnded, setIsGameEnded] = useState(false);
     const startArticle = socket?.startArticle || "Paris";
 
-    const isMobile = useMediaQuery({maxWidth: 767});
-    const isDesktop = useMediaQuery({minWidth: 1200});
+    const isMobile = useMediaQuery({ maxWidth: 767 });
+    const isDesktop = useMediaQuery({ minWidth: 1200 });
     const isIntermediate = !isMobile && !isDesktop;
 
     const desktopLeft = (
@@ -31,6 +33,9 @@ const Game: React.FC = () => {
 
     return (
         <Layout header={<Header />} leftColumn={isDesktop ? desktopLeft : null} rightColumn={isDesktop ? <TextLoungePanel /> : null}>
+            {/* Écran de fin de partie */}
+            <GameEndScreen isVisible={isGameEnded} />
+
             <div className="flex flex-col w-full h-full gap overflow-hidden items-center justify-center p-4 relative gap-5">
                 {(isMobile || isIntermediate) && (
                     <>
