@@ -97,6 +97,12 @@ export async function handleMessage(ws: WebSocket, message: any, context: Client
                     sessionId: session.id,
                     leaderName: session.leader.name,
                     username: player.name,
+                    settings: {
+                        timeLimit: session.timeLimit,
+                        numberOfArticles: session.numberOfArticles,
+                        maxPlayers: session.maxPlayers,
+                        type: session.type,
+                    },
                 }),
             );
             break;

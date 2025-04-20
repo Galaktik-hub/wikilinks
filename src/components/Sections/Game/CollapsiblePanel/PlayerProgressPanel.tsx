@@ -32,7 +32,8 @@ const PlayerProgressPanel: React.FC = () => {
         if (socket) {
             const updatedProgress = socket.players.map((player: {username: string}) => {
                 const history = socket.playerHistories[player.username] || [];
-                const percentage = history.length; // Temporary percentage calculation
+                const found = history.filter((step: TimelineStep) => step.type === "foundPage").length;
+                const percentage = Math.round((found / socket.articles.length) * 100);
                 return {
                     id: player.username,
                     playerName: player.username,

@@ -19,6 +19,6 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Wikilinks"
+rootProject.name = "wikilinks"
 include(":app")
  

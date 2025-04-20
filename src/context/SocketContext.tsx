@@ -76,6 +76,12 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({children}) => {
                     setRoomCode(data.sessionId);
                     setLeaderName(data.leaderName);
                     setUsername(data.username);
+                    if (data.settings) {
+                        setGameTimeLimit(data.settings.timeLimit);
+                        setNumberOfArticles(data.settings.numberOfArticles);
+                        setMaxPlayers(data.settings.maxPlayers);
+                        setType(data.settings.type);
+                    }
                 } else if (data.kind === "settings_modified") {
                     setGameTimeLimit(data.timeLimit);
                     setNumberOfArticles(data.numberOfArticles);

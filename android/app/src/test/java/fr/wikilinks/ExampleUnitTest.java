@@ -1,4 +1,4 @@
-package com.example.wikilinks;
+package fr.wikilinks;
 
 import org.junit.Test;
 
