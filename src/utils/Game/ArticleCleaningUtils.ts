@@ -36,9 +36,6 @@ export const cleanHTMLContent = (html: Element, sectionsToRemove?: string[]): st
     doc.querySelectorAll(".mw-editsection").forEach(el => el.remove());
     doc.querySelectorAll("img").forEach(img => img.remove());
 
-    // Supprimer tous les tableaux pour éviter un affichage déformé
-    doc.querySelectorAll("table").forEach(table => table.remove());
-
     // Supprimer tous les cite_note dans tous les éléments
     doc.querySelectorAll("sup").forEach(sup => {
         if (sup.querySelector('a[href^="#cite_note-"]')) {
@@ -61,6 +58,17 @@ export const cleanHTMLContent = (html: Element, sectionsToRemove?: string[]): st
                     sup.remove();
                 }
             });
+        }
+    });
+
+    doc.querySelectorAll("a").forEach(a => {
+        const href = a.getAttribute("href") || "";
+        if (href.startsWith("/wiki/") && decodeURIComponent(href).includes(":")) {
+            const frag = doc.createDocumentFragment();
+            while (a.firstChild) {
+                frag.appendChild(a.firstChild);
+            }
+            a.replaceWith(frag);
         }
     });
 

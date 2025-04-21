@@ -44,6 +44,23 @@
         margin-left: 1rem;
         padding: initial;
     }
+    table {
+        width: 100%;              
+        table-layout: fixed;      
+        border-collapse: collapse;
+        max-width: 100%;       
+        overflow-x: auto;        
+        box-sizing: border-box;   
+    }
+    th, td {
+        border: 1px solid #e5e7eb; 
+        padding: 0.5rem; 
+        text-align: left;      
+        vertical-align: top;  
+        word-wrap: break-word; 
+        overflow: hidden;   
+        text-overflow: ellipsis; 
+    }
 }
 .article-image {
     display: block;
