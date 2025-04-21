@@ -10,7 +10,7 @@ type LaunchButtonProps = {
     isHost: boolean;
 };
 
-const LaunchButton: React.FC<LaunchButtonProps> = ({onLaunch, disabled = false, isHost}) => {
+const LaunchButtonGame: React.FC<LaunchButtonProps> = ({onLaunch, disabled = false, isHost}) => {
     return (
         <MainButton
             color=""
@@ -28,4 +28,4 @@ const LaunchButton: React.FC<LaunchButtonProps> = ({onLaunch, disabled = false, 
     );
 };
 
-export default LaunchButton;
+export default LaunchButtonGame;

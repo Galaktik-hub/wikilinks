@@ -1,7 +1,12 @@
 import * as React from "react";
-import {ResultProps} from "../../../../pages/Result/Result.tsx";
+import {ResultProps} from "../../../../pages/Challenge/Result/Result.tsx";
 
-const LeaderboardRow: React.FC<ResultProps> = ({rank, name, score}) => {
+interface LeaderboardRowProps extends ResultProps {
+    showCourse: boolean;
+    onViewCourse: () => void;
+}
+
+const LeaderboardRow: React.FC<LeaderboardRowProps> = props => {
     // Determine rank color based on position
     const getRankColor = (rank: number): string => {
         switch (rank) {
@@ -17,11 +22,20 @@ const LeaderboardRow: React.FC<ResultProps> = ({rank, name, score}) => {
     };
 
     return (
-        <tr className="text-white">
-            <td className={`text-lg text-center ${getRankColor(rank)} py-2`}>#{rank}</td>
-            <td className="text-lg text-center py-2">{name}</td>
-            <td className="text-lg text-center py-2">{score}</td>
-        </tr>
+        <div className="flex justify-center item-center text-white">
+            <div className={`flex-1 text-lg text-center ${getRankColor(props.rank)} py-2`}>#{props.rank}</div>
+            <div className="flex-1 text-lg text-center py-2">{props.name}</div>
+            <div className="flex-1 text-lg text-center py-2">{props.score}</div>
+            {props.showCourse && (
+                <div className="flex-1 text-sm text-center py-2">
+                    <button
+                        onClick={props.onViewCourse}
+                        className="px-1.5 py-1 text-center text-white bg-blueSecondary hover:bg-blue-900 transition rounded-lg">
+                        Voir
+                    </button>
+                </div>
+            )}
+        </div>
     );
 };
 

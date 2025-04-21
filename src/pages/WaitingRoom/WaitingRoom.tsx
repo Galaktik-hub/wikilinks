@@ -4,7 +4,7 @@ import React, {useContext, useEffect, useRef} from "react";
 import Layout from "../../components/Layout.tsx";
 import GameRoomCard from "../../components/Sections/WaitingRoom/GameCode/GameRoomCard.tsx";
 import ExitButton from "../../components/Buttons/WaitingRoom/ExitButton.tsx";
-import LaunchButton from "../../components/Buttons/WaitingRoom/LaunchButton.tsx";
+import LaunchButtonGame from "../../components/Buttons/WaitingRoom/LaunchButtonGame.tsx";
 import GameSettings from "../../components/Sections/WaitingRoom/GameSettings/GameSettings.tsx";
 import PlayerList from "../../components/Sections/WaitingRoom/Player/PlayerList.tsx";
 import TextLoungePanel from "../../components/Sections/WaitingRoom/TextLounge/TextLoungePanel.tsx";
@@ -105,7 +105,7 @@ const WaitingRoom: React.FC = () => {
                 </section>
                 <section className="w-full flex flex-wrap-reverse justify-center gap-x-12 gap-y-4 mt-6 max-md:mt-2">
                     <ExitButton isHost={isHost} />
-                    <LaunchButton isHost={isHost} onLaunch={handleLaunchClick} />
+                    <LaunchButtonGame isHost={isHost} onLaunch={handleLaunchClick} />
                 </section>
             </div>
             {/* Version mobile du chat */}
