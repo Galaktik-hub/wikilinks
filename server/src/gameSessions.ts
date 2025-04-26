@@ -22,6 +22,7 @@ export class GameSession {
     public articles: string[];
     public startArticle: string;
     public hasStarted: boolean;
+    public scoreboard: Map<number, string[]>;
 
     public leader: Player;
     public members: Map<string, Player>;
@@ -145,6 +146,8 @@ export class GameSession {
         this.hasStarted = true;
         this.members.forEach(member => {
             if (member.ws.readyState === member.ws.OPEN) {
+                // Reset player variables (If they already played a previous game)
+                member.reset();
                 member.ws.send(JSON.stringify({kind: "game_started", startArticle: this.startArticle, articles: this.articles}));
             }
         });
@@ -189,21 +192,67 @@ export class GameSession {
     }
 
     /**
+     * Updates the scoreboard with the current score of all players.
+     * This function must be called after each game event.
+     */
+    public updateScoreboard(): void {
+        const players = Array.from(this.members.values());
+
+        // Sort the players by score
+        players.sort((a, b) => {
+            const aFound = a.score.get("found") ?? 0;
+            const bFound = b.score.get("found") ?? 0;
+            if (bFound !== aFound) {
+                return bFound - aFound;
+            }
+            const aVisited = a.score.get("visited") ?? 0;
+            const bVisited = b.score.get("visited") ?? 0;
+            return aVisited - bVisited;
+        });
+
+        this.scoreboard.clear();
+
+        let currentRank = 1;
+        let lastFound = players[0].score.get("found") ?? 0;
+        let lastVisited = players[0].score.get("visited") ?? 0;
+
+        this.scoreboard.set(1, [players[0].name]);
+
+        for (let i = 1; i < players.length; i++) {
+            const p = players[i];
+            const found = p.score.get("found") ?? 0;
+            const visited = p.score.get("visited") ?? 0;
+
+            if (found === lastFound && visited === lastVisited) {
+                this.scoreboard.get(currentRank)!.push(p.name);
+            } else {
+                currentRank = i + 1;
+                lastFound = found;
+                lastVisited = visited;
+                this.scoreboard.set(currentRank, [p.name]);
+            }
+        }
+
+        console.log("Updated scoreboard:", this.scoreboard);
+    }
+
+    /**
      * Handles game events (e.g., player actions) and dispatches them to everyone.
      */
     public handleGameEvent(player: Player, data: any): void {
         switch (data.type) {
             case "visitedPage": {
                 const article = this.articles.find(article => article === data.page_name);
-                logger.info(`Article: "${article}"`);
+                logger.info(`Article: "${data.page_name}"`);
                 if (article) {
                     const index = this.articles.indexOf(article);
                     if (index !== -1) {
-                        this.articles.splice(index, 1);
                         player.history.addStep("foundPage", {page_name: data.page_name});
+                        player.score.set("found", (player.score.get("found") || 0) + 1);
                         data.type = "foundPage";
                     } else {
                         player.history.addStep("visitedPage", {page_name: data.page_name});
+                        player.score.set("visited", (player.score.get("visited") || 0) + 1);
                     }
                 }
                 break;
@@ -217,6 +266,7 @@ export class GameSession {
             default:
                 logger.error(`Unknown event type: ${data.type}`);
         }
+        this.updateScoreboard();
         this.members.forEach(member => {
             if (member.ws.readyState === WebSocket.OPEN) {
                 member.ws.send(
