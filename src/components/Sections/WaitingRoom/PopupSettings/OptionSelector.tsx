@@ -11,11 +11,10 @@ interface OptionSelectorProps {
     onChange: (value: number | null) => void;
 }
 
-export const OptionSelector: React.FC<OptionSelectorProps> = ({options, selectedValue, onChange}) => {
+export const OptionSelector: React.FC<OptionSelectorProps> = ({ options, selectedValue, onChange }) => {
     const handleClick = (value: number) => {
-        if (selectedValue === value) {
-            onChange(null);
-        } else {
+        // If the option is already selected, do nothing
+        if (selectedValue !== value) {
             onChange(value);
         }
     };
@@ -25,9 +24,8 @@ export const OptionSelector: React.FC<OptionSelectorProps> = ({options, selected
             {options.map(option => (
                 <button
                     key={option.value}
-                    className={`w-[50px] text-center py-1 rounded-md transition-colors ${
-                        selectedValue === option.value ? "text-bluePrimary font-semibold" : "hover:text-bluePrimary font-normal"
-                    }`}
+                    className={`w-[50px] text-center py-1 rounded-md transition-colors ${selectedValue === option.value ? "text-bluePrimary font-semibold" : "hover:text-bluePrimary font-normal"
+                        }`}
                     onClick={() => handleClick(option.value)}>
                     {option.label}
                 </button>
