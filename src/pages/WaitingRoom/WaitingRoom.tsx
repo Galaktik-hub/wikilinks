@@ -1,6 +1,6 @@
 "use client";
 
-import React, {useContext, useEffect, useRef} from "react";
+import React, { useContext, useEffect, useRef } from "react";
 import Layout from "../../components/Layout.tsx";
 import GameRoomCard from "../../components/Sections/WaitingRoom/GameCode/GameRoomCard.tsx";
 import ExitButton from "../../components/Buttons/WaitingRoom/ExitButton.tsx";
@@ -9,8 +9,8 @@ import GameSettings from "../../components/Sections/WaitingRoom/GameSettings/Gam
 import PlayerList from "../../components/Sections/WaitingRoom/Player/PlayerList.tsx";
 import TextLoungePanel from "../../components/Sections/WaitingRoom/TextLounge/TextLoungePanel.tsx";
 import Header from "../../components/Header/Header.tsx";
-import {SocketContext} from "../../context/SocketContext.tsx";
-import {useNavigate} from "react-router-dom";
+import { SocketContext } from "../../context/SocketContext.tsx";
+import { useNavigate } from "react-router-dom";
 import LoadingScreen from "../../components/Sections/WaitingRoom/LoadingScreen.tsx";
 
 const WaitingRoom: React.FC = () => {
@@ -44,7 +44,13 @@ const WaitingRoom: React.FC = () => {
     }, [socket?.players]);
 
     useEffect(() => {
-        if (socket?.gameTimeLimit && socket?.gameNumberOfArticles && socket?.gameMaxPlayers && socket?.gameType) {
+        // Check if the properties exist, check if the time is not undefined and not 0 (false) js boolean
+        if (
+            socket?.gameTimeLimit !== undefined &&
+            socket?.gameNumberOfArticles &&
+            socket?.gameMaxPlayers &&
+            socket?.gameType
+        ) {
             setGameSettings({
                 timeLimit: socket.gameTimeLimit,
                 articleCount: socket.gameNumberOfArticles,
@@ -72,7 +78,7 @@ const WaitingRoom: React.FC = () => {
 
     const handleLaunchClick = () => {
         if (isHost && socket) {
-            socket.sendMessageToServer({kind: "start_game"});
+            socket.sendMessageToServer({ kind: "start_game" });
         }
     };
 
