@@ -13,9 +13,8 @@ interface OptionSelectorProps {
 
 export const OptionSelector: React.FC<OptionSelectorProps> = ({options, selectedValue, onChange}) => {
     const handleClick = (value: number) => {
-        if (selectedValue === value) {
-            onChange(null);
-        } else {
+        // If the option is already selected, do nothing
+        if (selectedValue !== value) {
             onChange(value);
         }
     };

@@ -44,7 +44,8 @@ const WaitingRoom: React.FC = () => {
     }, [socket?.players]);
 
     useEffect(() => {
-        if (socket?.gameTimeLimit && socket?.gameNumberOfArticles && socket?.gameMaxPlayers && socket?.gameType) {
+        // Check if the properties exist, check if the time is not undefined and not 0 (false) js boolean
+        if (socket?.gameTimeLimit !== undefined && socket?.gameNumberOfArticles && socket?.gameMaxPlayers && socket?.gameType) {
             setGameSettings({
                 timeLimit: socket.gameTimeLimit,
                 articleCount: socket.gameNumberOfArticles,
