@@ -1,11 +1,11 @@
 "use client";
 
 import React from "react";
-import Layout from "../../../components/Layout.tsx";
-import Podium from "../../../components/Sections/Result/Podium/Podium.tsx";
-import Leaderboard from "../../../components/Sections/Result/LeaderBoard/LeaderBoard.tsx";
-import Header from "../../../components/Header/Header.tsx";
-import LaunchButtonChallenge from "../../../components/Buttons/Challenge/Game/LaunchButtonChallenge.tsx";
+import Layout from "../../components/Layout.tsx";
+import Podium from "../../components/Sections/Result/Podium/Podium.tsx";
+import Leaderboard from "../../components/Sections/Result/LeaderBoard/LeaderBoard.tsx";
+import Header from "../../components/Header/Header.tsx";
+import LaunchButtonChallenge from "../../components/Buttons/Challenge/Game/LaunchButtonChallenge.tsx";
 
 export interface ResultProps {
     rank: number;
@@ -23,7 +23,7 @@ const players: ResultProps[] = [
 // Si moins de 3 joueurs, on fournit uniquement ceux nécessaires
 const podiumPlayers = players.slice(0, 3);
 
-const Result: React.FC = () => {
+const Challenge: React.FC = () => {
     const alreadyPlayed = true;
 
     const handleLaunch = () => {
@@ -53,4 +53,4 @@ const Result: React.FC = () => {
     );
 };
 
-export default Result;
+export default Challenge;

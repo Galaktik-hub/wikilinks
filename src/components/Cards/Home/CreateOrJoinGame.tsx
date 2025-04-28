@@ -45,7 +45,7 @@ export const CreateOrJoinGame: React.FC = () => {
         socket?.createGameSession({
             timeLimit: 10,
             numberOfArticles: 4,
-            maxPlayers: 5,
+            maxPlayers: 10,
             type: "private",
             leaderName: username,
         });
