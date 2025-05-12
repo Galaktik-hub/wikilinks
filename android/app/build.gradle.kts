@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
 }
@@ -5,6 +7,10 @@ plugins {
 android {
     namespace = "fr.wikilinks"
     compileSdk = 35
+
+    buildFeatures {
+        buildConfig = true
+    }
 
     defaultConfig {
         applicationId = "fr.wikilinks"
@@ -14,6 +20,18 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
+
+        // On récupère l’objet Properties complet
+        val localProperties = rootProject.extra["localProperties"] as Properties
+
+        // Pour chaque entrée on crée un BuildConfigField
+        localProperties.forEach { key, value ->
+            buildConfigField(
+                "String",
+                key.toString(),
+                "\"$value\""
+            )
+        }
     }
 
     buildTypes {
@@ -25,6 +43,7 @@ android {
             )
         }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
@@ -32,7 +51,6 @@ android {
 }
 
 dependencies {
-
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.activity)
