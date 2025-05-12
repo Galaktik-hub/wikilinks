@@ -1,5 +1,4 @@
 import React from "react";
-import {useMediaQuery} from "react-responsive";
 import {Timer} from "./Timer";
 import {PlayButton} from "./PlayButton";
 import {PlayerCount} from "./PlayerCount";
@@ -12,10 +11,11 @@ interface DailyChallengeSectionProps {
 }
 
 const DailyChallengeSection: React.FC<DailyChallengeSectionProps> = ({title, playerCount}) => {
-    const isMobile = useMediaQuery({maxWidth: 767});
-    const isAndroid = () => /Android/.test(navigator.userAgent);
+    const isAndroid = () => window.AndroidApp !== undefined;
 
-    if (isMobile && isAndroid()) {
+    console.log("Is Android: ", isAndroid());
+
+    if (isAndroid()) {
         // Display the daily challenge for mobile only if it's on Android
         return (
             <div className="font-inter bg-gradient-to-br from-[#EA580C] to-[#DC2626] rounded-2xl p-6 text-white flex flex-col gap-4 w-[90%] md:w-[600px] mx-auto my-8">
@@ -33,34 +33,37 @@ const DailyChallengeSection: React.FC<DailyChallengeSectionProps> = ({title, pla
             </div>
         );
     } else {
-        // Display the publicite for desktop
+        // Display the ad for non Android app users
         return (
-            <div className="font-inter bg-gradient-to-br from-[#EA580C] to-[#DC2626] rounded-2xl p-8 text-white mx-2.5 my-8 relative overflow-hidden">
-                <div className="flex flex-wrap justify-between items-center relative">
-                    <div className="flex flex-col gap-3 max-w-[60%]">
-                        <h2 className="font-inter text-2xl md:text-3xl font-bold">Découvrez les défis quotidiens</h2>
-                        <p className="font-inter font-light text-base md:text-lg">
+            <div className="font-inter bg-gradient-to-br from-[#EA580C] to-[#DC2626] rounded-2xl p-6 md:p-8 text-white mx-4 my-6 relative overflow-hidden">
+                <div className="flex flex-col md:flex-row justify-between items-center gap-6 md:gap-8 relative z-10">
+                    {/* Text Section */}
+                    <div className="w-full md:w-3/5 flex flex-col gap-3">
+                        <h2 className="text-xl sm:text-2xl md:text-3xl font-bold">
+                            Découvrez les défis quotidiens
+                        </h2>
+                        <p className="font-light text-sm sm:text-base md:text-lg">
                             Affrontez les joueurs du monde entier à travers des défis quotidiens basés sur votre position !
                         </p>
-
-                        <div className="mt-2">
+                        <div className="mt-3">
                             <PlayerCount count={playerCount} />
                         </div>
                     </div>
 
-                    <div className="flex items-center justify-center z-10">
-                        <a
-                            className="font-righteous text-xl cursor-pointer inline-flex items-center justify-center gap-2 px-8 py-4 bg-[#10B981] rounded-full text-white font-normal hover:bg-[#0D9668] transition-colors min-w-[180px]"
-                            onClick={() => {
-                                console.log("Download clicked");
-                            }}>
-                            <AndroidSVG className="w-6 h-6" />
+                    {/* Button Section */}
+                    <div className="w-full md:w-auto flex justify-center md:justify-end">
+                        <button
+                            className="font-righteous text-base sm:text-lg inline-flex items-center justify-center gap-2 px-6 sm:px-8 py-3 sm:py-4 bg-[#10B981] rounded-full hover:bg-[#0D9668] transition-colors min-w-[160px] sm:min-w-[180px] relative z-20"
+                            onClick={() => console.log('Download clicked')}
+                        >
+                            <AndroidSVG className="w-5 h-5 sm:w-6 sm:h-6" />
                             Télécharger
-                        </a>
+                        </button>
                     </div>
                 </div>
 
-                <div className="absolute bottom-3 right-4 transform -rotate-2 translate-x-4 translate-y-4 opacity-90">
+                {/* Trophy */}
+                <div className="absolute bottom-2 right-2 sm:bottom-3 sm:right-4 transform -rotate-2 translate-x-2 translate-y-2 sm:translate-x-4 sm:translate-y-4 opacity-90 pointer-events-none z-0">
                     <TrophySVG />
                 </div>
             </div>
