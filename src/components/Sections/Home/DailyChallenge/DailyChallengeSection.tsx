@@ -13,8 +13,6 @@ interface DailyChallengeSectionProps {
 const DailyChallengeSection: React.FC<DailyChallengeSectionProps> = ({title, playerCount}) => {
     const isAndroid = () => window.AndroidApp !== undefined;
 
-    console.log("Is Android: ", isAndroid());
-
     if (isAndroid()) {
         // Display the daily challenge for mobile only if it's on Android
         return (
