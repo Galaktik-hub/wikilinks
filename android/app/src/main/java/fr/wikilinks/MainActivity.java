@@ -39,7 +39,6 @@ public class MainActivity extends AppCompatActivity {
         webView.getSettings().setDatabaseEnabled(true);
 
         webView.addJavascriptInterface(new JavaScriptObject(), "Android");
-
         String webViewURL = BuildConfig.WEBVIEW_URL;
         webView.loadUrl(webViewURL);
     }
