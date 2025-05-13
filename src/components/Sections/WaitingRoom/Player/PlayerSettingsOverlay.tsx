@@ -3,8 +3,7 @@
 import * as React from "react";
 import VolumeButton from "../../../Buttons/WaitingRoom/VolumeButton.tsx";
 import ExcludeButton from "../../../Buttons/WaitingRoom/ExcludeButton.tsx";
-import {useContext} from "react";
-import {SocketContext} from "../../../../context/SocketContext.tsx";
+import {useWebSocket} from "../../../../context/WebSocketContext.tsx";
 
 interface PlayerSettingsOverlayProps {
     muted: boolean;
@@ -14,15 +13,15 @@ interface PlayerSettingsOverlayProps {
 }
 
 export const PlayerSettingsOverlay: React.FC<PlayerSettingsOverlayProps> = props => {
-    const socket = useContext(SocketContext);
+    const socketContext = useWebSocket();
 
     const handleMuteClick = () => {
-        socket?.sendMessageToServer({kind: "mute_player", playerName: props.playerName});
+        socketContext.send({kind: "mute_player", playerName: props.playerName});
         props.onToggleMute();
     };
 
     const handleExcludeClick = () => {
-        socket?.sendMessageToServer({kind: "exclude_player", playerName: props.playerName});
+        socketContext.send({kind: "exclude_player", playerName: props.playerName});
     };
 
     return (

@@ -1,17 +1,17 @@
 "use client";
 
-import React, {useState, useEffect, useContext} from "react";
+import React, {useState, useEffect} from "react";
 import {LobbyCard} from "./LobbyCard.tsx";
 import {useNavigate, useLocation} from "react-router-dom";
 import UsernameModal from "../../Modals/WaitingRoom/UsernameModal";
 import {IconPlus} from "@tabler/icons-react";
-import {SocketContext} from "../../../context/SocketContext.tsx";
 import {usePopup} from "../../../context/PopupContext.tsx";
+import {useGameContext} from "../../../context/GameContext.tsx";
 
 export const CreateOrJoinGame: React.FC = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const socket = useContext(SocketContext);
+    const gameContext = useGameContext();
     const [showUsernameModal, setShowUsernameModal] = useState(false);
     const [tempRoomCode, setTempRoomCode] = useState(-1);
     const [roomCodeInput, setRoomCodeInput] = useState("");
@@ -42,7 +42,7 @@ export const CreateOrJoinGame: React.FC = () => {
             return;
         }
 
-        socket?.createGameSession({
+        gameContext.createGame({
             timeLimit: 10,
             numberOfArticles: 4,
             maxPlayers: 10,
@@ -59,7 +59,7 @@ export const CreateOrJoinGame: React.FC = () => {
 
         setIsCheckingRoom(true);
         try {
-            const roomExists = await socket?.checkRoomExists(parsedRoomCode);
+            const roomExists = await gameContext.checkRoomExists(parsedRoomCode);
 
             if (roomExists) {
                 setTempRoomCode(parsedRoomCode);
@@ -90,14 +90,14 @@ export const CreateOrJoinGame: React.FC = () => {
 
         const parsedRoomCode = parseInt(roomCodeInput, 10);
 
-        const usernameTaken = await socket?.checkUsernameTaken(username, parsedRoomCode);
+        const usernameTaken = await gameContext.checkUsernameTaken(username, parsedRoomCode);
 
         if (usernameTaken) {
             showPopup("error", "Ce pseudo est déjà utilisé");
             return;
         }
 
-        const hasStarted = await socket?.checkGameHasStarted(parsedRoomCode);
+        const hasStarted = await gameContext.checkGameHasStarted(parsedRoomCode);
 
         if (hasStarted) {
             showPopup("error", "Cette partie a déjà commencé");
@@ -106,18 +106,16 @@ export const CreateOrJoinGame: React.FC = () => {
             return;
         }
 
-        if (socket?.joinGameSession) {
-            socket.joinGameSession({
-                sessionId: tempRoomCode,
-                playerName: username,
-            });
+        gameContext.joinGame({
+            sessionId: tempRoomCode,
+            playerName: username,
+        });
 
-            setShowUsernameModal(false);
-            setTempRoomCode(-1);
+        setShowUsernameModal(false);
+        setTempRoomCode(-1);
 
-            // Reste connecté et redirige vers la salle d'attente
-            navigate("/room");
-        }
+        // Reste connecté et redirige vers la salle d'attente
+        navigate("/room");
     };
 
     return (

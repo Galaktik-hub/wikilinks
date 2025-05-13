@@ -3,8 +3,8 @@
 import * as React from "react";
 import ObjectiveItem from "./ObjectiveItem.tsx";
 import CollapsiblePanel from "./CollapsiblePanel.tsx";
-import {useContext, useEffect} from "react";
-import {SocketContext} from "../../../../context/SocketContext.tsx";
+import {useEffect} from "react";
+import {useGameContext} from "../../../../context/GameContext.tsx";
 
 interface Objective {
     id: string;
@@ -13,14 +13,13 @@ interface Objective {
 }
 
 const ObjectivesPanel: React.FC = () => {
-    const socket = useContext(SocketContext);
+    const gameContext = useGameContext();
     const [objectives, setObjectives] = React.useState<Objective[]>([]);
 
     useEffect(() => {
-        if (socket?.articles) {
+        if (gameContext.articles) {
             const updatedObjectives: Objective[] = [];
-            socket?.articles.forEach((article: {name: string; found: boolean}, index: number) => {
-                console.log("Articles:", article);
+            gameContext.articles.forEach((article: {name: string; found: boolean}, index: number) => {
                 updatedObjectives.push({
                     id: `objective-${index}`,
                     text: `${article.name.replace(/_+/g, " ")}`,
@@ -29,7 +28,7 @@ const ObjectivesPanel: React.FC = () => {
             });
             setObjectives(updatedObjectives);
         }
-    }, [socket?.articles]);
+    }, [gameContext.articles]);
 
     return (
         <CollapsiblePanel title="Objectifs" contentId="objectives-content">

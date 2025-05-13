@@ -226,10 +226,12 @@ export async function handleMessage(ws: WebSocket, message: any, context: Client
                     member.ws.send(
                         JSON.stringify({
                             kind: "settings_modified",
-                            timeLimit,
-                            numberOfArticles,
-                            maxPlayers,
-                            type,
+                            settings: {
+                                timeLimit,
+                                numberOfArticles,
+                                maxPlayers,
+                                type,
+                            },
                         }),
                     );
                 }
