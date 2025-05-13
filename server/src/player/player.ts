@@ -36,7 +36,7 @@ export class Player {
         return this.id;
     }
 
-    addArtifact(name: ArtifactName, quantity: number = 1) {
+    foundArtifact(name: ArtifactName, quantity: number = 1) {
         this.inventory.addArtifact(name, quantity);
         this.history.addStep("foundArtifact", {artefact: name});
     }

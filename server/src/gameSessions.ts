@@ -209,10 +209,10 @@ export class GameSession {
                 break;
             }
             case "foundArtifact":
-                player.history.addStep("foundArtifact", {artefact: data.artefact});
+                player.foundArtifact(data.artefact);
                 break;
             case "usedArtifact":
-                player.history.addStep("usedArtifact", {artefact: data.artefact});
+                player.useArtifact(data.artefact);
                 break;
             default:
                 logger.error(`Unknown event type: ${data.type}`);
@@ -231,6 +231,12 @@ export class GameSession {
                         },
                     }),
                 );
+                member.ws.send(
+                    JSON.stringify({
+                        kind: "inventory",
+                        inventory: this.getInventory(),
+                    }),
+                );
             }
         });
     }
@@ -247,6 +253,20 @@ export class GameSession {
             });
         });
         return history;
+    }
+
+    /**
+     * Returns the inventory of all players in the session.
+     */
+    public getInventory(): any[] {
+        const inventory = [];
+        this.members.forEach(member => {
+            inventory.push({
+                player: member.name,
+                inventory: member.inventory.getInventory(),
+            });
+        });
+        return inventory;
     }
 }
 

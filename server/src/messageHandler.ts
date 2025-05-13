@@ -9,6 +9,34 @@ export interface ClientContext {
     currentGameSessionId: number | null;
 }
 
+/**
+ * Checks that the client is in an active session and returns the session.
+ * Sends an error message via the socket if this is not the case and returns null.
+ */
+function getSessionOrError(ws: WebSocket, context: ClientContext): ReturnType<typeof GameSessionManager.getSession> | null {
+    const {currentGameSessionId, currentUser} = context;
+    if (!currentGameSessionId || !currentUser) {
+        ws.send(
+            JSON.stringify({
+                kind: "error",
+                message: "Not in a game session",
+            }),
+        );
+        return null;
+    }
+    const session = GameSessionManager.getSession(currentGameSessionId);
+    if (!session) {
+        ws.send(
+            JSON.stringify({
+                kind: "error",
+                message: "Game session not found",
+            }),
+        );
+        return null;
+    }
+    return session;
+}
+
 export async function handleMessage(ws: WebSocket, message: any, context: ClientContext) {
     switch (message.kind) {
         case "create_game_session": {
@@ -108,38 +136,13 @@ export async function handleMessage(ws: WebSocket, message: any, context: Client
             break;
         }
         case "send_message": {
-            const {currentRoomId, currentUser} = context;
-            if (!currentRoomId || !currentUser) {
-                ws.send(JSON.stringify({kind: "error", message: "Not in a room"}));
-                return;
-            }
-            const session = GameSessionManager.getSession(currentRoomId);
-            if (!session) return;
-            session.sendMessage(currentUser.name, message.content);
+            const session = getSessionOrError(ws, context);
+            session.sendMessage(context.currentUser.name, message.content);
             break;
         }
         case "start_game": {
-            const {currentGameSessionId, currentUser} = context;
-            if (!currentGameSessionId || !currentUser) {
-                ws.send(
-                    JSON.stringify({
-                        kind: "error",
-                        message: "Not in a game session",
-                    }),
-                );
-                return;
-            }
-            const session = GameSessionManager.getSession(currentGameSessionId);
-            if (!session) {
-                ws.send(
-                    JSON.stringify({
-                        kind: "error",
-                        message: "Game session not found",
-                    }),
-                );
-                return;
-            }
-            if (session.leader.name !== currentUser.name) {
+            const session = getSessionOrError(ws, context);
+            if (session.leader.name !== context.currentUser.name) {
                 ws.send(
                     JSON.stringify({
                         kind: "error",
@@ -162,51 +165,13 @@ export async function handleMessage(ws: WebSocket, message: any, context: Client
             break;
         }
         case "game_event": {
-            const {currentGameSessionId, currentUser} = context;
-            if (!currentGameSessionId || !currentUser) {
-                ws.send(
-                    JSON.stringify({
-                        kind: "error",
-                        message: "Not in a game session",
-                    }),
-                );
-                return;
-            }
-            const session = GameSessionManager.getSession(currentGameSessionId);
-            if (!session) {
-                ws.send(
-                    JSON.stringify({
-                        kind: "error",
-                        message: "Game session not found",
-                    }),
-                );
-                return;
-            }
-            session.handleGameEvent(currentUser, message.event);
+            const session = getSessionOrError(ws, context);
+            session.handleGameEvent(context.currentUser, message.event);
             break;
         }
         case "update_settings": {
-            const {currentGameSessionId, currentUser} = context;
-            if (!currentGameSessionId || !currentUser) {
-                ws.send(
-                    JSON.stringify({
-                        kind: "error",
-                        message: "Not in a game session",
-                    }),
-                );
-                return;
-            }
-            const session = GameSessionManager.getSession(currentGameSessionId);
-            if (!session) {
-                ws.send(
-                    JSON.stringify({
-                        kind: "error",
-                        message: "Game session not found",
-                    }),
-                );
-                return;
-            }
-            if (session.leader.name !== currentUser.name) {
+            const session = getSessionOrError(ws, context);
+            if (session.leader.name !== context.currentUser.name) {
                 ws.send(
                     JSON.stringify({
                         kind: "error",
@@ -239,26 +204,7 @@ export async function handleMessage(ws: WebSocket, message: any, context: Client
             break;
         }
         case "get_history": {
-            const {currentGameSessionId, currentUser} = context;
-            if (!currentGameSessionId || !currentUser) {
-                ws.send(
-                    JSON.stringify({
-                        kind: "error",
-                        message: "Not in a game session",
-                    }),
-                );
-                return;
-            }
-            const session = GameSessionManager.getSession(currentGameSessionId);
-            if (!session) {
-                ws.send(
-                    JSON.stringify({
-                        kind: "error",
-                        message: "Game session not found",
-                    }),
-                );
-                return;
-            }
+            const session = getSessionOrError(ws, context);
             ws.send(
                 JSON.stringify({
                     kind: "history",
@@ -267,29 +213,20 @@ export async function handleMessage(ws: WebSocket, message: any, context: Client
             );
             break;
         }
+        case "get_inventory": {
+            const session = getSessionOrError(ws, context);
+            ws.send(
+                JSON.stringify({
+                    kind: "inventory",
+                    inventory: session.getInventory(),
+                }),
+            );
+            break;
+        }
         case "mute_player": {
-            const {currentGameSessionId, currentUser} = context;
-            if (!currentGameSessionId || !currentUser) {
-                ws.send(
-                    JSON.stringify({
-                        kind: "error",
-                        message: "Not in a game session",
-                    }),
-                );
-                return;
-            }
-            const session = GameSessionManager.getSession(currentGameSessionId);
-            if (!session) {
-                ws.send(
-                    JSON.stringify({
-                        kind: "error",
-                        message: "Game session not found",
-                    }),
-                );
-                return;
-            }
+            const session = getSessionOrError(ws, context);
             const targetPlayerName = message.playerName;
-            const currentMember = session.members.get(currentUser.name);
+            const currentMember = session.members.get(context.currentUser.name);
             if (currentMember.muted.has(targetPlayerName)) {
                 currentMember.muted.delete(targetPlayerName);
             } else {
@@ -298,26 +235,7 @@ export async function handleMessage(ws: WebSocket, message: any, context: Client
             break;
         }
         case "exclude_player": {
-            const {currentGameSessionId, currentUser} = context;
-            if (!currentGameSessionId || !currentUser) {
-                ws.send(
-                    JSON.stringify({
-                        kind: "error",
-                        message: "Not in a game session",
-                    }),
-                );
-                return;
-            }
-            const session = GameSessionManager.getSession(currentGameSessionId);
-            if (!session) {
-                ws.send(
-                    JSON.stringify({
-                        kind: "error",
-                        message: "Game session not found",
-                    }),
-                );
-                return;
-            }
+            const session = getSessionOrError(ws, context);
             const targetPlayerName = message.playerName;
             const targetMember = session.members.get(targetPlayerName);
             if (targetMember) {

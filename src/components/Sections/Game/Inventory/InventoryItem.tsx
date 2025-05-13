@@ -1,15 +1,15 @@
 "use client";
 import * as React from "react";
 import {useModalContext} from "../../../Modals/ModalProvider.tsx";
+import {StackableArtifact} from "../../../../../server/src/player/inventory/inventoryProps.ts";
 
 export interface InventoryItemProps {
-    count: number;
+    item: StackableArtifact;
     onConfirm: () => void;
-    definition: string;
-    name: string;
 }
 
-const InventoryItem: React.FC<InventoryItemProps & {Icon: React.FC<{color?: string; className?: string}>}> = ({count, onConfirm, definition, name, Icon}) => {
+const InventoryItem: React.FC<InventoryItemProps & {Icon: React.FC<{color?: string; className?: string}>}> = ({item, onConfirm, Icon}) => {
+    const {name, definition, count} = item;
     const {openModal, closeModal} = useModalContext();
     const [remaining, setRemaining] = React.useState(count);
 

@@ -37,9 +37,7 @@ const DailyChallengeSection: React.FC<DailyChallengeSectionProps> = ({title, pla
                 <div className="flex flex-col md:flex-row justify-between items-center gap-6 md:gap-8 relative z-10">
                     {/* Text Section */}
                     <div className="w-full md:w-3/5 flex flex-col gap-3">
-                        <h2 className="text-xl sm:text-2xl md:text-3xl font-bold">
-                            Découvrez les défis quotidiens
-                        </h2>
+                        <h2 className="text-xl sm:text-2xl md:text-3xl font-bold">Découvrez les défis quotidiens</h2>
                         <p className="font-light text-sm sm:text-base md:text-lg">
                             Affrontez les joueurs du monde entier à travers des défis quotidiens basés sur votre position !
                         </p>
@@ -52,8 +50,7 @@ const DailyChallengeSection: React.FC<DailyChallengeSectionProps> = ({title, pla
                     <div className="w-full md:w-auto flex justify-center md:justify-end">
                         <button
                             className="font-righteous text-base sm:text-lg inline-flex items-center justify-center gap-2 px-6 sm:px-8 py-3 sm:py-4 bg-[#10B981] rounded-full hover:bg-[#0D9668] transition-colors min-w-[160px] sm:min-w-[180px] relative z-20"
-                            onClick={() => console.log('Download clicked')}
-                        >
+                            onClick={() => console.log("Download clicked")}>
                             <AndroidSVG className="w-5 h-5 sm:w-6 sm:h-6" />
                             Télécharger
                         </button>

@@ -3,7 +3,8 @@
 import React, {createContext, useContext, useEffect, useState} from "react";
 import {TimelineStep} from "../components/Sections/Game/CollapsiblePanel/PlayerProgressPanel";
 import {useWebSocket} from "./WebSocketContext.tsx";
-import {Artifact} from "../../server/src/player/inventory/inventoryProps.ts";
+import {ArtifactName, Artifact} from "../../server/src/player/inventory/inventoryProps.ts";
+import {useGameContext} from "./GameContext.tsx";
 
 interface PlayerInfo {
     username: string;
@@ -14,9 +15,10 @@ interface PlayersContextType {
     players: PlayerInfo[];
 
     // inventory
-    inventory: Record<string, Artifact>;
-    addArtifact: (name: string) => void;
-    useArtifact: (name: string) => void;
+    inventory: Record<ArtifactName, Artifact>;
+    foundArtifact: (name: ArtifactName) => void;
+    usedArtifact: (name: ArtifactName) => void;
+    getInventory: () => void;
 
     // history
     histories: Record<string, TimelineStep[]>;
@@ -27,13 +29,17 @@ export const PlayersContext = createContext<PlayersContextType | undefined>(unde
 
 export const PlayersProvider: React.FC<{children: React.ReactNode}> = ({children}) => {
     const ws = useWebSocket()!;
+    const gameCtx = useGameContext()!;
     const [players, setPlayers] = useState<PlayerInfo[]>([]);
-    const [inventory, setInventory] = useState<Record<string, Artifact>>({});
+    const [inventory, setInventory] = useState<Record<ArtifactName, Artifact>>({} as Record<ArtifactName, Artifact>);
     const [histories, setHistories] = useState<Record<string, TimelineStep[]>>({});
 
     useEffect(() => {
         const handler = (data: any) => {
             switch (data.kind) {
+                case "game_launched":
+                    getInventory();
+                    break;
                 case "players_update":
                     setPlayers(data.players);
                     setHistories(prev => {
@@ -44,6 +50,11 @@ export const PlayersProvider: React.FC<{children: React.ReactNode}> = ({children
                         return updated;
                     });
                     break;
+                case "inventory": {
+                    const own = data.inventory.find((i: any) => i.player === gameCtx.username);
+                    if (own) setInventory(own.inventory);
+                    break;
+                }
                 case "history": {
                     const map: Record<string, TimelineStep[]> = {};
                     data.history.forEach((h: any) => (map[h.player] = h.history));
@@ -53,10 +64,6 @@ export const PlayersProvider: React.FC<{children: React.ReactNode}> = ({children
                 case "game_update":
                     if (data.event) {
                         const {type, data: ev} = data.event;
-                        if (["foundArtifact", "usedArtifact"].includes(type)) {
-                            const name = ev.artefact;
-                            setInventory(prev => ({...prev, [name]: ev}));
-                        }
                         const name = ev.player || ev.playerName;
                         const step: TimelineStep = {id: Date.now(), type, data: ev};
                         setHistories(prev => ({...prev, [name]: [...(prev[name] || []), step]}));
@@ -70,11 +77,16 @@ export const PlayersProvider: React.FC<{children: React.ReactNode}> = ({children
         };
     }, [ws]);
 
+    const getInventory = () => ws.send({kind: "get_inventory"});
     const getHistory = () => ws.send({kind: "get_history"});
-    const addArtifact = (name: string) => ws.send({kind: "game_event", event: {type: "addArtifact", artefact: name}});
-    const useArtifact = (name: string) => ws.send({kind: "game_event", event: {type: "useArtifact", artefact: name}});
+    const foundArtifact = (name: ArtifactName) => ws.send({kind: "game_event", event: {type: "foundArtifact", artefact: name}});
+    const usedArtifact = (name: ArtifactName) => ws.send({kind: "game_event", event: {type: "usedArtifact", artefact: name}});
 
-    return <PlayersContext.Provider value={{players, inventory, addArtifact, useArtifact, histories, getHistory}}>{children}</PlayersContext.Provider>;
+    return (
+        <PlayersContext.Provider value={{players, inventory, foundArtifact, usedArtifact, getInventory, histories, getHistory}}>
+            {children}
+        </PlayersContext.Provider>
+    );
 };
 
 export const usePlayersContext = (): PlayersContextType => {

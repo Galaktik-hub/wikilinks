@@ -4,6 +4,14 @@ export class Inventory {
     private artifacts: Record<ArtifactName, Artifact>;
 
     constructor() {
+        this.initInventory();
+    }
+
+    getInventory(): Record<ArtifactName, Artifact> {
+        return this.artifacts;
+    }
+
+    initInventory() {
         this.artifacts = {} as Record<ArtifactName, Artifact>;
         for (const name in artifactDefinitions) {
             const artifactName = name as ArtifactName;
@@ -13,6 +21,7 @@ export class Inventory {
                     name: artifactName,
                     definition: def.definition,
                     positive: def.positive,
+                    target: def.target,
                     immediate: true,
                     possessed: false,
                 };
@@ -21,8 +30,9 @@ export class Inventory {
                     name: artifactName,
                     definition: def.definition,
                     positive: def.positive,
+                    target: def.target,
                     immediate: false,
-                    count: 0,
+                    count: 3, // Test value, by default use 0
                 };
             }
         }

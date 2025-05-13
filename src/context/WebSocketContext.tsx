@@ -30,7 +30,6 @@ export const WebSocketProvider: React.FC<{children: React.ReactNode}> = ({childr
             setConnected(true);
             console.log("Connecté au serveur WebSocket");
         };
-        // Firefox can’t establish a connection to the server at ws://localhost:2025/.
 
         socket.onmessage = ({data}) => {
             try {

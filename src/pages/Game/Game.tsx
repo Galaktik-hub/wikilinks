@@ -32,7 +32,7 @@ const Game: React.FC = () => {
 
     useEffect(() => {
         // For test the end screen animation set this at true
-        setIsGameEnded(true);
+        setIsGameEnded(false);
     }, []);
 
     return (
@@ -52,7 +52,7 @@ const Game: React.FC = () => {
             </div>
             {isDesktop && (
                 <div className="max-w-[769px]:hidden absolute flex bottom-0 left-1/2 -translate-x-1/2 justify-center items-center mb-2.5">
-                    <InventoryPanel gpsCount={5} retourCount={1} mineCount={3} />
+                    <InventoryPanel />
                 </div>
             )}
             {!isDesktop && (

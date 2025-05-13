@@ -45,7 +45,7 @@ const InventoryButton: React.FC<{disabled?: boolean}> = ({disabled = false}) => 
     return (
         <div ref={panelRef} className="absolute flex bottom-20 left-1/2 -translate-x-1/2 justify-center items-center mb-2.5">
             {/*Gérer les compteurs d'items en back, ici il recréé le composant avec les compteurs initiaux*/}
-            <InventoryPanel gpsCount={5} retourCount={1} mineCount={3} />
+            <InventoryPanel />
         </div>
     );
 };
