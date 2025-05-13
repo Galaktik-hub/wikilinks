@@ -1,8 +1,9 @@
 import * as React from "react";
 import ExitSVG from "../../../assets/WaitingRoom/ExitSVG.tsx";
 import MainButton from "../MainButton.tsx";
-import {SocketContext} from "../../../context/SocketContext.tsx";
 import {useCallback} from "react";
+import {useWebSocket} from "../../../context/WebSocketContext.tsx";
+import {useNavigate} from "react-router-dom";
 
 type DeleteButtonProps = {
     isHost: boolean;
@@ -10,17 +11,17 @@ type DeleteButtonProps = {
 };
 
 const ExitButton: React.FC<DeleteButtonProps> = ({isHost}) => {
-    const socket = React.useContext(SocketContext);
+    const socketContext = useWebSocket();
+    const navigate = useNavigate();
 
     const handleClick = useCallback(() => {
         if (isHost) {
-            socket?.sendMessageToServer({kind: "close_room"});
-            window.location.href = "/";
+            socketContext.send({kind: "close_room"});
         } else {
-            socket?.sendMessageToServer({kind: "disconnect"});
-            window.location.href = "/";
+            socketContext.send({kind: "disconnect"});
         }
-    }, [isHost, socket]);
+        navigate("/");
+    }, [isHost, socketContext, navigate]);
 
     return (
         <MainButton color="220, 38, 38" className="bg-red-600" ariaLabel={isHost ? "Supprimer" : "Quitter"} onClick={handleClick}>

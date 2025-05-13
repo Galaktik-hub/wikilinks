@@ -1,5 +1,5 @@
 "use client";
-import React, {useContext, useEffect, useState} from "react";
+import React, {useEffect, useState} from "react";
 import Layout from "../../components/Layout";
 import ObjectivesPanel from "../../components/Sections/Game/CollapsiblePanel/ObjectivePanel.tsx";
 import PlayerProgressPanel from "../../components/Sections/Game/CollapsiblePanel/PlayerProgressPanel.tsx";
@@ -10,13 +10,13 @@ import TextLoungePanel from "../../components/Sections/WaitingRoom/TextLounge/Te
 import {useMediaQuery} from "react-responsive";
 import InventoryButton from "../../components/Buttons/Game/InventoryButton.tsx";
 import Header from "../../components/Header/Header.tsx";
-import {SocketContext} from "../../context/SocketContext.tsx";
 import GameEndScreen from "../../components/Sections/Game/EndGame/GameEndScreen.tsx";
+import {useGameContext} from "../../context/GameContext.tsx";
 
 const Game: React.FC = () => {
-    const socket = useContext(SocketContext);
+    const gameContext = useGameContext();
     const [isGameEnded, setIsGameEnded] = useState(false);
-    const startArticle = socket?.startArticle || "Paris";
+    const startArticle = gameContext.startArticle || "Paris";
 
     const isMobile = useMediaQuery({maxWidth: 767});
     const isDesktop = useMediaQuery({minWidth: 1200});
@@ -31,8 +31,8 @@ const Game: React.FC = () => {
     );
 
     useEffect(() => {
-        // TODO : For test the end screen animation set this at true
-        setIsGameEnded(false);
+        // For test the end screen animation set this at true
+        setIsGameEnded(true);
     }, []);
 
     return (

@@ -1,11 +1,12 @@
 "use client";
-import React, {useState, useEffect, useContext} from "react";
+import React, {useState, useEffect} from "react";
 import {PublicGameCard} from "../../Cards/Home/PublicGameCard.tsx";
 import UsernameModal from "../../Modals/WaitingRoom/UsernameModal.tsx";
-import {SocketContext} from "../../../context/SocketContext.tsx";
 import {IconRefresh} from "@tabler/icons-react";
 import {usePopup} from "../../../context/PopupContext.tsx";
 import {useNavigate} from "react-router-dom";
+import {useWebSocket} from "../../../context/WebSocketContext.tsx";
+import {useGameContext} from "../../../context/GameContext.tsx";
 
 // Interface pour les sessions reçues du serveur
 interface GameSession {
@@ -27,7 +28,9 @@ interface Game {
 }
 
 export const PublicGamesList: React.FC = () => {
-    const socket = useContext(SocketContext);
+    // const socket2 = useContext(SocketContext);
+    const socketContext = useWebSocket();
+    const gameContext = useGameContext();
     const navigate = useNavigate();
     const {showPopup} = usePopup();
 
@@ -45,10 +48,10 @@ export const PublicGamesList: React.FC = () => {
 
     // Fonction pour demander les sessions
     const fetchSessions = () => {
-        if (socket?.isConnected && socket?.sendMessageToServer) {
+        if (socketContext.isConnected) {
             setLoading(true);
             setError(null);
-            socket.sendMessageToServer({kind: "get_all_sessions"});
+            socketContext.send({kind: "get_all_sessions"});
 
             setTimeout(() => {
                 setLoading(false);
@@ -60,10 +63,10 @@ export const PublicGamesList: React.FC = () => {
 
     // Traiter les messages reçus via le SocketContext
     useEffect(() => {
-        if (socket?.messages && socket.messages.length > 0) {
+        if (socketContext.messages.length > 0) {
             // Parcourir les messages pour trouver les sessions
-            for (let i = 0; i < socket.messages.length; i++) {
-                const message = socket.messages[i];
+            for (let i = 0; i < socketContext.messages.length; i++) {
+                const message = socketContext.messages[i];
 
                 // Créer un identifiant unique pour ce message
                 const messageId = JSON.stringify(message);
@@ -99,21 +102,21 @@ export const PublicGamesList: React.FC = () => {
                 }
             }
         }
-    }, [socket?.messages]);
+    }, [socketContext.messages]);
 
     // Demander les sessions au chargement initial et configurer l'intervalle
     useEffect(() => {
-        if (socket?.isConnected) {
+        if (socketContext.isConnected) {
             fetchSessions();
         }
-    }, [socket?.isConnected]);
+    }, [socketContext.isConnected]);
 
     // Fonction pour initier le processus de rejoindre une partie publique
     const handleJoinPublicGame = async (roomCode: string) => {
         const parsedRoomCode = parseInt(roomCode, 10);
         try {
             // Vérifier que la salle existe
-            const roomExists = await socket?.checkRoomExists(parsedRoomCode);
+            const roomExists = await gameContext.checkRoomExists(parsedRoomCode);
             if (roomExists) {
                 setTempRoomCode(parsedRoomCode);
                 setRoomCodeInput(roomCode);
@@ -142,13 +145,13 @@ export const PublicGamesList: React.FC = () => {
 
         const parsedRoomCode = parseInt(roomCodeInput, 10);
 
-        const usernameTaken = await socket?.checkUsernameTaken(username, parsedRoomCode);
+        const usernameTaken = await gameContext.checkUsernameTaken(username, parsedRoomCode);
         if (usernameTaken) {
             showPopup("error", "Ce pseudo est déjà utilisé");
             return;
         }
 
-        const hasStarted = await socket?.checkGameHasStarted(parsedRoomCode);
+        const hasStarted = await gameContext.checkGameHasStarted(parsedRoomCode);
         if (hasStarted) {
             showPopup("error", "Cette partie a déjà commencé");
             setShowUsernameModal(false);
@@ -156,18 +159,16 @@ export const PublicGamesList: React.FC = () => {
             return;
         }
 
-        if (socket?.joinGameSession) {
-            socket.joinGameSession({
-                sessionId: tempRoomCode,
-                playerName: username,
-            });
+        gameContext.joinGame({
+            sessionId: tempRoomCode,
+            playerName: username,
+        });
 
-            setShowUsernameModal(false);
-            setTempRoomCode(-1);
+        setShowUsernameModal(false);
+        setTempRoomCode(-1);
 
-            // Reste connecté et redirige vers la salle d'attente
-            navigate("/room");
-        }
+        // Reste connecté et redirige vers la salle d'attente
+        navigate("/room");
     };
 
     return (

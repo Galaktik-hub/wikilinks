@@ -1,20 +1,20 @@
-import React, {useContext} from "react";
+import React from "react";
 import {useWikiNavigation} from "../../../context/WikiNavigationContext.tsx";
-import {SocketContext} from "../../../context/SocketContext.tsx";
+import {useWebSocket} from "../../../context/WebSocketContext.tsx";
 
 interface WikiLinkProps extends React.AnchorHTMLAttributes<HTMLAnchorElement> {
     title: string; // Titre de l'article ciblé
 }
 
 const WikiLink: React.FC<WikiLinkProps> = ({title, children, ...props}) => {
-    const socket = useContext(SocketContext);
+    const socketContext = useWebSocket();
     const {setCurrentTitle} = useWikiNavigation();
 
     const handleClick = (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
         e.preventDefault();
         setCurrentTitle(title);
 
-        socket?.sendMessageToServer({
+        socketContext.send({
             kind: "game_event",
             event: {
                 type: "visitedPage",
