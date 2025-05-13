@@ -25,6 +25,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_main);
+        AndroidBug5497Workaround.assistActivity(this);
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
@@ -37,7 +38,8 @@ public class MainActivity extends AppCompatActivity {
         webView.getSettings().setDomStorageEnabled(true);
         webView.getSettings().setDatabaseEnabled(true);
 
-        webView.addJavascriptInterface(new JavaScriptObject(), "Android");
-        webView.loadUrl("http://192.168.1.30:5173/");
+        webView.addJavascriptInterface(new JavaScriptObject(), "AndroidApp");
+        String webViewURL = BuildConfig.WEBVIEW_URL;
+        webView.loadUrl(webViewURL);
     }
 }

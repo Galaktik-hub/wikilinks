@@ -1,9 +1,10 @@
 "use client";
 
-import React, {useContext, useEffect, useState} from "react";
+import React, {useEffect, useState} from "react";
 import PlayerProgressItem from "./PlayerProgressItem";
 import CollapsiblePanel from "./CollapsiblePanel";
-import {SocketContext} from "../../../../context/SocketContext";
+import {usePlayersContext} from "../../../../context/PlayersContext.tsx";
+import {useGameContext} from "../../../../context/GameContext.tsx";
 
 export interface TimelineStep {
     id: number;
@@ -19,31 +20,28 @@ export interface PlayerProgress {
 }
 
 const PlayerProgressPanel: React.FC = () => {
-    const socket = useContext(SocketContext);
+    const playersContext = usePlayersContext();
+    const gameContext = useGameContext();
     const [playersProgress, setPlayersProgress] = useState<PlayerProgress[]>([]);
 
     useEffect(() => {
-        if (socket && socket.getHistory) {
-            socket.getHistory();
-        }
+        playersContext.getHistory();
     }, []);
 
     useEffect(() => {
-        if (socket) {
-            const updatedProgress = socket.players.map((player: {username: string}) => {
-                const history = socket.playerHistories[player.username] || [];
-                const found = history.filter((step: TimelineStep) => step.type === "foundPage").length;
-                const percentage = Math.round((found / socket.articles.length) * 100);
-                return {
-                    id: player.username,
-                    playerName: player.username,
-                    percentage,
-                    history,
-                };
-            });
-            setPlayersProgress(updatedProgress);
-        }
-    }, [socket, socket?.players, socket?.playerHistories]);
+        const updatedProgress = playersContext.players.map((player: {username: string}) => {
+            const history = playersContext.histories[player.username] || [];
+            const found = history.filter((step: TimelineStep) => step.type === "foundPage").length;
+            const percentage = Math.round((found / gameContext.articles.length) * 100);
+            return {
+                id: player.username,
+                playerName: player.username,
+                percentage,
+                history,
+            };
+        });
+        setPlayersProgress(updatedProgress);
+    }, [playersContext, gameContext.articles.length]);
 
     return (
         <CollapsiblePanel title="Progression des joueurs" contentId="player-progress-content">

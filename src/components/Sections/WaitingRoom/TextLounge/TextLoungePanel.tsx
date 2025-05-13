@@ -1,18 +1,19 @@
-import * as React from "react";
+import React, {useEffect} from "react";
 import {ChatInput} from "../../../Chat/ChatInput.tsx";
 import {SendButton} from "../../../Chat/SendButton.tsx";
-import {useContext} from "react";
-import {SocketContext} from "../../../../context/SocketContext";
+import {useWebSocket} from "../../../../context/WebSocketContext.tsx";
+import {useGameContext} from "../../../../context/GameContext.tsx";
 
 export const TextLoungePanel: React.FC = () => {
-    const socket = useContext(SocketContext);
+    const socketContext = useWebSocket();
+    const gameContext = useGameContext();
     const [message, setMessage] = React.useState("");
     const [isInputFocused, setIsInputFocused] = React.useState(false);
     const messagesRef = React.useRef<HTMLDivElement[]>([]);
 
     const handleSendMessage = () => {
-        if (message.trim() && socket?.sendMessage && socket?.username) {
-            socket.sendMessage(message.trim(), socket.username);
+        if (message.trim() && gameContext.username) {
+            gameContext.sendMessage(message.trim(), gameContext.username);
             setMessage("");
         }
     };
@@ -37,9 +38,9 @@ export const TextLoungePanel: React.FC = () => {
     };
 
     // Scroll to bottom when new messages arrive
-    React.useEffect(() => {
+    useEffect(() => {
         scrollToBottom();
-    }, [socket?.messages]);
+    }, [socketContext.messages]);
 
     // Function to add references to the list
     const addToRefs = (el: HTMLDivElement | null) => {
@@ -58,7 +59,7 @@ export const TextLoungePanel: React.FC = () => {
                 <div
                     key={index}
                     className={`mb-2 p-3 rounded-lg border border-gray-700/50 ${
-                        msg.sender === "system" ? "bg-yellow-950/50" : msg.sender === socket?.username ? "bg-sky-950/50" : "bg-background"
+                        msg.sender === "system" ? "bg-yellow-950/50" : msg.sender === gameContext.username ? "bg-sky-950/50" : "bg-background"
                     }`}>
                     {msg.sender !== "Bot-JoinLeaveBot" && (
                         <>
@@ -70,7 +71,7 @@ export const TextLoungePanel: React.FC = () => {
                 </div>
             );
         },
-        [socket?.username],
+        [gameContext.username],
     );
 
     return (
@@ -83,8 +84,8 @@ export const TextLoungePanel: React.FC = () => {
 
                 <div className="flex flex-col bg-darkBg rounded-lg overflow-hidden h-full mt-2.5">
                     <div className="flex-1 overflow-auto p-4 scroll-smooth max-h-full" ref={addToRefs}>
-                        {socket?.messages.length ? (
-                            socket.messages.map((msg, index) => <MessageBubble key={index} msg={msg} index={index} />)
+                        {socketContext.messages.length ? (
+                            socketContext.messages.map((msg, index) => <MessageBubble key={index} msg={msg} index={index} />)
                         ) : (
                             <p className="text-gray-400 text-center">Aucun message pour l'instant...</p>
                         )}
@@ -97,9 +98,9 @@ export const TextLoungePanel: React.FC = () => {
                                 onChange={e => setMessage(e.target.value)}
                                 onKeyDown={handleKeyDown}
                                 placeholder="Écrivez un message..."
-                                disabled={!socket?.isConnected}
+                                disabled={!socketContext.isConnected}
                             />
-                            <SendButton onClick={handleSendMessage} disabled={!socket?.isConnected || !message.trim()} />
+                            <SendButton onClick={handleSendMessage} disabled={!socketContext.isConnected || !message.trim()} />
                         </div>
                     </div>
                 </div>
@@ -125,8 +126,8 @@ export const TextLoungePanel: React.FC = () => {
                     </div>
 
                     <div className="h-[300px] overflow-auto px-4 pb-4 scroll-smooth" ref={addToRefs}>
-                        {socket?.messages.length ? (
-                            socket.messages.map((msg, index) => <MessageBubble key={index} msg={msg} index={index} />)
+                        {socketContext.messages.length ? (
+                            socketContext.messages.map((msg, index) => <MessageBubble key={index} msg={msg} index={index} />)
                         ) : (
                             <p className="text-gray-400 text-center">Aucun message pour l'instant...</p>
                         )}
@@ -142,9 +143,9 @@ export const TextLoungePanel: React.FC = () => {
                             onKeyDown={handleKeyDown}
                             onFocus={() => setIsInputFocused(true)}
                             placeholder="Écrivez un message..."
-                            disabled={!socket?.isConnected}
+                            disabled={!socketContext.isConnected}
                         />
-                        <SendButton onClick={handleSendMessage} disabled={!socket?.isConnected || !message.trim()} />
+                        <SendButton onClick={handleSendMessage} disabled={!socketContext.isConnected || !message.trim()} />
                     </div>
                 </div>
             </div>

@@ -4,22 +4,17 @@ import {GameSettingsHeader} from "./GameSettingsHeader.tsx";
 import {GameSettingsParameters} from "./GameSettingsParameters.tsx";
 import SettingsGameOverlay from "../PopupSettings/SettingsGameOverlay.tsx";
 
+export type GameSettingsType = {
+    timeLimit: number;
+    numberOfArticles: number;
+    maxPlayers: number;
+    type: "public" | "private";
+};
+
 interface GameSettingsProps {
     isHost: boolean;
-    gameSettings: {
-        timeLimit: number;
-        articleCount: number;
-        maxPlayers: number;
-        gameType: string;
-    };
-    setGameSettings: React.Dispatch<
-        React.SetStateAction<{
-            timeLimit: number;
-            articleCount: number;
-            maxPlayers: number;
-            gameType: string;
-        }>
-    >;
+    gameSettings: GameSettingsType;
+    setGameSettings: React.Dispatch<React.SetStateAction<GameSettingsType>>;
 }
 
 const GameSettings: React.FC<GameSettingsProps> = ({isHost, gameSettings, setGameSettings}) => {
@@ -36,27 +31,10 @@ const GameSettings: React.FC<GameSettingsProps> = ({isHost, gameSettings, setGam
     return (
         <div className="card-container whitespace-nowrap">
             <GameSettingsHeader onEdit={handleEdit} isHost={isHost} />
-            <GameSettingsParameters
-                timeLimit={gameSettings.timeLimit}
-                articleCount={gameSettings.articleCount}
-                maxPlayers={gameSettings.maxPlayers}
-                gameType={gameSettings.gameType === "public" ? "Publique" : "Privé"}
-            />
+            <GameSettingsParameters {...gameSettings} />
 
             {/* Modal Popup */}
-            {isModalOpen && (
-                <SettingsGameOverlay
-                    timeLimit={gameSettings.timeLimit}
-                    articleCount={gameSettings.articleCount}
-                    maxPlayers={gameSettings.maxPlayers}
-                    gameType={gameSettings.gameType === "public" ? "public" : "private"}
-                    setTimeLimit={value => setGameSettings(prev => ({...prev, timeLimit: value}))}
-                    setArticleCount={value => setGameSettings(prev => ({...prev, articleCount: value}))}
-                    setMaxPlayers={value => setGameSettings(prev => ({...prev, maxPlayers: value}))}
-                    setGameType={value => setGameSettings(prev => ({...prev, gameType: value}))}
-                    closeModal={closeModal}
-                />
-            )}
+            {isModalOpen && <SettingsGameOverlay gameSettings={gameSettings} setGameSettings={setGameSettings} closeModal={closeModal} />}
         </div>
     );
 };

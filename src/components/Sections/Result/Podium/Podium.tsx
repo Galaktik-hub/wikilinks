@@ -36,16 +36,21 @@ const Podium: React.FC<PodiumProps> = ({players}) => {
                 <h2 className="blue-title-effect">Podium</h2>
             </div>
             <div className={containerClass}>
-                {players.map((player, idx) => (
-                    <aside key={player.rank} className="flex flex-col justify-center items-center w-full max-w-[200px]">
-                        <div className={`flex justify-center items-center w-full ${config[idx].nameClass} text-white rounded-full`}>
-                            <p className="text-lg text-center">{player.name}</p>
-                        </div>
-                        <div className={`flex justify-center items-center w-full ${config[idx].rankClass} text-center bg-gray-700 rounded-t-lg`}>
-                            <p className={`text-lg text-center ${config[idx].rankTextClass}`}>{config[idx].label}</p>
-                        </div>
-                    </aside>
-                ))}
+                {config.map(conf => {
+                    const rankNumber = parseInt(conf.label, 10);
+                    const player = players.find(p => p.rank === rankNumber);
+                    if (!player) return null;
+                    return (
+                        <aside key={player.rank} className="flex flex-col justify-center items-center w-full max-w-[200px]">
+                            <div className={`flex justify-center items-center w-full ${conf.nameClass} text-white rounded-full`}>
+                                <p className="text-lg text-center">{player.name}</p>
+                            </div>
+                            <div className={`flex justify-center items-center w-full ${conf.rankClass} text-center bg-gray-700 rounded-t-lg`}>
+                                <p className={`text-lg text-center ${conf.rankTextClass}`}>{conf.label}</p>
+                            </div>
+                        </aside>
+                    );
+                })}
             </div>
         </div>
     );
