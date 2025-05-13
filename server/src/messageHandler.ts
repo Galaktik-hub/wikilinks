@@ -182,7 +182,7 @@ export async function handleMessage(ws: WebSocket, message: any, context: Client
                 );
                 return;
             }
-            session.handleGameEvent(currentUser, message.event);
+            session.handleGameEvent(currentUser.name, message.event);
             break;
         }
         case "update_settings": {
