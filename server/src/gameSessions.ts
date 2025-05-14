@@ -263,16 +263,13 @@ export class GameSession {
             case "visitedPage": {
                 const article = this.articles.find(article => article === data.page_name);
                 logger.info(`Article: "${data.page_name}"`);
+                player.visitedArticles++;
                 if (article) {
-                    player.visitedArticles++;
-                    const index = this.articles.indexOf(article);
-                    if (index !== -1) {
-                        player.history.addStep("foundPage", {page_name: data.page_name});
-                        player.foundArticles++;
-                        data.type = "foundPage";
-                    } else {
-                        player.history.addStep("visitedPage", {page_name: data.page_name});
-                    }
+                    player.history.addStep("foundPage", {page_name: data.page_name});
+                    player.foundArticles++;
+                    data.type = "foundPage";
+                } else {
+                    player.history.addStep("visitedPage", {page_name: data.page_name});
                 }
                 break;
             }
@@ -327,7 +324,7 @@ export class GameSession {
                 member.ws.send(
                     JSON.stringify({
                         kind: "game_over",
-                        scoreboard: this.scoreboard,
+                        scoreboard: Array.from(this.scoreboard.entries()),
                     }),
                 );
             }
