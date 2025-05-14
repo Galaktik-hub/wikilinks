@@ -227,7 +227,7 @@ export class GameSession {
             const found = player.foundArticles;
             const visited = player.visitedArticles;
 
-            console.log(`Player ${player.name} found ${found} articles and visited ${visited} pages`);
+            logger.info(`Player ${player.name} found ${found} articles and visited ${visited} pages`);
 
             if (index === 0 || (found === prevFound && visited === prevVisited)) {
                 // Same rank as previous player or the first player
@@ -247,7 +247,7 @@ export class GameSession {
             this.scoreboard.set(rank, group);
         }
 
-        console.log(`Scoreboard: ${JSON.stringify(Array.from(this.scoreboard.entries()))}`);
+        logger.info(`Scoreboard: ${JSON.stringify(Array.from(this.scoreboard.entries()))}`);
 
         if (players[0]?.foundArticles === this.numberOfArticles) {
             this.endGame();
