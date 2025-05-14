@@ -23,6 +23,8 @@ export interface GameContextType {
     // articles
     startArticle: string;
     articles: Article[];
+    currentTitle: string;
+    setCurrentTitle: (title: string) => void;
 
     // actions
     createGame: (payload: {timeLimit: number; numberOfArticles: number; maxPlayers: number; type: string; leaderName: string}) => void;
@@ -50,6 +52,7 @@ export const GameProvider: React.FC<{children: React.ReactNode}> = ({children}) 
     // articles
     const [articles, setArticles] = useState<Article[]>([]);
     const [startArticle, setStart] = useState("");
+    const [currentTitle, setCurrentTitle] = useState<string>(startArticle);
 
     useEffect(() => {
         const handler = (data: any) => {
@@ -69,6 +72,7 @@ export const GameProvider: React.FC<{children: React.ReactNode}> = ({children}) 
                 case "game_started":
                     setLoading(false);
                     setStart(data.startArticle);
+                    setCurrentTitle(data.startArticle);
                     setArticles(data.articles.map((n: string) => ({name: n, found: false})));
                     break;
                 case "game_update":
@@ -96,7 +100,7 @@ export const GameProvider: React.FC<{children: React.ReactNode}> = ({children}) 
     const checkRoomExists = async (code: number) => {
         await ws.waitForConnection();
         return new Promise<boolean>(resolve => {
-            const handler = (data: any) => {
+            const handler = (data: {kind: string, exists: boolean}) => {
                 if (data.kind === "room_check_result") {
                     resolve(data.exists);
                 }
@@ -109,7 +113,7 @@ export const GameProvider: React.FC<{children: React.ReactNode}> = ({children}) 
 
     const checkUsernameTaken = async (name: string, code: number) => {
         return new Promise<boolean>(resolve => {
-            const handler = (data: any) => {
+            const handler = (data: {kind: string, taken: boolean}) => {
                 if (data.kind === "username_check_result") resolve(data.taken);
             };
             ws.onMessage(handler);
@@ -121,7 +125,7 @@ export const GameProvider: React.FC<{children: React.ReactNode}> = ({children}) 
     const checkGameHasStarted = async (code: number) => {
         await ws.waitForConnection();
         return new Promise<boolean>(resolve => {
-            const handler = (data: any) => {
+            const handler = (data: {kind: string, started: boolean}) => {
                 if (data.kind === "game_started_check_result") resolve(data.started);
             };
             ws.onMessage(handler);
@@ -141,6 +145,8 @@ export const GameProvider: React.FC<{children: React.ReactNode}> = ({children}) 
                 updateSettings,
                 startArticle,
                 articles,
+                currentTitle,
+                setCurrentTitle,
                 createGame,
                 joinGame,
                 sendMessage,

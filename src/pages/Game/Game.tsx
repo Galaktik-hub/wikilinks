@@ -11,12 +11,9 @@ import {useMediaQuery} from "react-responsive";
 import InventoryButton from "../../components/Buttons/Game/InventoryButton.tsx";
 import Header from "../../components/Header/Header.tsx";
 import GameEndScreen from "../../components/Sections/Game/EndGame/GameEndScreen.tsx";
-import {useGameContext} from "../../context/GameContext.tsx";
 
 const Game: React.FC = () => {
-    const gameContext = useGameContext();
     const [isGameEnded, setIsGameEnded] = useState(false);
-    const startArticle = gameContext.startArticle || "Paris";
 
     const isMobile = useMediaQuery({maxWidth: 767});
     const isDesktop = useMediaQuery({minWidth: 1200});
@@ -47,7 +44,7 @@ const Game: React.FC = () => {
                         <ObjectivesPanel />
                     </>
                 )}
-                <WikiPagePanel startArticle={startArticle} />
+                <WikiPagePanel />
                 {(isMobile || isIntermediate) && <ExitButton isHost={false} />}
             </div>
             {isDesktop && (

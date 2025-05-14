@@ -79,7 +79,46 @@ export const PlayersProvider: React.FC<{children: React.ReactNode}> = ({children
     const initInventory = () => ws.send({kind: "init_inventory"});
     const getHistory = () => ws.send({kind: "get_history"});
     const foundArtifact = (name: ArtifactName) => ws.send({kind: "game_event", event: {type: "foundArtifact", artefact: name}});
-    const usedArtifact = (name: ArtifactName) => ws.send({kind: "game_event", event: {type: "usedArtifact", artefact: name}});
+    const usedArtifact = (name: ArtifactName) => {
+        playArtifact(name);
+        ws.send({kind: "game_event", event: {type: "usedArtifact", artefact: name}});
+    };
+
+    const playArtifact = (name: ArtifactName) => {
+        const username = gameCtx.username;
+        if (!username) return;
+        switch (name) {
+            case "GPS":
+                break;
+            case "Retour":
+                playArtifactRetour(username);
+                break;
+            case "Mine":
+                break;
+            case "Teleporteur":
+                break;
+            case "Escargot":
+                break;
+            case "Gomme":
+                break;
+            case "Desorienteur":
+                break;
+            case "Dictateur":
+                break;
+        }
+    };
+
+    const playArtifactRetour = (username: string) => {
+        const hist = histories[username] ?? [];
+        for (let i = hist.length - 2; i >= 0; i--) {
+            const step = hist[i];
+            if (step.type === "foundPage" || step.type === "visitedPage") {
+                const previousTitle = (step.data as any).page_name;
+                gameCtx.setCurrentTitle(previousTitle);
+                break;
+            }
+        }
+    }
 
     return (
         <PlayersContext.Provider value={{players, inventory, foundArtifact, usedArtifact, histories, getHistory}}>

@@ -1,6 +1,6 @@
 import React from "react";
-import {useWikiNavigation} from "../../../context/WikiNavigationContext.tsx";
 import {useWebSocket} from "../../../context/WebSocketContext.tsx";
+import {useGameContext} from "../../../context/GameContext.tsx";
 
 interface WikiLinkProps extends React.AnchorHTMLAttributes<HTMLAnchorElement> {
     title: string; // Titre de l'article ciblé
@@ -8,11 +8,11 @@ interface WikiLinkProps extends React.AnchorHTMLAttributes<HTMLAnchorElement> {
 
 const WikiLink: React.FC<WikiLinkProps> = ({title, children, ...props}) => {
     const socketContext = useWebSocket();
-    const {setCurrentTitle} = useWikiNavigation();
+    const gameContext = useGameContext();
 
     const handleClick = (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
         e.preventDefault();
-        setCurrentTitle(title);
+        gameContext.setCurrentTitle(title);
 
         socketContext.send({
             kind: "game_event",

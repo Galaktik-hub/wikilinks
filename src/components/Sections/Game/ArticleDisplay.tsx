@@ -2,27 +2,27 @@ import React, {useState, useEffect, useCallback, useMemo} from "react";
 import {generateTOC, TOCItem} from "../../../utils/Game/TOCutils.ts";
 import TOC from "./TOC.tsx";
 import parse, {domToReact, HTMLReactParserOptions, Element, DOMNode} from "html-react-parser";
-import {useWikiNavigation} from "../../../context/WikiNavigationContext.tsx";
 import WikiLink from "../../Hypertext/Game/WikiLink";
 import {cleanHTMLContent} from "../../../utils/Game/ArticleCleaningUtils.ts";
 import {useNavigate} from "react-router-dom";
+import {useGameContext} from "../../../context/GameContext.tsx";
 
 interface ArticleDisplayProps {
     className?: string;
 }
 
 const ArticleDisplay: React.FC<ArticleDisplayProps> = ({className}) => {
-    const {currentTitle} = useWikiNavigation();
+    const gameContext = useGameContext();
     const [content, setContent] = useState("");
     const [tocItems, setTocItems] = useState<TOCItem[]>([]);
     const [mainImage, setMainImage] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
-    const sectionsToRemove = ["Voir aussi", "Notes et références"];
+    const sectionsToRemove = ["Voir aussi", "Notes et références", "Références"];
     const navigate = useNavigate();
 
     const fetchArticle = useCallback(async () => {
         try {
-            const url = `https://fr.wikipedia.org/w/api.php?action=parse&page=${encodeURIComponent(currentTitle)}&prop=text&format=json&origin=*`;
+            const url = `https://fr.wikipedia.org/w/api.php?action=parse&page=${encodeURIComponent(gameContext.currentTitle)}&prop=text&format=json&origin=*`;
             const response = await fetch(url);
             const textResponse = await response.text();
             let data;
@@ -68,7 +68,7 @@ const ArticleDisplay: React.FC<ArticleDisplayProps> = ({className}) => {
         if (content) content.scrollTop = 0;
         // Supprime le hash de l'URL
         navigate(window.location.pathname + window.location.search, {replace: true});
-    }, [currentTitle]);
+    }, [gameContext.currentTitle]);
 
     useEffect(() => {
         fetchArticle();
@@ -112,8 +112,8 @@ const ArticleDisplay: React.FC<ArticleDisplayProps> = ({className}) => {
 
     return (
         <div className={`article-content ${className}`}>
-            {mainImage && <img src={mainImage} alt={currentTitle} className="article-image" />}
-            <h1 className="text-center text-white my-4">{currentTitle.replace(/_/g, " ")}</h1>
+            {mainImage && <img src={mainImage} alt={gameContext.currentTitle} className="article-image" />}
+            <h1 className="text-center text-white my-4">{gameContext.currentTitle.replace(/_/g, " ")}</h1>
             {tocItems.length > 0 && <TOC items={tocItems} />}
             <div>{parse(content, options)}</div>
         </div>
