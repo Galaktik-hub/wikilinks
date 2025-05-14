@@ -89,11 +89,13 @@ export const PlayersProvider: React.FC<{children: React.ReactNode}> = ({children
         if (!username) return;
         switch (name) {
             case "GPS":
+                playArtifactGPS();
                 break;
             case "Retour":
                 playArtifactRetour(username);
                 break;
             case "Mine":
+                playArtifactMine();
                 break;
             case "Teleporteur":
                 break;
@@ -108,16 +110,34 @@ export const PlayersProvider: React.FC<{children: React.ReactNode}> = ({children
         }
     };
 
+    const playArtifactGPS = () => {
+        return;
+    }
+
     const playArtifactRetour = (username: string) => {
         const hist = histories[username] ?? [];
-        for (let i = hist.length - 2; i >= 0; i--) {
-            const step = hist[i];
+        // build sequence that contains only the pages
+        const seq: string[] = [];
+        hist.forEach(step => {
             if (step.type === "foundPage" || step.type === "visitedPage") {
-                const previousTitle = (step.data as any).page_name;
-                gameCtx.setCurrentTitle(previousTitle);
-                break;
+                const page = (step.data as any).page_name;
+                if (seq[seq.length - 1] !== page) {
+                    seq.push(page);
+                }
             }
-        }
+        });
+        // Find current page in the sequence
+        const current = gameCtx.currentTitle;
+        let idx = seq.lastIndexOf(current);
+        if (idx === -1) idx = seq.length - 1;
+        // Go back
+        const newIdx = idx > 0 ? idx - 1 : 0;
+        const previousTitle = seq[newIdx];
+        gameCtx.setCurrentTitle(previousTitle);
+    }
+
+    const playArtifactMine = () => {
+
     }
 
     return (
