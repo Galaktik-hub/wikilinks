@@ -1,6 +1,7 @@
 import React, {createContext, useContext, useEffect, useState} from "react";
 import {useWebSocket} from "./WebSocketContext.tsx";
 import {GameSettingsType} from "../components/Sections/WaitingRoom/GameSettings/GameSettings.tsx";
+import {ResultProps} from "../pages/Result/Result.tsx";
 
 interface Article {
     name: string;
@@ -27,7 +28,7 @@ export interface GameContextType {
     setIsGameOver: (value: boolean) => void;
 
     // scoreboard
-    scoreboard: Map<number, string[]>;
+    scoreboard: ResultProps[];
 
     // actions
     createGame: (payload: {timeLimit: number; numberOfArticles: number; maxPlayers: number; type: string; leaderName: string}) => void;
@@ -60,7 +61,7 @@ export const GameProvider: React.FC<{children: React.ReactNode}> = ({children}) 
     const [startArticle, setStart] = useState("");
 
     // scoreboard
-    const [scoreboard, setScoreboard] = useState<Map<number, string[]>>(new Map());
+    const [scoreboard, setScoreboard] = useState<ResultProps[]>([]);
 
     useEffect(() => {
         const handler = (data: any) => {
@@ -91,7 +92,7 @@ export const GameProvider: React.FC<{children: React.ReactNode}> = ({children}) 
                 case "game_over":
                     setIsGameOver(true);
                     setLoading(false);
-                    setScoreboard(new Map<number, string[]>(data.scoreboard));
+                    setScoreboard(data.scoreboard);
                     setArticles([]);
                     setStart("");
                     break;

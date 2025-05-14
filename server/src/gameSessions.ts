@@ -263,13 +263,13 @@ export class GameSession {
             case "visitedPage": {
                 const article = this.articles.find(article => article === data.page_name);
                 logger.info(`Article: "${data.page_name}"`);
-                player.visitedArticles++;
                 if (article) {
                     player.history.addStep("foundPage", {page_name: data.page_name});
                     player.foundArticles++;
                     data.type = "foundPage";
                 } else {
                     player.history.addStep("visitedPage", {page_name: data.page_name});
+                    player.visitedArticles++;
                 }
                 break;
             }
@@ -319,20 +319,34 @@ export class GameSession {
      * Sends the game over message to all players, as well as the scoreboard.
      */
     public endGame(): void {
+        const results: { rank: number; name: string; score: number }[] = [];
+
+        // We build the scores base on a formula
+        this.scoreboard.forEach((names, rank) => {
+            names.forEach(name => {
+                const player = this.members.get(name);
+                if (player) {
+                    const score = player.foundArticles * 100 - player.visitedArticles * 5;
+                    results.push({ rank, name: player.name, score });
+                }
+            });
+        });
+
         this.members.forEach(member => {
             if (member.ws.readyState === WebSocket.OPEN) {
-                member.ws.send(
-                    JSON.stringify({
-                        kind: "game_over",
-                        scoreboard: Array.from(this.scoreboard.entries()),
-                    }),
-                );
+                member.ws.send(JSON.stringify({
+                    kind: "game_over",
+                    scoreboard: results,
+                }));
             }
         });
+
+        // Réinitialisation de l’état
         this.hasStarted = false;
         this.articles = [];
         this.startArticle = "";
     }
+
 }
 
 export class GameSessionManager {
