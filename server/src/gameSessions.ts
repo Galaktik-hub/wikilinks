@@ -256,6 +256,21 @@ export class GameSession {
     }
 
     /**
+     * Returns the initialise inventory of all players in the session.
+     */
+    public initInventory(): any[] {
+        const inventory = [];
+        this.members.forEach(member => {
+            member.inventory.initInventory();
+            inventory.push({
+                player: member.name,
+                inventory: member.inventory.getInventory(),
+            });
+        });
+        return inventory;
+    }
+
+    /**
      * Returns the inventory of all players in the session.
      */
     public getInventory(): any[] {

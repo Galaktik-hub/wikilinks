@@ -18,7 +18,6 @@ interface PlayersContextType {
     inventory: Record<ArtifactName, Artifact>;
     foundArtifact: (name: ArtifactName) => void;
     usedArtifact: (name: ArtifactName) => void;
-    getInventory: () => void;
 
     // history
     histories: Record<string, TimelineStep[]>;
@@ -38,7 +37,7 @@ export const PlayersProvider: React.FC<{children: React.ReactNode}> = ({children
         const handler = (data: any) => {
             switch (data.kind) {
                 case "game_launched":
-                    getInventory();
+                    initInventory();
                     break;
                 case "players_update":
                     setPlayers(data.players);
@@ -77,13 +76,13 @@ export const PlayersProvider: React.FC<{children: React.ReactNode}> = ({children
         };
     }, [ws]);
 
-    const getInventory = () => ws.send({kind: "get_inventory"});
+    const initInventory = () => ws.send({kind: "init_inventory"});
     const getHistory = () => ws.send({kind: "get_history"});
     const foundArtifact = (name: ArtifactName) => ws.send({kind: "game_event", event: {type: "foundArtifact", artefact: name}});
     const usedArtifact = (name: ArtifactName) => ws.send({kind: "game_event", event: {type: "usedArtifact", artefact: name}});
 
     return (
-        <PlayersContext.Provider value={{players, inventory, foundArtifact, usedArtifact, getInventory, histories, getHistory}}>
+        <PlayersContext.Provider value={{players, inventory, foundArtifact, usedArtifact, histories, getHistory}}>
             {children}
         </PlayersContext.Provider>
     );

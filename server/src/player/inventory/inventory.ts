@@ -4,6 +4,7 @@ export class Inventory {
     private artifacts: Record<ArtifactName, Artifact>;
 
     constructor() {
+        this.artifacts = {} as Record<ArtifactName, Artifact>;
         this.initInventory();
     }
 
@@ -12,7 +13,6 @@ export class Inventory {
     }
 
     initInventory() {
-        this.artifacts = {} as Record<ArtifactName, Artifact>;
         for (const name in artifactDefinitions) {
             const artifactName = name as ArtifactName;
             const def = artifactDefinitions[artifactName];

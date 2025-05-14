@@ -213,12 +213,12 @@ export async function handleMessage(ws: WebSocket, message: any, context: Client
             );
             break;
         }
-        case "get_inventory": {
+        case "init_inventory": {
             const session = getSessionOrError(ws, context);
             ws.send(
                 JSON.stringify({
                     kind: "inventory",
-                    inventory: session.getInventory(),
+                    inventory: session.initInventory(),
                 }),
             );
             break;
