@@ -31,14 +31,13 @@ const Game: React.FC = () => {
     );
 
     useEffect(() => {
-        // For test the end screen animation set this at true
-        setIsGameEnded(true);
-    }, []);
+        setIsGameEnded(gameContext.isGameOver);
+    }, [gameContext.isGameOver]);
 
     return (
         <Layout header={<Header />} leftColumn={isDesktop ? desktopLeft : null} rightColumn={isDesktop ? <TextLoungePanel /> : null}>
             {/* Écran de fin de partie */}
-            <GameEndScreen isVisible={isGameEnded} />
+            {isGameEnded && <GameEndScreen isVisible={isGameEnded} />}
 
             <div className="flex flex-col w-full h-full gap overflow-hidden items-center justify-center p-4 relative gap-5">
                 {(isMobile || isIntermediate) && (

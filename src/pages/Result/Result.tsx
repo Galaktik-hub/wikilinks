@@ -7,6 +7,7 @@ import TextLoungePanel from "../../components/Sections/WaitingRoom/TextLounge/Te
 import Leaderboard from "../../components/Sections/Result/LeaderBoard/LeaderBoard.tsx";
 import Header from "../../components/Header/Header.tsx";
 import ReturnToLobbyButton from "../../components/Buttons/Result/ReturnToLobbyButton.tsx";
+import {useGameContext} from "../../context/GameContext.tsx";
 
 export interface ResultProps {
     rank: number;
@@ -14,17 +15,25 @@ export interface ResultProps {
     score: number;
 }
 
-const players: ResultProps[] = [
-    {rank: 1, name: "Alex", score: 2450},
-    {rank: 2, name: "Maria", score: 2280},
-    {rank: 3, name: "John", score: 2150},
-    {rank: 4, name: "Joueur 4", score: 2000},
-];
-
-// Si moins de 3 joueurs, on fournit uniquement ceux nécessaires
-const podiumPlayers = players.slice(0, 3);
-
 const Result: React.FC = () => {
+    const {scoreboard} = useGameContext();
+
+    if (scoreboard.length === 0) {
+        return (
+            <Layout header={<Header />}>
+                <div className="flex items-center justify-center h-full">
+                    {/* A spinner could be implemented here */}
+                    <p>Chargement des résultats...</p>
+                </div>
+            </Layout>
+        );
+    }
+
+    const podiumPlayers: ResultProps[] = scoreboard
+        .filter(p => p.rank >= 1 && p.rank <= 3)
+        // en cas d’ex æquo, plusieurs même rang
+        .sort((a, b) => a.rank - b.rank);
+
     return (
         <Layout header={<Header />}>
             <div className="flex flex-col w-full overflow-hidden items-center justify-center p-4 gap-6 max-md:mb-16">
@@ -32,7 +41,7 @@ const Result: React.FC = () => {
                 <section className="w-full flex gap-6">
                     <div className="w-full flex flex-col gap-6">
                         <Podium players={podiumPlayers} />
-                        <Leaderboard players={players} showCourse={false} />
+                        <Leaderboard players={scoreboard} showCourse={false} />
                     </div>
                     <div className="hidden xl-custom:flex w-full max-h-[633px] flex-col gap-6">
                         <TextLoungePanel />
