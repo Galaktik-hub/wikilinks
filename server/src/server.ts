@@ -30,7 +30,7 @@ wss.on("connection", (ws: WebSocket) => {
         if (context.currentGameSessionId && context.currentUser) {
             const session = GameSessionManager.getSession(context.currentGameSessionId);
             if (session) {
-                session.handlePlayerDeparture(context.currentUser);
+                session.handlePlayerDeparture(context.currentUser.name);
             }
         }
     });

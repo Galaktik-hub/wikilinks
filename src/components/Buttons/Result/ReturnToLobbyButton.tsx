@@ -6,7 +6,7 @@ import {useGameContext} from "../../../context/GameContext.tsx";
 
 const ReturnToLobbyButton: React.FC = () => {
     const navigate = useNavigate();
-    const { setIsGameOver } = useGameContext();
+    const {setIsGameOver} = useGameContext();
 
     const handleClick = () => {
         setIsGameOver(false);

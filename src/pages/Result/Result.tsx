@@ -16,7 +16,7 @@ export interface ResultProps {
 }
 
 const Result: React.FC = () => {
-    const { scoreboard } = useGameContext();
+    const {scoreboard} = useGameContext();
 
     if (scoreboard.length === 0) {
         return (

@@ -71,7 +71,8 @@ export class GameSession {
      * Adds a player into the session if the capacity is not reached.
      * The player is added with the role "client".
      */
-    public addPlayer(player: Player): boolean {
+    public addPlayer(playerName: string): boolean {
+        const player = this.members.get(playerName);
         if (this.members.size >= this.maxPlayers) return false;
         this.members.set(player.name, player);
         this.bots.forEach(bot => {
@@ -87,14 +88,14 @@ export class GameSession {
      * Removes the player from the session if they are not the leader.
      * Returns true if the player was removed.
      */
-    public removePlayer(player: Player): boolean {
-        const member = this.members.get(player.name);
+    public removePlayer(playerName: string): boolean {
+        const member = this.members.get(playerName);
         if (!member || member.role === "creator") return false;
-        const removed = this.members.delete(player.name);
+        const removed = this.members.delete(playerName);
         if (removed) {
             this.bots.forEach(bot => {
                 if (bot instanceof JoinLeaveBot) {
-                    bot.notifyMemberLeave(player.name);
+                    bot.notifyMemberLeave(playerName);
                 }
             });
             this.refreshPlayers();
@@ -183,7 +184,8 @@ export class GameSession {
      * If the departing player is the leader, the room closure message is sent to every member and the session is ended.
      * Otherwise, the player is simply removed from the session.
      */
-    public handlePlayerDeparture(player: Player): void {
+    public handlePlayerDeparture(playerName: string): void {
+        const player = this.members.get(playerName);
         if (player.name === this.leader.name) {
             this.members.forEach(member => {
                 if (member.ws.readyState === member.ws.OPEN) {
@@ -192,7 +194,7 @@ export class GameSession {
             });
             GameSessionManager.endSession(this.id);
         } else {
-            if (this.removePlayer(player)) {
+            if (this.removePlayer(playerName)) {
                 logger.info(`Player "${player.name}" has been removed from session ${this.id} by host "${this.leader.name}"`);
             }
         }
@@ -319,7 +321,7 @@ export class GameSession {
      * Sends the game over message to all players, as well as the scoreboard.
      */
     public endGame(): void {
-        const results: { rank: number; name: string; score: number }[] = [];
+        const results: {rank: number; name: string; score: number}[] = [];
 
         // We build the scores base on a formula
         this.scoreboard.forEach((names, rank) => {
@@ -327,17 +329,19 @@ export class GameSession {
                 const player = this.members.get(name);
                 if (player) {
                     const score = player.foundArticles * 100 - player.visitedArticles * 5;
-                    results.push({ rank, name: player.name, score });
+                    results.push({rank, name: player.name, score});
                 }
             });
         });
 
         this.members.forEach(member => {
             if (member.ws.readyState === WebSocket.OPEN) {
-                member.ws.send(JSON.stringify({
-                    kind: "game_over",
-                    scoreboard: results,
-                }));
+                member.ws.send(
+                    JSON.stringify({
+                        kind: "game_over",
+                        scoreboard: results,
+                    }),
+                );
             }
         });
 
@@ -346,7 +350,6 @@ export class GameSession {
         this.articles = [];
         this.startArticle = "";
     }
-
 }
 
 export class GameSessionManager {

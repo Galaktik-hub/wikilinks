@@ -86,7 +86,7 @@ export const GameProvider: React.FC<{children: React.ReactNode}> = ({children}) 
                 case "game_update":
                     if (data.event.type === "foundPage") {
                         const p = data.event.data.page_name;
-                        setArticles(prev => prev.map(a => a.name === p ? {...a, found: true} : a));
+                        setArticles(prev => prev.map(a => (a.name === p ? {...a, found: true} : a)));
                     }
                     break;
                 case "game_over":
