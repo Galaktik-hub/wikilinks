@@ -19,7 +19,7 @@ const ObjectivesPanel: React.FC = () => {
     const [objectives, setObjectives] = React.useState<Objective[]>([]);
 
     const fetchObjectives = () => {
-        if (gameContext.articles) {
+        if (gameContext.articles && gameContext.articles.length > 0) {
             const updatedObjectives: Objective[] = [];
             gameContext.articles.forEach((article: {name: string; found: boolean}, index: number) => {
                 updatedObjectives.push({
@@ -35,13 +35,9 @@ const ObjectivesPanel: React.FC = () => {
                 text: `Atteindre l'article ${challengeContext.targetArticle.replace(/_+/g, " ")}`,
                 isReached: false,
             };
-            setObjectives(prev => [...prev, targetObjective]);
+            setObjectives([targetObjective]);
         }
     };
-
-    useEffect(() => {
-        fetchObjectives();
-    }, [gameContext.articles, challengeContext.targetArticle, fetchObjectives]);
 
     useEffect(() => {
         fetchObjectives();
