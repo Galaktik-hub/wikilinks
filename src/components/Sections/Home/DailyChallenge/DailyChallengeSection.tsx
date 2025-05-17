@@ -4,6 +4,8 @@ import {PlayButton} from "./PlayButton";
 import {PlayerCount} from "./PlayerCount";
 import AndroidSVG from "../../../../assets/Home/AndroidSVG.tsx";
 import TrophySVG from "../../../../assets/Home/TrophySVG.tsx";
+import {useNavigate} from "react-router-dom";
+import {isAndroid} from "../../../../functions/androidCheck.ts";
 
 interface DailyChallengeSectionProps {
     title: string;
@@ -11,7 +13,11 @@ interface DailyChallengeSectionProps {
 }
 
 const DailyChallengeSection: React.FC<DailyChallengeSectionProps> = ({title, playerCount}) => {
-    const isAndroid = () => window.AndroidApp !== undefined;
+    const navigate = useNavigate();
+
+    const handleClick = () => {
+        navigate("/challenge");
+    };
 
     if (isAndroid()) {
         // Display the daily challenge for mobile only if it's on Android
@@ -23,11 +29,7 @@ const DailyChallengeSection: React.FC<DailyChallengeSectionProps> = ({title, pla
                 </div>
                 <h2 className="text-2xl md:text-3xl text-center my-4">{title}</h2>
                 <PlayerCount count={playerCount} />
-                <PlayButton
-                    onClick={() => {
-                        console.log("Daily challenge clicked");
-                    }}
-                />
+                <PlayButton onClick={handleClick} />
             </div>
         );
     } else {

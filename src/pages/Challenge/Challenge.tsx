@@ -6,6 +6,7 @@ import Podium from "../../components/Sections/Result/Podium/Podium.tsx";
 import Leaderboard from "../../components/Sections/Result/LeaderBoard/LeaderBoard.tsx";
 import Header from "../../components/Header/Header.tsx";
 import LaunchButtonChallenge from "../../components/Buttons/Challenge/Game/LaunchButtonChallenge.tsx";
+import {useNavigate} from "react-router-dom";
 
 export interface ResultProps {
     rank: number;
@@ -24,10 +25,11 @@ const players: ResultProps[] = [
 const podiumPlayers = players.slice(0, 3);
 
 const Challenge: React.FC = () => {
+    const navigate = useNavigate();
     const alreadyPlayed = true;
 
     const handleLaunch = () => {
-        console.log("Launch clicked");
+        navigate("/challenge/game");
     };
 
     return (

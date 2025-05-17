@@ -36,7 +36,7 @@ export class WikipediaServices {
         sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
 
         // Build random date list between sixMonthsAgo and yesterday
-        const randomDates = Array.from({ length: this.RANDOM_SAMPLE_COUNT }, () => {
+        const randomDates = Array.from({length: this.RANDOM_SAMPLE_COUNT}, () => {
             const d = this.getRandomDate(sixMonthsAgo, yesterday);
             return {
                 year: d.getFullYear(),
@@ -48,25 +48,23 @@ export class WikipediaServices {
         const aggregated = new Map<string, number>();
 
         await Promise.all(
-            randomDates.map(async ({ year, month, day }) => {
+            randomDates.map(async ({year, month, day}) => {
                 try {
                     const articles = await this.fetchArticlesForDate(year, month, day);
-                    for (const { article, views } of articles) {
-                        if (article === "Main_Page" || article.includes(':')) continue;
+                    for (const {article, views} of articles) {
+                        if (article === "Main_Page" || article.includes(":")) continue;
                         aggregated.set(article, (aggregated.get(article) || 0) + views);
                     }
                 } catch (err) {
                     if (axios.isAxiosError(err)) {
                         const status = err.response?.status;
                         const code = err.code;
-                        logger.error(
-                            `Error fetching ${year}-${month}-${day}: status=${status}, code=${code}, message=${err.message}`
-                        );
+                        logger.error(`Error fetching ${year}-${month}-${day}: status=${status}, code=${code}, message=${err.message}`);
                     } else {
                         logger.error(`Unknown error for ${year}-${month}-${day}: ${err}`);
                     }
                 }
-            })
+            }),
         );
 
         // Filter popular
@@ -90,23 +88,16 @@ export class WikipediaServices {
     /**
      * Helper: fetch articles for a given date via axios and show error code
      */
-    private static async fetchArticlesForDate(
-        year: number,
-        month: string,
-        day: string
-    ): Promise<{ article: string; views: number }[]> {
-        const url =
-            `https://wikimedia.org/api/rest_v1/metrics/pageviews/top/fr.wikipedia/all-access/${year}/${month}/${day}`;
+    private static async fetchArticlesForDate(year: number, month: string, day: string): Promise<{article: string; views: number}[]> {
+        const url = `https://wikimedia.org/api/rest_v1/metrics/pageviews/top/fr.wikipedia/all-access/${year}/${month}/${day}`;
         try {
-            const resp = await axios.get(url, { timeout: 7000 });
+            const resp = await axios.get(url, {timeout: 7000});
             return resp.data?.items?.[0]?.articles;
         } catch (err) {
             if (axios.isAxiosError(err)) {
                 const status = err.response?.status;
                 const code = err.code;
-                logger.error(
-                    `Error fetching data for ${year}-${month}-${day}: status=${status}, code=${code}, message=${err.message}`
-                );
+                logger.error(`Error fetching data for ${year}-${month}-${day}: status=${status}, code=${code}, message=${err.message}`);
             } else {
                 logger.error(`Error fetching data for ${year}-${month}-${day}: ${err}`);
             }
