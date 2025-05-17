@@ -93,8 +93,8 @@ export class ChallengeSession {
     /**
      * Handles a page visit or found event.
      */
-    public handleEvent(type: "visitedPage" | "foundPage", pageName: string): void {
-        if (type === "foundPage") {
+    public handleEvent(pageName: string): void {
+        if (pageName === this.targetArticle) {
             this.player.history.addStep("foundPage", {page_name: pageName});
             this.player.foundArticles++;
             this.finish();
@@ -109,13 +109,12 @@ export class ChallengeSession {
      */
     public async finish(): Promise<void> {
         this.finishTimestamp = new Date();
-        const score = 100 - this.player.visitedArticles * 5;
+        const score = 1000 - this.player.visitedArticles * 5;
 
         // Notify player
         this.player.ws.send(
             JSON.stringify({
                 kind: "challenge_end",
-                found: this.player.foundArticles,
                 visited: this.player.visitedArticles,
                 score,
             }),
@@ -128,6 +127,7 @@ export class ChallengeSession {
                 players: [
                     {
                         name: this.player.name,
+                        startArticle: this.startArticle,
                         startTimestamp: this.startTimestamp,
                         finishTimestamp: this.finishTimestamp,
                         articlesCount: this.player.visitedArticles,

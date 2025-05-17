@@ -10,6 +10,7 @@ import {useNavigate} from "react-router-dom";
 import {isAndroid} from "../../functions/androidCheck.ts";
 import {getClosestArticleFromLocation, getLocation} from "../../utils/Location/LocationUtils";
 import {useChallengeContext} from "../../context/ChallengeContext";
+import ExitButton from "../../components/Buttons/WaitingRoom/ExitButton";
 
 export interface ResultProps {
     rank: number;
@@ -79,8 +80,9 @@ const Challenge: React.FC = () => {
                         <Leaderboard players={players} showCourse={alreadyPlayed} />
                     </div>
                 </section>
-                <section className="w-full flex justify-center">
+                <section className="w-full flex flex-wrap justify-center gap-x-12 gap-y-4 mt-6 max-md:mt-2">
                     <LaunchButtonChallenge onLaunch={handleLaunch} alreadyPlayed={alreadyPlayed} />
+                    <ExitButton isHost={false} />
                 </section>
             </div>
         </Layout>

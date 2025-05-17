@@ -437,14 +437,21 @@ export async function handleMessage(ws: WebSocket, message: any, context: Client
             break;
         }
         case "disconnect": {
-            const {currentRoomId, currentUser} = context;
+            const {currentRoomId, currentChallengeSessionId, currentUser} = context;
             if (currentRoomId && currentUser) {
                 const session = GameSessionManager.getSession(currentRoomId);
                 if (session) {
                     session.handlePlayerDeparture(currentUser.name);
                 }
             }
-            ws.close();
+            if (currentChallengeSessionId && currentUser) {
+                ChallengeSessionManager.endSession(currentChallengeSessionId);
+            }
+            ws.send(
+                JSON.stringify({
+                    kind: "disconnected",
+                }),
+            );
             break;
         }
         case "close_room": {
@@ -470,6 +477,8 @@ export async function handleMessage(ws: WebSocket, message: any, context: Client
             const allSessions = GameSessionManager.getAllPublicSessions();
             logger.info(`Number of sessions : ${allSessions.size}`);
             const sessionsArray: SessionSummary[] = [];
+            // I don't know why the hell it doesn't connect normally when we leave the Challenge session
+            await mongoose.connect(mongoUri, {dbName: "Wikilinks"});
             const article = await ChallengeSession.fetchTodayChallenge();
             const challengeCount = await ChallengeSession.fetchNumberPlayerTodayChallenge();
             allSessions.forEach((session, id) => {

@@ -328,7 +328,7 @@ export class GameSession {
             names.forEach(name => {
                 const player = this.members.get(name);
                 if (player) {
-                    const score = player.foundArticles * 100 - player.visitedArticles * 5;
+                    const score = player.foundArticles * 1000 - player.visitedArticles * 5;
                     results.push({rank, name: player.name, score});
                 }
             });

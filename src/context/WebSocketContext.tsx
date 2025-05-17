@@ -4,6 +4,7 @@ import React, {createContext, useContext, useEffect, useRef, useState} from "rea
 import {PlayersProvider} from "./PlayersContext.tsx";
 import {GameProvider} from "./GameContext.tsx";
 import {ChallengeProvider} from "./ChallengeContext";
+import {useNavigate} from "react-router-dom";
 
 interface WebSocketContextType {
     ws?: WebSocket | null;
@@ -22,6 +23,7 @@ export const WebSocketProvider: React.FC<{children: React.ReactNode}> = ({childr
     const [messages, setMessages] = useState<any[]>([]);
     const wsRef = useRef<WebSocket | null>(null);
     const handlers = useRef<((data: any) => void)[]>([]);
+    const navigate = useNavigate();
 
     useEffect(() => {
         const socket = new WebSocket(import.meta.env.VITE_MODE === "prod" ? import.meta.env.VITE_WS_DOMAIN_PROD : import.meta.env.VITE_WS_DOMAIN_LOCAL);
@@ -35,6 +37,10 @@ export const WebSocketProvider: React.FC<{children: React.ReactNode}> = ({childr
         socket.onmessage = ({data}) => {
             try {
                 const msg = JSON.parse(data);
+                // We just look for the special event "disconnected" to redirect the user
+                if (msg.kind === "disconnected") {
+                    navigate("/");
+                }
                 setMessages(prev => [...prev, msg]);
                 handlers.current.forEach(h => h(msg));
             } catch (error) {
@@ -43,7 +49,7 @@ export const WebSocketProvider: React.FC<{children: React.ReactNode}> = ({childr
         };
         socket.onclose = () => {
             setConnected(false);
-            window.location.href = "/";
+            navigate("/");
             console.log("Déconnecté du serveur WebSocket");
         };
         socket.onerror = error => {
