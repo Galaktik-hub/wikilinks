@@ -14,7 +14,7 @@ import {useNavigate} from "react-router-dom";
 
 const Game: React.FC = () => {
     const challengeContext = useChallengeContext();
-    const [isGameEnded, setIsGameEnded] = useState(false);
+    const [isGameOver, setIsGameOver] = useState(false);
     const navigate = useNavigate();
     const startArticle = challengeContext.startArticle || "Paris";
 
@@ -33,14 +33,16 @@ const Game: React.FC = () => {
         if (!isAndroid()) {
             navigate("/");
         }
-
-        setIsGameEnded(false);
     }, []);
+
+    useEffect(() => {
+        setIsGameOver(challengeContext.isGameOver);
+    }, [challengeContext.isGameOver]);
 
     return (
         <Layout header={<Header />} leftColumn={isDesktop ? desktopLeft : null}>
             {/* Écran de fin de partie */}
-            <GameEndScreen isVisible={isGameEnded} />
+            {isGameOver && <GameEndScreen isVisible={isGameOver} />}
 
             <div className="flex flex-col w-full h-full gap overflow-hidden items-center justify-center p-4 relative gap-5">
                 {(isMobile || isIntermediate) && <ObjectivesPanel />}

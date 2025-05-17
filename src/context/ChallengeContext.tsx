@@ -36,7 +36,7 @@ export const ChallengeProvider: React.FC<{children: React.ReactNode}> = ({childr
     const [sessionId, setSessionId] = useState<string>("");
 
     // game state
-    const [isGameOver, setIsGameOver] = useState(true);
+    const [isGameOver, setIsGameOver] = useState(false);
 
     // articles
     const [articles, setArticles] = useState<Article[]>([]);
@@ -56,8 +56,6 @@ export const ChallengeProvider: React.FC<{children: React.ReactNode}> = ({childr
                     setArticles([]);
                     setStartArticle("");
                     break;
-                case "challenge_started":
-                    setIsGameOver(false);
             }
         };
         ws.onMessage(handler);

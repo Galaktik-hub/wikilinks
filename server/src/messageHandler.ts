@@ -23,9 +23,6 @@ interface SessionSummary {
 }
 
 export async function handleMessage(ws: WebSocket, message: any, context: ClientContext) {
-    // We connect to the database here to avoid multiple connections
-    const mongoUri = process.env.MONGODB_URI;
-    await mongoose.connect(mongoUri, {dbName: "Wikilinks"});
     switch (message.kind) {
         case "create_game_session": {
             if (message.timeLimit == null || message.numberOfArticles == null || message.maxPlayers == null || !message.type || !message.leaderName) {
@@ -178,27 +175,15 @@ export async function handleMessage(ws: WebSocket, message: any, context: Client
             break;
         }
         case "game_event": {
-            const {currentGameSessionId, currentUser} = context;
-            if (!currentGameSessionId || !currentUser) {
-                ws.send(
-                    JSON.stringify({
-                        kind: "error",
-                        message: "Not in a game session",
-                    }),
-                );
-                return;
+            const {currentGameSessionId, currentChallengeSessionId, currentUser} = context;
+            const gameSession = GameSessionManager.getSession(currentGameSessionId);
+            if (gameSession) {
+                gameSession.handleGameEvent(currentUser.name, message.event);
             }
-            const session = GameSessionManager.getSession(currentGameSessionId);
-            if (!session) {
-                ws.send(
-                    JSON.stringify({
-                        kind: "error",
-                        message: "Game session not found",
-                    }),
-                );
-                return;
+            const challengeSession = ChallengeSessionManager.getSession(currentChallengeSessionId);
+            if (challengeSession) {
+                challengeSession.handleEvent(message.event.page_name);
             }
-            session.handleGameEvent(currentUser.name, message.event);
             break;
         }
         case "update_settings": {
@@ -399,14 +384,15 @@ export async function handleMessage(ws: WebSocket, message: any, context: Client
             break;
         }
         case "create_challenge_session": {
-            const player = new Player(message.playerName, ws, "creator", true);
+            const player = new Player(message.username, ws, "creator", true);
+            context.currentUser = player;
             const challenge = ChallengeSessionManager.createSession(player, message.startArticle);
             const article = await ChallengeSession.fetchTodayChallenge();
             context.currentChallengeSessionId = challenge.id;
             ws.send(
                 JSON.stringify({
                     kind: "challenge_session_created",
-                    targetArticle: article,
+                    targetArticle: article.targetArticle,
                     id: challenge.id,
                 }),
             );
@@ -477,8 +463,6 @@ export async function handleMessage(ws: WebSocket, message: any, context: Client
             const allSessions = GameSessionManager.getAllPublicSessions();
             logger.info(`Number of sessions : ${allSessions.size}`);
             const sessionsArray: SessionSummary[] = [];
-            // I don't know why the hell it doesn't connect normally when we leave the Challenge session
-            await mongoose.connect(mongoUri, {dbName: "Wikilinks"});
             const article = await ChallengeSession.fetchTodayChallenge();
             const challengeCount = await ChallengeSession.fetchNumberPlayerTodayChallenge();
             allSessions.forEach((session, id) => {
@@ -496,7 +480,7 @@ export async function handleMessage(ws: WebSocket, message: any, context: Client
                 JSON.stringify({
                     kind: "all_sessions",
                     sessions: sessionsArray,
-                    challengeArticle: article,
+                    challengeArticle: article.targetArticle,
                     challengeCount: challengeCount,
                 }),
             );
@@ -507,5 +491,4 @@ export async function handleMessage(ws: WebSocket, message: any, context: Client
             ws.close();
         }
     }
-    await mongoose.disconnect();
 }

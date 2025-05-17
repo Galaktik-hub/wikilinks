@@ -15,7 +15,7 @@ import {useGameContext} from "../../context/GameContext.tsx";
 
 const Game: React.FC = () => {
     const gameContext = useGameContext();
-    const [isGameEnded, setIsGameEnded] = useState(false);
+    const [isGameOver, setIsGameOver] = useState(false);
     const startArticle = gameContext.startArticle || "Paris";
 
     const isMobile = useMediaQuery({maxWidth: 767});
@@ -31,13 +31,13 @@ const Game: React.FC = () => {
     );
 
     useEffect(() => {
-        setIsGameEnded(gameContext.isGameOver);
+        setIsGameOver(gameContext.isGameOver);
     }, [gameContext.isGameOver]);
 
     return (
         <Layout header={<Header />} leftColumn={isDesktop ? desktopLeft : null} rightColumn={isDesktop ? <TextLoungePanel /> : null}>
             {/* Écran de fin de partie */}
-            {isGameEnded && <GameEndScreen isVisible={isGameEnded} />}
+            {isGameOver && <GameEndScreen isVisible={isGameOver} />}
 
             <div className="flex flex-col w-full h-full gap overflow-hidden items-center justify-center p-4 relative gap-5">
                 {(isMobile || isIntermediate) && (

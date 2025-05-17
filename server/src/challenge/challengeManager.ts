@@ -1,10 +1,10 @@
 import * as dotenv from "dotenv";
 dotenv.config();
-import mongoose from "mongoose";
 import logger from "../logger";
 import {Player} from "../player/player";
 import ChallengeModel, {ChallengeDocument} from "../models/models";
 import {randomUUID} from "node:crypto";
+import mongoose from "mongoose";
 
 /**
  * Manages a single-player Wikipedia challenge: fetching articles,
@@ -29,16 +29,20 @@ export class ChallengeSession {
      * Initializes challenge: fetches articles, sets timestamps, and notifies player.
      */
     public async start(): Promise<void> {
-        this.targetArticle = await ChallengeSession.fetchTodayChallenge();
+        const article = await ChallengeSession.fetchTodayChallenge();
+        this.targetArticleId = article._id;
+        this.targetArticle = article.targetArticle;
 
         // Initialize player state
         this.player.reset();
-        this.player.visitedArticles = 0;
+        this.player.visitedArticles = 1;
         this.player.foundArticles = 0;
         this.startTimestamp = new Date();
     }
 
-    public static async fetchTodayChallenge(): Promise<string> {
+    public static async fetchTodayChallenge(): Promise<{targetArticle: string, _id: string}> {
+        const mongoUri = process.env.MONGODB_URI;
+        await mongoose.connect(mongoUri, {dbName: "Wikilinks"});
         const {start, end} = ChallengeSession.getTodayAndTomorrowDateObject();
 
         const challenge: ChallengeDocument | null = await ChallengeModel.findOne({
@@ -49,10 +53,14 @@ export class ChallengeSession {
             throw new Error(`Aucun challenge trouvé entre ${start.toISOString()} et ${end.toISOString()}`);
         }
 
-        return challenge.targetArticle;
+        await mongoose.connection.close();
+
+        return {targetArticle: challenge.targetArticle, _id: challenge._id as string};
     }
 
     public static async fetchNumberPlayerTodayChallenge(): Promise<number> {
+        const mongoUri = process.env.MONGODB_URI;
+        await mongoose.connect(mongoUri, {dbName: "Wikilinks"});
         const {start, end} = ChallengeSession.getTodayAndTomorrowDateObject();
 
         const challenge = await ChallengeModel.findOne({
@@ -62,6 +70,8 @@ export class ChallengeSession {
         if (!challenge) {
             return 0;
         }
+
+        await mongoose.connection.close();
 
         return challenge.players.length;
     }
@@ -94,6 +104,7 @@ export class ChallengeSession {
      * Handles a page visit or found event.
      */
     public handleEvent(pageName: string): void {
+        logger.info(`Player ${this.player.name} visited page "${pageName}" in a challenge.`);
         if (pageName === this.targetArticle) {
             this.player.history.addStep("foundPage", {page_name: pageName});
             this.player.foundArticles++;
@@ -111,10 +122,12 @@ export class ChallengeSession {
         this.finishTimestamp = new Date();
         const score = 1000 - this.player.visitedArticles * 5;
 
+        logger.info(`Player ${this.player.name} finished challenge with score ${score}`);
+
         // Notify player
         this.player.ws.send(
             JSON.stringify({
-                kind: "challenge_end",
+                kind: "challenge_ended",
                 visited: this.player.visitedArticles,
                 score,
             }),
@@ -122,6 +135,16 @@ export class ChallengeSession {
 
         // Record in DB
         try {
+            const mongoUri = process.env.MONGODB_URI;
+            await mongoose.connect(mongoUri, {dbName: "Wikilinks"});
+            // We get the history of the player only if the page is defined
+            const history: string[] = this.player.history.getHistory().map((step) => {
+                if (step.type === "visitedPage" || step.type === "foundPage") {
+                    return step.data.page_name;
+                } else{
+                    return this.startArticle;
+                }
+            });
             await ChallengeModel.updateOne({
                 _id: this.targetArticleId,
                 players: [
@@ -131,13 +154,17 @@ export class ChallengeSession {
                         startTimestamp: this.startTimestamp,
                         finishTimestamp: this.finishTimestamp,
                         articlesCount: this.player.visitedArticles,
+                        articles: history,
                     },
                 ],
             });
+            await mongoose.connection.close();
             logger.info(`Score enregistré pour ${this.player.name}: ${score}`);
         } catch (err: any) {
             logger.error(`Erreur lors de l'enregistrement du score: ${err.message}`);
         }
+
+        ChallengeSessionManager.endSession(this.id);
     }
 }
 
