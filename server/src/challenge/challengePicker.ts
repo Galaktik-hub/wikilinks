@@ -1,4 +1,3 @@
-// src/index.ts
 import * as dotenv from "dotenv";
 dotenv.config();
 import mongoose, {Schema, Document, model} from "mongoose";
@@ -17,6 +16,7 @@ interface Player {
     startTimestamp: Date;
     finishTimestamp?: Date;
     articlesCount: number;
+    articles: string[];
 }
 
 interface ChallengeDocument extends Document {
@@ -27,11 +27,12 @@ interface ChallengeDocument extends Document {
 
 const PlayerSchema = new Schema<Player>(
     {
-        name: {type: String, required: true, unique: true},
+        name: {type: String, required: true},
         startArticle: {type: String, required: true},
         startTimestamp: {type: Date, required: true},
         finishTimestamp: {type: Date},
         articlesCount: {type: Number, default: 0},
+        articles: {type: [String], default: []},
     },
     {_id: false},
 );
@@ -47,16 +48,18 @@ const ChallengeSchema = new Schema<ChallengeDocument>(
     },
 );
 
+ChallengeSchema.index({ 'players.name': 1 });
 const Challenge = model<ChallengeDocument>("challenges", ChallengeSchema);
 
 /**
  * Generates daily challenges, avoiding to reuse the same article in the span of a year.
- * The function will start from the last challenge date + 1 day.
+ * The function will start from the last challenge date + 1 day (time is set to 10:00:00).
  */
 async function generateChallenges(n: number) {
     await mongoose.connect(mongoUri, {dbName: "Wikilinks"});
     logger.info(`Connected to ${mongoUri}`);
 
+    // Get last challenge and compute startDate at 10:00
     const lastChallenge = await Challenge.findOne().sort({date: -1}).lean();
     let startDate: Date;
     if (lastChallenge && lastChallenge.date instanceof Date && !isNaN(lastChallenge.date.getTime())) {
@@ -64,12 +67,17 @@ async function generateChallenges(n: number) {
     } else {
         startDate = new Date();
     }
+    // Force hours to 10:00:00.000
+    startDate.setHours(10, 0, 0, 0);
 
     // To know if the article has already been used in the last year
     const oneYearAgo = new Date(startDate.getTime() - 365 * 24 * 60 * 60 * 1000);
 
     for (let i = 0; i < n; i++) {
+        // Each challenge date at 10:00:00.000
         const challengeDate = new Date(startDate.getTime() + i * 24 * 60 * 60 * 1000);
+        challengeDate.setHours(10, 0, 0, 0);
+
         let article: string | undefined;
         let attempts = 0;
 
