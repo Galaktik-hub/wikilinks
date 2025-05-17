@@ -43,7 +43,6 @@ export async function getClosestArticleFromLocation(location: Location): Promise
     const {latitude, longitude} = location;
 
     const url = `https://fr.wikipedia.org/w/api.php?action=query&list=geosearch&gscoord=${latitude}|${longitude}&gsradius=10000&gslimit=100&format=json&origin=*`;
-    console.log("URL de l'API Wikipedia :", url);
 
     try {
         const response = await fetch(url);

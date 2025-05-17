@@ -1,6 +1,6 @@
 "use client";
 
-import React, {useEffect} from "react";
+import React, {useEffect, useState} from "react";
 import Layout from "../../components/Layout.tsx";
 import Podium from "../../components/Sections/Result/Podium/Podium.tsx";
 import Leaderboard from "../../components/Sections/Result/LeaderBoard/LeaderBoard.tsx";
@@ -9,7 +9,7 @@ import LaunchButtonChallenge from "../../components/Buttons/Challenge/Game/Launc
 import {useNavigate} from "react-router-dom";
 import {isAndroid} from "../../functions/androidCheck.ts";
 import {getClosestArticleFromLocation, getLocation} from "../../utils/Location/LocationUtils";
-import {useGameContext} from "../../context/GameContext";
+import {useChallengeContext} from "../../context/ChallengeContext";
 
 export interface ResultProps {
     rank: number;
@@ -29,8 +29,9 @@ const podiumPlayers = players.slice(0, 3);
 
 const Challenge: React.FC = () => {
     const navigate = useNavigate();
-    const gameContext = useGameContext();
+    const challengeContext = useChallengeContext();
     const alreadyPlayed = false;
+    const [targetArticle, setTargetArticle] = useState<string | undefined>(undefined);
 
     useEffect(() => {
         if (!isAndroid()) {
@@ -41,14 +42,24 @@ const Challenge: React.FC = () => {
         (async () => {
             try {
                 const coords = await getLocation();
-                gameContext.startArticle = await getClosestArticleFromLocation(coords);
+                const startArticle = await getClosestArticleFromLocation(coords);
+                challengeContext.setStartArticle(startArticle);
+                challengeContext.createGame({
+                    username: "Joueur 1",
+                    startArticle: startArticle,
+                });
             } catch (e: any) {
                 console.error("Erreur de position :", e);
             }
         })();
-    }, [gameContext, navigate]);
+    }, []);
+
+    useEffect(() => {
+        setTargetArticle(challengeContext.targetArticle);
+    }, [challengeContext.targetArticle]);
 
     const handleLaunch = () => {
+        challengeContext.startGame();
         navigate("/challenge/game");
     };
 
@@ -58,7 +69,7 @@ const Challenge: React.FC = () => {
                 <div className="title-block flex-col">
                     <h2 className="blue-title-effect w-full text-center">Objectif du jour</h2>
                     <div className="w-full flex justify-start items-center">
-                        <h1 className="text-lg text-white">Page X</h1>
+                        <h1 className="text-lg text-white">{targetArticle ?? "Chargement..."}</h1>
                     </div>
                 </div>
 

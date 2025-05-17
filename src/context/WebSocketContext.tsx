@@ -3,6 +3,7 @@
 import React, {createContext, useContext, useEffect, useRef, useState} from "react";
 import {PlayersProvider} from "./PlayersContext.tsx";
 import {GameProvider} from "./GameContext.tsx";
+import {ChallengeProvider} from "./ChallengeContext";
 
 interface WebSocketContextType {
     ws?: WebSocket | null;
@@ -80,7 +81,9 @@ export const WebSocketProvider: React.FC<{children: React.ReactNode}> = ({childr
     return (
         <WebSocketContext.Provider value={{ws: wsRef.current, isConnected, messages, send, onMessage, offMessage, waitForConnection}}>
             <GameProvider>
-                <PlayersProvider>{children}</PlayersProvider>
+                <ChallengeProvider>
+                    <PlayersProvider>{children}</PlayersProvider>
+                </ChallengeProvider>
             </GameProvider>
         </WebSocketContext.Provider>
     );

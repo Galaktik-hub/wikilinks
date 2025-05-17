@@ -8,12 +8,12 @@ import ExitButton from "../../../components/Buttons/WaitingRoom/ExitButton.tsx";
 import {useMediaQuery} from "react-responsive";
 import Header from "../../../components/Header/Header.tsx";
 import GameEndScreen from "../../../components/Sections/Game/EndGame/GameEndScreen.tsx";
-import {useGameContext} from "../../../context/GameContext.tsx";
+import {useChallengeContext} from "../../../context/ChallengeContext";
 
 const Game: React.FC = () => {
-    const gameContext = useGameContext();
+    const challengeContext = useChallengeContext();
     const [isGameEnded, setIsGameEnded] = useState(false);
-    const startArticle = gameContext.startArticle || "Paris";
+    const startArticle = challengeContext.startArticle || "Paris";
 
     const isMobile = useMediaQuery({maxWidth: 767});
     const isDesktop = useMediaQuery({minWidth: 1200});
@@ -27,7 +27,7 @@ const Game: React.FC = () => {
     );
 
     useEffect(() => {
-        // TODO : For test the end screen animation set this at true
+        // TODO : To test the end screen animation set this at true
         setIsGameEnded(false);
     }, []);
 

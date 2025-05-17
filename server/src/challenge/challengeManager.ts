@@ -1,55 +1,45 @@
+import * as dotenv from "dotenv";
+dotenv.config();
 import mongoose from "mongoose";
 import logger from "../logger";
 import {Player} from "../player/player";
-import {HistoryStep} from "../player/history/playerHistoryProps";
 import ChallengeModel, {ChallengeDocument} from "../models/models";
+import {randomUUID} from "node:crypto";
 
 /**
  * Manages a single-player Wikipedia challenge: fetching articles,
  * handling page visits and completions, and recording the result in MongoDB.
  */
 export class ChallengeSession {
+    public id: string;
     private player: Player;
     private startArticle: string = "";
+    private targetArticleId: string = "";
+    private targetArticle: string = "";
     private startTimestamp: Date;
     private finishTimestamp: Date;
-    private onComplete: (history: HistoryStep[]) => void;
 
-    constructor(player: Player, onComplete: (history: HistoryStep[]) => void) {
+    constructor(player: Player, startArticle: string, id: string) {
         this.player = player;
-        this.onComplete = onComplete;
+        this.startArticle = startArticle;
+        this.id = id;
     }
 
     /**
      * Initializes challenge: fetches articles, sets timestamps, and notifies player.
      */
     public async start(): Promise<void> {
-        this.startArticle = await this.fetchTodayChallenge();
+        this.targetArticle = await ChallengeSession.fetchTodayChallenge();
 
         // Initialize player state
         this.player.reset();
         this.player.visitedArticles = 0;
         this.player.foundArticles = 0;
         this.startTimestamp = new Date();
-
-        // Notify front
-        this.player.ws.send(
-            JSON.stringify({
-                kind: "challenge_started",
-                startArticle: this.startArticle,
-            }),
-        );
     }
 
-    public async fetchTodayChallenge(): Promise<string> {
-        const now = new Date();
-
-        const todayAt8 = new Date(now);
-        todayAt8.setHours(8, 0, 0, 0);
-
-        const start = now < todayAt8 ? new Date(todayAt8.getTime() - 24 * 60 * 60 * 1000) : todayAt8;
-
-        const end = new Date(start.getTime() + 24 * 60 * 60 * 1000);
+    public static async fetchTodayChallenge(): Promise<string> {
+        const {start, end} = ChallengeSession.getTodayAndTomorrowDateObject();
 
         const challenge: ChallengeDocument | null = await ChallengeModel.findOne({
             date: {$gte: start, $lt: end},
@@ -60,6 +50,44 @@ export class ChallengeSession {
         }
 
         return challenge.targetArticle;
+    }
+
+    public static async fetchNumberPlayerTodayChallenge(): Promise<number> {
+        const {start, end} = ChallengeSession.getTodayAndTomorrowDateObject();
+
+        const challenge = await ChallengeModel.findOne({
+            date: {$gte: start, $lt: end},
+        }).exec();
+
+        if (!challenge) {
+            return 0;
+        }
+
+        return challenge.players.length;
+    }
+
+    /**
+     * Returns two Date objects: one for today and one for tomorrow.
+     * The exact time spawn between the two is 24 hours and both are set to 08:00 UTC.
+     */
+    public static getTodayAndTomorrowDateObject(): {start: Date; end: Date} {
+        const now = new Date();
+        const year = now.getUTCFullYear();
+        const month = now.getUTCMonth();
+        const day = now.getUTCDate();
+
+        // today at 08:00 UTC
+        const start = new Date(Date.UTC(year, month, day, 8, 0, 0, 0));
+
+        // If “now” is before 08:00 UTC, roll back one day
+        if (now < start) {
+            start.setUTCDate(start.getUTCDate() - 1);
+        }
+
+        // End is +24 hours
+        const end = new Date(start.getTime() + 24 * 60 * 60 * 1000);
+
+        return {start, end};
     }
 
     /**
@@ -74,21 +102,14 @@ export class ChallengeSession {
             this.player.history.addStep("visitedPage", {page_name: pageName});
             this.player.visitedArticles++;
         }
-
-        this.player.ws.send(
-            JSON.stringify({
-                kind: "update",
-                event: {type, pageName, found: this.player.foundArticles, visited: this.player.visitedArticles},
-            }),
-        );
     }
 
     /**
      * Ends the challenge and records the result in MongoDB.
      */
     public async finish(): Promise<void> {
-        const finishTimestamp = new Date();
-        const score = this.player.foundArticles * 100 - this.player.visitedArticles * 5;
+        this.finishTimestamp = new Date();
+        const score = 100 - this.player.visitedArticles * 5;
 
         // Notify player
         this.player.ws.send(
@@ -102,27 +123,56 @@ export class ChallengeSession {
 
         // Record in DB
         try {
-            const mongoUri = process.env.MONGODB_URI!;
-            await mongoose.connect(mongoUri);
-            await ChallengeModel.create({
-                date: this.startTimestamp, // date of the challenge
-                targetArticle: this.startArticle,
+            await ChallengeModel.updateOne({
+                _id: this.targetArticleId,
                 players: [
                     {
                         name: this.player.name,
-                        startArticle: this.startArticle,
                         startTimestamp: this.startTimestamp,
-                        finishTimestamp,
-                        articlesCount: this.player.foundArticles,
+                        finishTimestamp: this.finishTimestamp,
+                        articlesCount: this.player.visitedArticles,
                     },
                 ],
             });
-            await mongoose.disconnect();
             logger.info(`Score enregistré pour ${this.player.name}: ${score}`);
         } catch (err: any) {
             logger.error(`Erreur lors de l'enregistrement du score: ${err.message}`);
         }
+    }
+}
 
-        this.onComplete(this.player.history.getHistory());
+export class ChallengeSessionManager {
+    private static sessions: Map<string, ChallengeSession> = new Map();
+
+    /**
+     * Creates a new challenge session with a unique UUID.
+     */
+    public static createSession(player: Player, startArticle: string): ChallengeSession {
+        const id = randomUUID();
+
+        const session = new ChallengeSession(player, startArticle, id);
+        this.sessions.set(id, session);
+        return session;
+    }
+
+    /**
+     * Returns the session by its ID.
+     */
+    public static getSession(sessionId: string): ChallengeSession | undefined {
+        return this.sessions.get(sessionId);
+    }
+
+    /**
+     * Ends and removes a game session.
+     */
+    public static endSession(sessionId: string): boolean {
+        return this.sessions.delete(sessionId);
+    }
+
+    /**
+     * Returns all active sessions.
+     */
+    public static getAllSessions(): Map<string, ChallengeSession> {
+        return this.sessions;
     }
 }

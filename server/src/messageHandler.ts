@@ -2,11 +2,14 @@ import {WebSocket} from "ws";
 import {GameSessionManager, GameType} from "./gameSessions";
 import {Player} from "./player/player";
 import logger from "./logger";
+import {ChallengeSession, ChallengeSessionManager} from "./challenge/challengeManager";
+import mongoose from "mongoose";
 
 export interface ClientContext {
     currentRoomId: number | null;
     currentUser: Player | null;
     currentGameSessionId: number | null;
+    currentChallengeSessionId: string | null;
 }
 
 interface SessionSummary {
@@ -20,6 +23,9 @@ interface SessionSummary {
 }
 
 export async function handleMessage(ws: WebSocket, message: any, context: ClientContext) {
+    // We connect to the database here to avoid multiple connections
+    const mongoUri = process.env.MONGODB_URI;
+    await mongoose.connect(mongoUri, {dbName: "Wikilinks"});
     switch (message.kind) {
         case "create_game_session": {
             if (message.timeLimit == null || message.numberOfArticles == null || message.maxPlayers == null || !message.type || !message.leaderName) {
@@ -392,6 +398,44 @@ export async function handleMessage(ws: WebSocket, message: any, context: Client
             );
             break;
         }
+        case "create_challenge_session": {
+            const player = new Player(message.playerName, ws, "creator", true);
+            const challenge = ChallengeSessionManager.createSession(player, message.startArticle);
+            const article = await ChallengeSession.fetchTodayChallenge();
+            context.currentChallengeSessionId = challenge.id;
+            ws.send(
+                JSON.stringify({
+                    kind: "challenge_session_created",
+                    targetArticle: article,
+                    id: challenge.id,
+                }),
+            );
+            break;
+        }
+        case "start_challenge": {
+            const {currentChallengeSessionId, currentUser} = context;
+            if (!currentChallengeSessionId || !currentUser) {
+                ws.send(
+                    JSON.stringify({
+                        kind: "error",
+                        message: "Not in a challenge session",
+                    }),
+                );
+                return;
+            }
+            const session = ChallengeSessionManager.getSession(currentChallengeSessionId);
+            if (!session) {
+                ws.send(
+                    JSON.stringify({
+                        kind: "error",
+                        message: "Challenge session not found",
+                    }),
+                );
+                return;
+            }
+            await session.start();
+            break;
+        }
         case "disconnect": {
             const {currentRoomId, currentUser} = context;
             if (currentRoomId && currentUser) {
@@ -426,6 +470,8 @@ export async function handleMessage(ws: WebSocket, message: any, context: Client
             const allSessions = GameSessionManager.getAllPublicSessions();
             logger.info(`Number of sessions : ${allSessions.size}`);
             const sessionsArray: SessionSummary[] = [];
+            const article = await ChallengeSession.fetchTodayChallenge();
+            const challengeCount = await ChallengeSession.fetchNumberPlayerTodayChallenge();
             allSessions.forEach((session, id) => {
                 sessionsArray.push({
                     id: id,
@@ -441,6 +487,8 @@ export async function handleMessage(ws: WebSocket, message: any, context: Client
                 JSON.stringify({
                     kind: "all_sessions",
                     sessions: sessionsArray,
+                    challengeArticle: article,
+                    challengeCount: challengeCount,
                 }),
             );
             break;
@@ -450,4 +498,5 @@ export async function handleMessage(ws: WebSocket, message: any, context: Client
             ws.close();
         }
     }
+    await mongoose.disconnect();
 }

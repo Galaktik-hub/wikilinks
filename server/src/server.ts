@@ -12,6 +12,7 @@ wss.on("connection", (ws: WebSocket) => {
         currentRoomId: null,
         currentUser: null,
         currentGameSessionId: null,
+        currentChallengeSessionId: null,
     };
 
     ws.on("message", (data: RawData) => {
