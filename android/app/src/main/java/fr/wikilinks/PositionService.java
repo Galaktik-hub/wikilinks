@@ -16,7 +16,7 @@ public class PositionService extends Service {
     private final IBinder binder = new LocalBinder();
     private FusedLocationProviderClient fusedLocationClient;
 
-    /** Binder pour que l’Activity puisse récupérer l’instance du service */
+    /** Binder so that the activity can get the current instance */
     public class LocalBinder extends Binder {
         public PositionService getService() {
             return PositionService.this;
@@ -36,8 +36,8 @@ public class PositionService extends Service {
     }
 
     /**
-     * Récupère la dernière position et renvoie via callback  
-     * (nécessite ACCESS_FINE_LOCATION)  
+     * Fetches the position
+     * (Needs ACCESS_FINE_LOCATION)
      */
     @RequiresPermission(Manifest.permission.ACCESS_FINE_LOCATION)
     public void requestLocation(LocationResultListener listener) {
@@ -54,7 +54,7 @@ public class PositionService extends Service {
                 });
     }
 
-    /** Interface de callback pour renvoyer le résultat à l'appelant */
+    /** Callback interface to send back the result */
     public interface LocationResultListener {
         void onLocationResult(double latitude, double longitude);
         void onLocationError(String errorMessage);

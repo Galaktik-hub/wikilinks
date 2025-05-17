@@ -1,6 +1,6 @@
 "use client";
 
-import React, {useEffect, useState} from "react";
+import React, {useEffect} from "react";
 import Layout from "../../components/Layout.tsx";
 import Podium from "../../components/Sections/Result/Podium/Podium.tsx";
 import Leaderboard from "../../components/Sections/Result/LeaderBoard/LeaderBoard.tsx";
@@ -8,7 +8,8 @@ import Header from "../../components/Header/Header.tsx";
 import LaunchButtonChallenge from "../../components/Buttons/Challenge/Game/LaunchButtonChallenge.tsx";
 import {useNavigate} from "react-router-dom";
 import {isAndroid} from "../../functions/androidCheck.ts";
-import {getLocation} from "../../utils/Location/LocationUtils";
+import {getClosestArticleFromLocation, getLocation} from "../../utils/Location/LocationUtils";
+import {useGameContext} from "../../context/GameContext";
 
 export interface ResultProps {
     rank: number;
@@ -28,25 +29,24 @@ const podiumPlayers = players.slice(0, 3);
 
 const Challenge: React.FC = () => {
     const navigate = useNavigate();
-    const [location, setLocation] = useState<{latitude: number; longitude: number} | null>(null);
-    const alreadyPlayed = true;
+    const gameContext = useGameContext();
+    const alreadyPlayed = false;
 
     useEffect(() => {
         if (!isAndroid()) {
             navigate("/");
         }
 
-        // on récupère la position
+        // We fetch the location to get the closest article from the player
         (async () => {
             try {
                 const coords = await getLocation();
-                setLocation(coords);
-                console.log("Position reçue :", coords);
+                gameContext.startArticle = await getClosestArticleFromLocation(coords);
             } catch (e: any) {
                 console.error("Erreur de position :", e);
             }
         })();
-    }, [navigate]);
+    }, [gameContext, navigate]);
 
     const handleLaunch = () => {
         navigate("/challenge/game");
@@ -61,13 +61,6 @@ const Challenge: React.FC = () => {
                         <h1 className="text-lg text-white">Page X</h1>
                     </div>
                 </div>
-
-                {/* Affiche la position ou l’erreur */}
-                {location && (
-                    <div className="text-green-400">
-                        Position : {location.latitude.toFixed(5)}, {location.longitude.toFixed(5)}
-                    </div>
-                )}
 
                 <section className="w-full flex gap-6">
                     <div className="w-full flex flex-col gap-6">

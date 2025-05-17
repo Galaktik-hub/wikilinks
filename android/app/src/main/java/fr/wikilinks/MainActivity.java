@@ -42,11 +42,11 @@ public class MainActivity extends AppCompatActivity {
                     coarse = result.getOrDefault(Manifest.permission.ACCESS_COARSE_LOCATION, false);
                 }
                 if (Boolean.TRUE.equals(fine)) {
-                    // OK pour la localisation précise
+                    // OK for precise location
                 } else if (Boolean.TRUE.equals(coarse)) {
-                    // Only approximative
+                    // Only coarse
                 } else {
-                    // Refusé
+                    // Refused
                     Log.w("[WikiLinks]", "Location permission denied");
                 }
             });
