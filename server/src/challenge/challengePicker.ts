@@ -1,8 +1,9 @@
 import * as dotenv from "dotenv";
 dotenv.config();
-import mongoose, {Schema, Document, model} from "mongoose";
+import mongoose from "mongoose";
 import logger from "../logger";
 import {WikipediaServices} from "../WikipediaService";
+import ChallengeModel, {ChallengeSchema} from "../models/models";
 
 const mongoUri = process.env.MONGODB_URI;
 if (!mongoUri) {
@@ -10,46 +11,7 @@ if (!mongoUri) {
     process.exit(1);
 }
 
-interface Player {
-    name: string;
-    startArticle: string;
-    startTimestamp: Date;
-    finishTimestamp?: Date;
-    articlesCount: number;
-    articles: string[];
-}
-
-interface ChallengeDocument extends Document {
-    date: Date;
-    targetArticle: string;
-    players: Player[];
-}
-
-const PlayerSchema = new Schema<Player>(
-    {
-        name: {type: String, required: true},
-        startArticle: {type: String, required: true},
-        startTimestamp: {type: Date, required: true},
-        finishTimestamp: {type: Date},
-        articlesCount: {type: Number, default: 0},
-        articles: {type: [String], default: []},
-    },
-    {_id: false},
-);
-
-const ChallengeSchema = new Schema<ChallengeDocument>(
-    {
-        date: {type: Date, required: true, unique: true},
-        targetArticle: {type: String, required: true},
-        players: {type: [PlayerSchema], default: []},
-    },
-    {
-        timestamps: true, // createdAt / updatedAt created automatically
-    },
-);
-
-ChallengeSchema.index({ 'players.name': 1 });
-const Challenge = model<ChallengeDocument>("challenges", ChallengeSchema);
+ChallengeSchema.index({"players.name": 1});
 
 /**
  * Generates daily challenges, avoiding to reuse the same article in the span of a year.
@@ -60,7 +22,7 @@ async function generateChallenges(n: number) {
     logger.info(`Connected to ${mongoUri}`);
 
     // Get last challenge and compute startDate at 10:00
-    const lastChallenge = await Challenge.findOne().sort({date: -1}).lean();
+    const lastChallenge = await ChallengeModel.findOne().sort({date: -1}).lean();
     let startDate: Date;
     if (lastChallenge && lastChallenge.date instanceof Date && !isNaN(lastChallenge.date.getTime())) {
         startDate = new Date(lastChallenge.date.getTime() + 24 * 60 * 60 * 1000);
@@ -89,7 +51,7 @@ async function generateChallenges(n: number) {
                 continue;
             }
             // Checks if the article has already been used in the last year
-            const exists = await Challenge.findOne({
+            const exists = await ChallengeModel.findOne({
                 targetArticle: candidate,
                 date: {$gte: oneYearAgo},
             }).lean();
@@ -108,7 +70,7 @@ async function generateChallenges(n: number) {
             continue;
         }
 
-        const doc = new Challenge({
+        const doc = new ChallengeModel({
             date: challengeDate,
             targetArticle: article,
             players: [],

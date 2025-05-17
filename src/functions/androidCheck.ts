@@ -1,1 +1,1 @@
-export const isAndroid = () => window.AndroidApp === undefined;
+export const isAndroid = () => window.AndroidApp !== undefined;
