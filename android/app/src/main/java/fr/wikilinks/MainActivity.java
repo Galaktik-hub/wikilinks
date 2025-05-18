@@ -21,10 +21,16 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.work.ExistingPeriodicWorkPolicy;
+import androidx.work.PeriodicWorkRequest;
+import androidx.work.WorkManager;
 
 import org.json.JSONObject;
 
+import java.util.Calendar;
 import java.util.Locale;
+import java.util.TimeZone;
+import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends AppCompatActivity {
     private WebView webView;
@@ -65,6 +71,45 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
+    private final ActivityResultLauncher<String> notifPermissionRequest =
+            registerForActivityResult(new ActivityResultContracts.RequestPermission(), granted -> {
+                if (granted) {
+                    scheduleDailyWork();
+                } else {
+                    Log.w("[WikiLinks]", "Notification permission denied");
+                }
+            });
+
+    private long computeInitialDelayTo8UTC() {
+        Calendar nowUtc = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+        Calendar next8 = (Calendar) nowUtc.clone();
+        next8.set(Calendar.HOUR_OF_DAY, 8);
+        next8.set(Calendar.MINUTE, 0);
+        next8.set(Calendar.SECOND, 0);
+        next8.set(Calendar.MILLISECOND, 0);
+
+        if (nowUtc.after(next8)) {
+            next8.add(Calendar.DAY_OF_YEAR, 1);
+        }
+        return next8.getTimeInMillis() - nowUtc.getTimeInMillis();
+    }
+
+    private void scheduleDailyWork() {
+        long initialDelay = computeInitialDelayTo8UTC();
+
+        PeriodicWorkRequest dailyWork =
+                new PeriodicWorkRequest.Builder(DailyNotificationWorker.class, 1, TimeUnit.DAYS)
+                        .setInitialDelay(initialDelay, TimeUnit.MILLISECONDS)
+                        .build();
+
+        WorkManager.getInstance(this)
+                .enqueueUniquePeriodicWork(
+                        "daily-notif-work",
+                        ExistingPeriodicWorkPolicy.REPLACE,
+                        dailyWork
+                );
+    }
+
     @SuppressLint({"SetJavaScriptEnabled"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -79,6 +124,13 @@ public class MainActivity extends AppCompatActivity {
         });
         Intent svcIntent = new Intent(this, PositionService.class);
         bindService(svcIntent, connection, BIND_AUTO_CREATE);
+
+        // Entry point to save the notification intent
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            notifPermissionRequest.launch(Manifest.permission.POST_NOTIFICATIONS);
+        } else {
+            scheduleDailyWork();
+        }
 
         locationPermissionRequest.launch(new String[] {
                 Manifest.permission.ACCESS_FINE_LOCATION,
