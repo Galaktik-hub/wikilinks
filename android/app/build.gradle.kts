@@ -50,6 +50,11 @@ android {
     }
 }
 
+tasks.withType<JavaCompile>().configureEach {
+    // enable detailed deprecation warnings:
+    options.compilerArgs.add("-Xlint:deprecation")
+}
+
 dependencies {
     implementation(libs.appcompat)
     implementation(libs.material)

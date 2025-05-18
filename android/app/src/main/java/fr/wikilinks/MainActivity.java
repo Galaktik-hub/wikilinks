@@ -105,7 +105,7 @@ public class MainActivity extends AppCompatActivity {
         WorkManager.getInstance(this)
                 .enqueueUniquePeriodicWork(
                         "daily-notif-work",
-                        ExistingPeriodicWorkPolicy.REPLACE,
+                        ExistingPeriodicWorkPolicy.UPDATE,
                         dailyWork
                 );
     }
@@ -140,7 +140,6 @@ public class MainActivity extends AppCompatActivity {
         webView = findViewById(R.id.webview);
         webView.getSettings().setJavaScriptEnabled(true);
         webView.getSettings().setDomStorageEnabled(true);
-        webView.getSettings().setDatabaseEnabled(true);
 
         webView.addJavascriptInterface(new JavaScriptObject(), "AndroidApp");
         webView.loadUrl(BuildConfig.WEBVIEW_URL);
@@ -155,11 +154,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     class JavaScriptObject {
-        @JavascriptInterface
-        public void hello() {
-            Log.i("[WikiLinks]", "Hello !");
-        }
-
         @JavascriptInterface
         public void requestLocation() {
             if (!serviceBound) return;
