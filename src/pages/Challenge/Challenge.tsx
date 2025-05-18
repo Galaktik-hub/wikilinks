@@ -87,11 +87,7 @@ const Challenge: React.FC = () => {
         setTargetArticle(challengeContext.targetArticle);
     }, [challengeContext.targetArticle]);
 
-    const helpMessage = (
-        <div>
-            Ceci est le message qui explique le but et règles du jeu du challenge quotidien
-        </div>
-    )
+    const helpMessage = <div>Ceci est le message qui explique le but et règles du jeu du challenge quotidien</div>;
 
     const handleHelp = async () => {
         openModal({
@@ -103,7 +99,7 @@ const Challenge: React.FC = () => {
                 okButton: {label: "Ok", onClick: () => closeModal()},
             },
         });
-    }
+    };
 
     const handleLaunch = () => {
         challengeContext.startGame();
