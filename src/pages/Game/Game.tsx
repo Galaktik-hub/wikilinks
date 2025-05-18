@@ -37,7 +37,7 @@ const Game: React.FC = () => {
     return (
         <Layout header={<Header />} leftColumn={isDesktop ? desktopLeft : null} rightColumn={isDesktop ? <TextLoungePanel /> : null}>
             {/* Écran de fin de partie */}
-            {isGameOver && <GameEndScreen isVisible={isGameOver} />}
+            {isGameOver && <GameEndScreen isVisible={isGameOver} endPageToRedirect="result" />}
 
             <div className="flex flex-col w-full h-full gap overflow-hidden items-center justify-center p-4 relative gap-5">
                 {(isMobile || isIntermediate) && (
