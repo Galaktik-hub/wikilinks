@@ -10,8 +10,8 @@ interface LeaderboardProps {
 }
 
 const Leaderboard: React.FC<LeaderboardProps> = ({players, showCourse, currentPlayerName}) => {
-    // récupérer les 5 premiers
-    const topFive = players.slice(0, 5);
+    // récupérer les 10 premiers
+    const topPlayers = players.slice(0, 10);
 
     // trouver le joueur actuel
     const currentIndex = players.findIndex(p => p.name === currentPlayerName);
@@ -19,10 +19,10 @@ const Leaderboard: React.FC<LeaderboardProps> = ({players, showCourse, currentPl
 
     // assembler les lignes à afficher
     const rows: (ResultProps | "ellipsis")[] = [];
-    topFive.forEach(p => rows.push(p));
+    topPlayers.forEach(p => rows.push(p));
 
     if (currentPlayer) {
-        const inTopFive = topFive.some(p => p.name === currentPlayerName);
+        const inTopFive = topPlayers.some(p => p.name === currentPlayerName);
         if (!inTopFive) {
             rows.push("ellipsis");
             rows.push(currentPlayer);
