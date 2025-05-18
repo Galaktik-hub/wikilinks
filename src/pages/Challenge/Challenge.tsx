@@ -23,6 +23,32 @@ const players: ResultProps[] = [
     {rank: 2, name: "Maria", score: 2280},
     {rank: 3, name: "John", score: 2150},
     {rank: 4, name: "Joueur 4", score: 2000},
+    {rank: 5, name: "Joueur 5", score: 1900},
+    {rank: 6, name: "Joueur 6", score: 1800},
+    {rank: 7, name: "Lina", score: 1725},
+    {rank: 8, name: "David", score: 1650},
+    {rank: 9, name: "Sophie", score: 1580},
+    {rank: 10, name: "Tom", score: 1500},
+    {rank: 11, name: "Emma", score: 1430},
+    {rank: 12, name: "Lucas", score: 1370},
+    {rank: 13, name: "Chloé", score: 1310},
+    {rank: 14, name: "Yann", score: 1250},
+    {rank: 15, name: "Inès", score: 1200},
+    {rank: 16, name: "Marc", score: 1150},
+    {rank: 17, name: "Clara", score: 1100},
+    {rank: 18, name: "Romain", score: 1050},
+    {rank: 19, name: "Anaïs", score: 1000},
+    {rank: 20, name: "Pierre", score: 960},
+    {rank: 21, name: "Julie", score: 920},
+    {rank: 22, name: "Antoine", score: 890},
+    {rank: 23, name: "Lucie", score: 860},
+    {rank: 24, name: "Kevin", score: 830},
+    {rank: 25, name: "Marine", score: 800},
+    {rank: 26, name: "Olivier", score: 770},
+    {rank: 27, name: "Eva", score: 740},
+    {rank: 28, name: "Thierry", score: 710},
+    {rank: 29, name: "Sarah", score: 680},
+    {rank: 30, name: "Maxime", score: 650},
 ];
 
 // Si moins de 3 joueurs, on fournit uniquement ceux nécessaires
@@ -77,7 +103,7 @@ const Challenge: React.FC = () => {
                 <section className="w-full flex gap-6">
                     <div className="w-full flex flex-col gap-6">
                         <Podium players={podiumPlayers} />
-                        <Leaderboard players={players} showCourse={alreadyPlayed} />
+                        <Leaderboard players={players} showCourse={alreadyPlayed} currentPlayerName="Sarah" />
                     </div>
                 </section>
                 <section className="w-full flex flex-wrap justify-center gap-x-12 gap-y-4 mt-6 max-md:mt-2">

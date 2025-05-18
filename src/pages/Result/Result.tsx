@@ -16,7 +16,7 @@ export interface ResultProps {
 }
 
 const Result: React.FC = () => {
-    const {scoreboard} = useGameContext();
+    const {username, scoreboard} = useGameContext();
 
     if (scoreboard.length === 0) {
         return (
@@ -41,7 +41,7 @@ const Result: React.FC = () => {
                 <section className="w-full flex gap-6">
                     <div className="w-full flex flex-col gap-6">
                         <Podium players={podiumPlayers} />
-                        <Leaderboard players={scoreboard} showCourse={false} />
+                        <Leaderboard players={scoreboard} showCourse={false} currentPlayerName={username as string} />
                     </div>
                     <div className="hidden xl-custom:flex w-full max-h-[633px] flex-col gap-6">
                         <TextLoungePanel />

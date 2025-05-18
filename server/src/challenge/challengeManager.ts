@@ -40,7 +40,7 @@ export class ChallengeSession {
         this.startTimestamp = new Date();
     }
 
-    public static async fetchTodayChallenge(): Promise<{targetArticle: string, _id: string}> {
+    public static async fetchTodayChallenge(): Promise<{targetArticle: string; _id: string}> {
         const mongoUri = process.env.MONGODB_URI;
         await mongoose.connect(mongoUri, {dbName: "Wikilinks"});
         const {start, end} = ChallengeSession.getTodayAndTomorrowDateObject();
@@ -138,10 +138,10 @@ export class ChallengeSession {
             const mongoUri = process.env.MONGODB_URI;
             await mongoose.connect(mongoUri, {dbName: "Wikilinks"});
             // We get the history of the player only if the page is defined
-            const history: string[] = this.player.history.getHistory().map((step) => {
+            const history: string[] = this.player.history.getHistory().map(step => {
                 if (step.type === "visitedPage" || step.type === "foundPage") {
                     return step.data.page_name;
-                } else{
+                } else {
                     return this.startArticle;
                 }
             });
