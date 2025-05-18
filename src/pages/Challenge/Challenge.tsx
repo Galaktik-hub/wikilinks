@@ -70,7 +70,7 @@ const Challenge: React.FC = () => {
                 <div className="title-block flex-col">
                     <h2 className="blue-title-effect w-full text-center">Objectif du jour</h2>
                     <div className="w-full flex justify-start items-center">
-                        <h1 className="text-lg text-white">{targetArticle ?? "Chargement..."}</h1>
+                        <h1 className="text-lg text-white">{targetArticle?.replace(/_/g, " ") ?? "Chargement..."}</h1>
                     </div>
                 </div>
 

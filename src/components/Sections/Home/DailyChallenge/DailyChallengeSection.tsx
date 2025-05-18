@@ -37,7 +37,7 @@ const DailyChallengeSection = () => {
                     <h2 className="text-xl md:text-2xl font-bold">Défi du jour</h2>
                     <Timer />
                 </div>
-                <h2 className="text-2xl md:text-3xl text-center my-4">{articleName}</h2>
+                <h2 className="text-2xl md:text-3xl text-center my-4">{articleName.replace(/_/g, " ")}</h2>
                 <PlayerCount count={challengeCount} />
                 <PlayButton onClick={handleClick} />
             </div>
