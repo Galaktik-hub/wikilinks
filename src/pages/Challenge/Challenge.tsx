@@ -11,6 +11,7 @@ import {isAndroid} from "../../functions/androidCheck.ts";
 import {getClosestArticleFromLocation, getLocation} from "../../utils/Location/LocationUtils";
 import {useChallengeContext} from "../../context/ChallengeContext";
 import ExitButton from "../../components/Buttons/WaitingRoom/ExitButton";
+import {useModalContext} from "../../components/Modals/ModalProvider";
 
 export interface ResultProps {
     rank: number;
@@ -56,6 +57,7 @@ const podiumPlayers = players.slice(0, 3);
 
 const Challenge: React.FC = () => {
     const navigate = useNavigate();
+    const {openModal, closeModal} = useModalContext();
     const challengeContext = useChallengeContext();
     const alreadyPlayed = false;
     const [targetArticle, setTargetArticle] = useState<string | undefined>(undefined);
@@ -85,6 +87,24 @@ const Challenge: React.FC = () => {
         setTargetArticle(challengeContext.targetArticle);
     }, [challengeContext.targetArticle]);
 
+    const helpMessage = (
+        <div>
+            Ceci est le message qui explique le but et règles du jeu du challenge quotidien
+        </div>
+    )
+
+    const handleHelp = async () => {
+        openModal({
+            title: `Aide - Challenge du jour`,
+            type: "confirmation",
+            content: {
+                message: helpMessage,
+                cancelButton: {label: "Retour", onClick: () => closeModal()},
+                okButton: {label: "Ok", onClick: () => closeModal()},
+            },
+        });
+    }
+
     const handleLaunch = () => {
         challengeContext.startGame();
         navigate("/challenge/game");
@@ -94,7 +114,14 @@ const Challenge: React.FC = () => {
         <Layout header={<Header />}>
             <div className="flex flex-col w-full overflow-hidden items-center justify-center p-4 gap-6 max-md:mb-16">
                 <div className="title-block flex-col">
-                    <h2 className="blue-title-effect w-full text-center">Objectif du jour</h2>
+                    <div className="relative flex items-center w-full">
+                        <h2 className="blue-title-effect w-full text-center">Objectif du jour</h2>
+                        <button
+                            onClick={handleHelp}
+                            className="px-3 py-1 text-center text-white bg-blueSecondary hover:bg-blue-900 transition rounded-full absolute right-0">
+                            ?
+                        </button>
+                    </div>
                     <div className="w-full flex justify-start items-center">
                         <h1 className="text-lg text-white">{targetArticle?.replace(/_/g, " ") ?? "Chargement..."}</h1>
                     </div>
