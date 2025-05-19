@@ -4,7 +4,6 @@ import logger from "../logger";
 import {Player} from "../player/player";
 import ChallengeModel, {ChallengeDocument} from "../models/models";
 import {randomUUID} from "node:crypto";
-import mongoose from "mongoose";
 
 /**
  * Manages a single-player Wikipedia challenge: fetching articles,
@@ -41,8 +40,6 @@ export class ChallengeSession {
     }
 
     public static async fetchTodayChallenge(): Promise<{targetArticle: string; _id: string}> {
-        const mongoUri = process.env.MONGODB_URI;
-        await mongoose.connect(mongoUri, {dbName: "Wikilinks"});
         const {start, end} = ChallengeSession.getTodayAndTomorrowDateObject();
 
         const challenge: ChallengeDocument | null = await ChallengeModel.findOne({
@@ -53,14 +50,10 @@ export class ChallengeSession {
             throw new Error(`Aucun challenge trouvé entre ${start.toISOString()} et ${end.toISOString()}`);
         }
 
-        await mongoose.connection.close();
-
         return {targetArticle: challenge.targetArticle, _id: challenge._id as string};
     }
 
     public static async fetchNumberPlayerTodayChallenge(): Promise<number> {
-        const mongoUri = process.env.MONGODB_URI;
-        await mongoose.connect(mongoUri, {dbName: "Wikilinks"});
         const {start, end} = ChallengeSession.getTodayAndTomorrowDateObject();
 
         const challenge = await ChallengeModel.findOne({
@@ -70,8 +63,6 @@ export class ChallengeSession {
         if (!challenge) {
             return 0;
         }
-
-        await mongoose.connection.close();
 
         return challenge.players.length;
     }
@@ -135,8 +126,6 @@ export class ChallengeSession {
 
         // Record in DB
         try {
-            const mongoUri = process.env.MONGODB_URI;
-            await mongoose.connect(mongoUri, {dbName: "Wikilinks"});
             // We get the history of the player only if the page is defined
             const history: string[] = this.player.history.getHistory().map(step => {
                 if (step.type === "visitedPage" || step.type === "foundPage") {
@@ -158,7 +147,6 @@ export class ChallengeSession {
                     },
                 ],
             });
-            await mongoose.connection.close();
             logger.info(`Score enregistré pour ${this.player.name}: ${score}`);
         } catch (err: any) {
             logger.error(`Erreur lors de l'enregistrement du score: ${err.message}`);

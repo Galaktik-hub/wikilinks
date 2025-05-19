@@ -3,7 +3,6 @@ import {GameSessionManager, GameType} from "./gameSessions";
 import {Player} from "./player/player";
 import logger from "./logger";
 import {ChallengeSession, ChallengeSessionManager} from "./challenge/challengeManager";
-import mongoose from "mongoose";
 
 export interface ClientContext {
     currentRoomId: number | null;
