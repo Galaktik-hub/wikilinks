@@ -1,5 +1,5 @@
 import {WebSocket} from "ws";
-import {GameSessionManager} from "./gameSessions";
+import {GameSessionManager, GameType} from "./gameSessions";
 import {Player} from "./player/player";
 import logger from "./logger";
 
@@ -7,6 +7,16 @@ export interface ClientContext {
     currentRoomId: number | null;
     currentUser: Player | null;
     currentGameSessionId: number | null;
+}
+
+interface SessionSummary {
+    id: number;
+    type: GameType;
+    playerCount: number;
+    maxPlayers: number;
+    leaderName: string;
+    timeLimit: number;
+    numberOfArticles: number;
 }
 
 /**
@@ -105,7 +115,7 @@ export async function handleMessage(ws: WebSocket, message: any, context: Client
                 return;
             }
             const player = new Player(message.playerName, ws, "client", false);
-            if (!session.addPlayer(player)) {
+            if (!session.addPlayer(player.name)) {
                 ws.send(
                     JSON.stringify({
                         kind: "error",
@@ -166,7 +176,7 @@ export async function handleMessage(ws: WebSocket, message: any, context: Client
         }
         case "game_event": {
             const session = getSessionOrError(ws, context);
-            session.handleGameEvent(context.currentUser, message.event);
+            session.handleGameEvent(context.currentUser.name, message.event);
             break;
         }
         case "update_settings": {
@@ -239,7 +249,7 @@ export async function handleMessage(ws: WebSocket, message: any, context: Client
             const targetPlayerName = message.playerName;
             const targetMember = session.members.get(targetPlayerName);
             if (targetMember) {
-                session.handlePlayerDeparture(targetMember);
+                session.handlePlayerDeparture(targetMember.name);
             }
             // We simulate the closing of the room for the excluded player
             targetMember.ws.send(
@@ -305,7 +315,7 @@ export async function handleMessage(ws: WebSocket, message: any, context: Client
             if (currentRoomId && currentUser) {
                 const session = GameSessionManager.getSession(currentRoomId);
                 if (session) {
-                    session.handlePlayerDeparture(currentUser);
+                    session.handlePlayerDeparture(currentUser.name);
                 }
             }
             ws.close();
@@ -317,7 +327,7 @@ export async function handleMessage(ws: WebSocket, message: any, context: Client
                 const session = GameSessionManager.getSession(currentRoomId);
                 if (session) {
                     if (session.leader.name === currentUser.name) {
-                        session.handlePlayerDeparture(currentUser);
+                        session.handlePlayerDeparture(currentUser.name);
                     } else {
                         ws.send(
                             JSON.stringify({
@@ -333,7 +343,7 @@ export async function handleMessage(ws: WebSocket, message: any, context: Client
         case "get_all_sessions": {
             const allSessions = GameSessionManager.getAllPublicSessions();
             logger.info(`Number of sessions : ${allSessions.size}`);
-            const sessionsArray: any[] = [];
+            const sessionsArray: SessionSummary[] = [];
             allSessions.forEach((session, id) => {
                 sessionsArray.push({
                     id: id,

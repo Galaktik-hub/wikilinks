@@ -15,6 +15,8 @@ export class Player {
     isLeader: boolean;
     inventory: Inventory;
     history: PlayerHistory;
+    visitedArticles: number;
+    foundArticles: number;
 
     constructor(name: string, ws: WebSocket, role: PlayerRole = "client", isLeader: boolean = false) {
         this.id = randomUUID();
@@ -26,6 +28,8 @@ export class Player {
         this.isLeader = isLeader;
         this.inventory = new Inventory();
         this.history = new PlayerHistory(this);
+        this.visitedArticles = 0;
+        this.foundArticles = 0;
     }
 
     equals(other: Player): boolean {
@@ -52,5 +56,12 @@ export class Player {
             this.history.addStep("usedArtifact", {artefact: name});
         }
         return result;
+    }
+
+    reset() {
+        this.visitedArticles = 0;
+        this.foundArticles = 0;
+        this.history = new PlayerHistory(this);
+        this.inventory = new Inventory();
     }
 }

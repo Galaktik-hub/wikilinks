@@ -3,6 +3,7 @@
 import React, {createContext, useContext, useEffect, useState} from "react";
 import {useWebSocket} from "./WebSocketContext.tsx";
 import {GameSettingsType} from "../components/Sections/WaitingRoom/GameSettings/GameSettings.tsx";
+import {ResultProps} from "../pages/Result/Result.tsx";
 
 interface Article {
     name: string;
@@ -25,6 +26,13 @@ export interface GameContextType {
     articles: Article[];
     currentTitle: string;
     setCurrentTitle: (title: string) => void;
+
+    // game state
+    isGameOver: boolean;
+    setIsGameOver: (value: boolean) => void;
+
+    // scoreboard
+    scoreboard: ResultProps[];
 
     // actions
     createGame: (payload: {timeLimit: number; numberOfArticles: number; maxPlayers: number; type: string; leaderName: string}) => void;
@@ -49,10 +57,16 @@ export const GameProvider: React.FC<{children: React.ReactNode}> = ({children}) 
     // settings
     const [settings, setSettings] = useState<GameSettingsType>({timeLimit: 10, numberOfArticles: 4, maxPlayers: 10, type: "private"});
 
+    // game state
+    const [isGameOver, setIsGameOver] = useState(false);
+
     // articles
     const [articles, setArticles] = useState<Article[]>([]);
     const [startArticle, setStart] = useState("");
     const [currentTitle, setCurrentTitle] = useState<string>(startArticle);
+
+    // scoreboard
+    const [scoreboard, setScoreboard] = useState<ResultProps[]>([]);
 
     useEffect(() => {
         const handler = (data: any) => {
@@ -81,15 +95,20 @@ export const GameProvider: React.FC<{children: React.ReactNode}> = ({children}) 
                         setArticles(prev => prev.map(a => (a.name === p ? {...a, found: true} : a)));
                     }
                     break;
+                case "game_over":
+                    setIsGameOver(true);
+                    setLoading(false);
+                    setScoreboard(data.scoreboard);
+                    setArticles([]);
+                    setStart("");
+                    break;
                 case "room_closed":
                     ws.ws?.close();
                     break;
             }
         };
         ws.onMessage(handler);
-        return () => {
-            ws.offMessage(handler);
-        };
+        return () => ws.offMessage(handler);
     }, [ws]);
 
     const createGame = (payload: any) => ws.send({kind: "create_game_session", ...payload});
@@ -143,10 +162,13 @@ export const GameProvider: React.FC<{children: React.ReactNode}> = ({children}) 
                 loadingGame,
                 settings,
                 updateSettings,
+                isGameOver,
+                setIsGameOver,
                 startArticle,
                 articles,
                 currentTitle,
                 setCurrentTitle,
+                scoreboard,
                 createGame,
                 joinGame,
                 sendMessage,

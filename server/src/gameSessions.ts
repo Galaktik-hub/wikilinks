@@ -4,6 +4,7 @@ import {Player} from "./player/player";
 import {WikipediaServices} from "./WikipediaService";
 import {Bot, JoinLeaveBot, BOTS} from "./bots";
 import logger from "./logger";
+import {HistoryStep} from "./player/history/playerHistoryProps";
 
 export type GameType = "public" | "private";
 
@@ -11,6 +12,11 @@ export interface SessionMember {
     ws: WebSocket;
     role: "creator" | "client";
     muted: Set<string>;
+}
+
+interface PlayerHistory {
+    player: string;
+    history: HistoryStep[];
 }
 
 export class GameSession {
@@ -22,6 +28,7 @@ export class GameSession {
     public articles: string[];
     public startArticle: string;
     public hasStarted: boolean;
+    public scoreboard: Map<number, string[]>;
 
     public leader: Player;
     public members: Map<string, Player>;
@@ -36,6 +43,7 @@ export class GameSession {
         this.articles = [];
         this.startArticle = "";
         this.hasStarted = false;
+        this.scoreboard = new Map();
 
         this.leader = leader;
         this.members = new Map();
@@ -63,7 +71,8 @@ export class GameSession {
      * Adds a player into the session if the capacity is not reached.
      * The player is added with the role "client".
      */
-    public addPlayer(player: Player): boolean {
+    public addPlayer(playerName: string): boolean {
+        const player = this.members.get(playerName);
         if (this.members.size >= this.maxPlayers) return false;
         this.members.set(player.name, player);
         this.bots.forEach(bot => {
@@ -79,14 +88,14 @@ export class GameSession {
      * Removes the player from the session if they are not the leader.
      * Returns true if the player was removed.
      */
-    public removePlayer(player: Player): boolean {
-        const member = this.members.get(player.name);
+    public removePlayer(playerName: string): boolean {
+        const member = this.members.get(playerName);
         if (!member || member.role === "creator") return false;
-        const removed = this.members.delete(player.name);
+        const removed = this.members.delete(playerName);
         if (removed) {
             this.bots.forEach(bot => {
                 if (bot instanceof JoinLeaveBot) {
-                    bot.notifyMemberLeave(player.name);
+                    bot.notifyMemberLeave(playerName);
                 }
             });
             this.refreshPlayers();
@@ -145,6 +154,8 @@ export class GameSession {
         this.hasStarted = true;
         this.members.forEach(member => {
             if (member.ws.readyState === member.ws.OPEN) {
+                // Reset player variables (If they already played a previous game)
+                member.reset();
                 member.ws.send(JSON.stringify({kind: "game_started", startArticle: this.startArticle, articles: this.articles}));
             }
         });
@@ -173,7 +184,8 @@ export class GameSession {
      * If the departing player is the leader, the room closure message is sent to every member and the session is ended.
      * Otherwise, the player is simply removed from the session.
      */
-    public handlePlayerDeparture(player: Player): void {
+    public handlePlayerDeparture(playerName: string): void {
+        const player = this.members.get(playerName);
         if (player.name === this.leader.name) {
             this.members.forEach(member => {
                 if (member.ws.readyState === member.ws.OPEN) {
@@ -182,29 +194,84 @@ export class GameSession {
             });
             GameSessionManager.endSession(this.id);
         } else {
-            if (this.removePlayer(player)) {
+            if (this.removePlayer(playerName)) {
                 logger.info(`Player "${player.name}" has been removed from session ${this.id} by host "${this.leader.name}"`);
             }
         }
     }
 
     /**
+     * Updates the scoreboard with the current score of all players.
+     * This function must be called after each game event.
+     */
+    public updateScoreboard(): void {
+        this.scoreboard.clear();
+
+        const players = Array.from(this.members.values());
+        players.sort((a, b) => {
+            const aFound = a.foundArticles;
+            const bFound = b.foundArticles;
+            if (bFound !== aFound) {
+                return bFound - aFound; // more found articles first
+            }
+            const aVisited = a.visitedArticles;
+            const bVisited = b.visitedArticles;
+            return aVisited - bVisited;
+        });
+
+        // We rank players, while checking for ties
+        let rank = 1;
+        let prevFound: number | null = null;
+        let prevVisited: number | null = null;
+        let group: string[] = [];
+
+        players.forEach((player, index) => {
+            const found = player.foundArticles;
+            const visited = player.visitedArticles;
+
+            logger.info(`Player ${player.name} found ${found} articles and visited ${visited} pages`);
+
+            if (index === 0 || (found === prevFound && visited === prevVisited)) {
+                // Same rank as previous player or the first player
+                group.push(player.name);
+            } else {
+                // New rank
+                this.scoreboard.set(rank, group);
+                rank = index + 1;
+                group = [player.name];
+            }
+
+            prevFound = found;
+            prevVisited = visited;
+        });
+
+        if (group.length > 0) {
+            this.scoreboard.set(rank, group);
+        }
+
+        logger.info(`Scoreboard: ${JSON.stringify(Array.from(this.scoreboard.entries()))}`);
+
+        if (players[0]?.foundArticles === this.numberOfArticles) {
+            this.endGame();
+        }
+    }
+
+    /**
      * Handles game events (e.g., player actions) and dispatches them to everyone.
      */
-    public handleGameEvent(player: Player, data: any): void {
+    public handleGameEvent(playerName: string, data: any): void {
+        const player = this.members.get(playerName);
         switch (data.type) {
             case "visitedPage": {
                 const article = this.articles.find(article => article === data.page_name);
-                logger.info(`Article: "${article}"`);
+                logger.info(`Article: "${data.page_name}"`);
                 if (article) {
-                    const index = this.articles.indexOf(article);
-                    if (index !== -1) {
-                        this.articles.splice(index, 1);
-                        player.history.addStep("foundPage", {page_name: data.page_name});
-                        data.type = "foundPage";
-                    } else {
-                        player.history.addStep("visitedPage", {page_name: data.page_name});
-                    }
+                    player.history.addStep("foundPage", {page_name: data.page_name});
+                    player.foundArticles++;
+                    data.type = "foundPage";
+                } else {
+                    player.history.addStep("visitedPage", {page_name: data.page_name});
+                    player.visitedArticles++;
                 }
                 break;
             }
@@ -217,6 +284,7 @@ export class GameSession {
             default:
                 logger.error(`Unknown event type: ${data.type}`);
         }
+        this.updateScoreboard();
         this.members.forEach(member => {
             if (member.ws.readyState === WebSocket.OPEN) {
                 member.ws.send(
@@ -244,8 +312,8 @@ export class GameSession {
     /**
      * Returns the game history of all players in the session.
      */
-    public getHistory(): any[] {
-        const history = [];
+    public getHistory(): PlayerHistory[] {
+        const history: PlayerHistory[] = [];
         this.members.forEach(member => {
             history.push({
                 player: member.name,
@@ -253,6 +321,40 @@ export class GameSession {
             });
         });
         return history;
+    }
+
+    /**
+     * Sends the game over message to all players, as well as the scoreboard.
+     */
+    public endGame(): void {
+        const results: {rank: number; name: string; score: number}[] = [];
+
+        // We build the scores base on a formula
+        this.scoreboard.forEach((names, rank) => {
+            names.forEach(name => {
+                const player = this.members.get(name);
+                if (player) {
+                    const score = player.foundArticles * 100 - player.visitedArticles * 5;
+                    results.push({rank, name: player.name, score});
+                }
+            });
+        });
+
+        this.members.forEach(member => {
+            if (member.ws.readyState === WebSocket.OPEN) {
+                member.ws.send(
+                    JSON.stringify({
+                        kind: "game_over",
+                        scoreboard: results,
+                    }),
+                );
+            }
+        });
+
+        // Réinitialisation de l’état
+        this.hasStarted = false;
+        this.articles = [];
+        this.startArticle = "";
     }
 
     /**
