@@ -115,7 +115,7 @@ export async function handleMessage(ws: WebSocket, message: any, context: Client
                 return;
             }
             const player = new Player(message.playerName, ws, "client", false);
-            if (!session.addPlayer(player.name)) {
+            if (!session.addPlayer(player)) {
                 ws.send(
                     JSON.stringify({
                         kind: "error",
