@@ -129,6 +129,9 @@ def extract(source, output_file):
             i += 1
             if i % 1000 == 0:
                 print(f"Processed {i} pages", file=sys.stderr)
+                if i > 2_650_000:
+                    break
+
 
     # Convert to int-based graph and dump
     graph.convertToIdGraph(id_store)
