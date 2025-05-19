@@ -17,8 +17,8 @@ import androidx.work.WorkerParameters;
 import java.util.Random;
 
 public class DailyNotificationWorker extends Worker {
-    private static final String CHANNEL_ID = "daily_notif_channel";
-    private static final int NOTIF_ID = 2001;
+    private static final String CHANNEL_ID = "daily-notification-channel";
+    private static final int NOTIFICATION_ID = 2001;
 
     public DailyNotificationWorker(@NonNull Context context,
                                    @NonNull WorkerParameters params) {
@@ -79,7 +79,7 @@ public class DailyNotificationWorker extends Worker {
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT);
 
         NotificationManager nm = (NotificationManager) ctx.getSystemService(Context.NOTIFICATION_SERVICE);
-        nm.notify(NOTIF_ID, builder.build());
+        nm.notify(NOTIFICATION_ID, builder.build());
 
         return Result.success();
     }

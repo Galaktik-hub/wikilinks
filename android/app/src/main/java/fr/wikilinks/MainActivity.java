@@ -16,6 +16,7 @@ import android.webkit.WebView;
 import androidx.activity.EdgeToEdge;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.graphics.Insets;
@@ -29,33 +30,184 @@ import org.json.JSONObject;
 
 import java.util.Calendar;
 import java.util.Locale;
+import java.util.Map;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * MainActivity hosts the WebView and handles all permission requests
+ * as well as binding to the Location service and scheduling daily notifications.
+ */
 public class MainActivity extends AppCompatActivity {
+
+    public static final String WORK_NAME = "daily-notification-work";
+    private static final long PERIODIC_INTERVAL_DAYS = 1L;
+
     private WebView webView;
     private PositionService positionService;
     private boolean serviceBound = false;
 
+    private final ActivityResultLauncher<String> notificationPermissionRequest =
+            registerForActivityResult(
+                    new ActivityResultContracts.RequestPermission(),
+                    this::onNotificationPermissionResult
+            );
+
     private final ActivityResultLauncher<String[]> locationPermissionRequest =
-            registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(), result -> {
-                Boolean fine = null;
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    fine = result.getOrDefault(Manifest.permission.ACCESS_FINE_LOCATION, false);
-                }
-                Boolean coarse = null;
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                    coarse = result.getOrDefault(Manifest.permission.ACCESS_COARSE_LOCATION, false);
-                }
-                if (Boolean.TRUE.equals(fine)) {
-                    // OK for precise location
-                } else if (Boolean.TRUE.equals(coarse)) {
-                    // Only coarse
-                } else {
-                    // Refused
-                    Log.w("[WikiLinks]", "Location permission denied");
-                }
-            });
+            registerForActivityResult(
+                    new ActivityResultContracts.RequestMultiplePermissions(),
+                    this::onLocationPermissionsResult
+            );
+
+    // ------------------------------------------------------------------------------------------------
+    // Lifecycle
+    // ------------------------------------------------------------------------------------------------
+
+    @SuppressLint("SetJavaScriptEnabled")
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        EdgeToEdge.enable(this);
+        setContentView(R.layout.activity_main);
+        AndroidBug5497Workaround.assistActivity(this);
+        applyEdgeToEdgePadding();
+
+        bindPositionService();
+        initializeWebView();
+
+        askPermissions();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (serviceBound) {
+            unbindService(connection);
+        }
+    }
+
+    // ------------------------------------------------------------------------------------------------
+    // Permission Handling
+    // ------------------------------------------------------------------------------------------------
+
+    /**
+     * Starts the permission request flow:
+     * (1) Notifications on Android 13+, then
+     * (2) Location permissions.
+     */
+    private void askPermissions() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            requestNotificationPermission();
+        } else {
+            // Pre-Android 13: skip notification prompt and schedule work immediately
+            scheduleDailyWork();
+            requestLocationPermissions();
+        }
+    }
+
+    /** Requests POST_NOTIFICATIONS (Android 13+). */
+    @RequiresApi(api = Build.VERSION_CODES.TIRAMISU)
+    private void requestNotificationPermission() {
+        notificationPermissionRequest.launch(Manifest.permission.POST_NOTIFICATIONS);
+    }
+
+    /**
+     * Callback invoked after notification permission is granted or denied.
+     *
+     * @param granted whether the user granted notification permission
+     */
+    private void onNotificationPermissionResult(boolean granted) {
+        if (granted) {
+            scheduleDailyWork();
+        } else {
+            Log.w("[WikiLinks]", "Notification permission denied");
+        }
+        // Proceed to location permissions regardless of outcome
+        requestLocationPermissions();
+    }
+
+    /** Requests ACCESS_FINE_LOCATION and ACCESS_COARSE_LOCATION together. */
+    private void requestLocationPermissions() {
+        locationPermissionRequest.launch(new String[] {
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+        });
+    }
+
+    /**
+     * Callback invoked after location permissions are handled.
+     *
+     * @param result map of permission names to grant results
+     */
+    private void onLocationPermissionsResult(Map<String, Boolean> result) {
+        boolean fine = false;
+        boolean coarse = false;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            fine = Boolean.TRUE.equals(result.getOrDefault(
+                        Manifest.permission.ACCESS_FINE_LOCATION,
+                        false
+                    ));
+            coarse = Boolean.TRUE.equals(result.getOrDefault(
+                        Manifest.permission.ACCESS_COARSE_LOCATION,
+                        false
+                    ));
+        }
+
+        if (fine) {
+            Log.i("[WikiLinks]", "Fine location granted");
+        } else if (coarse) {
+            Log.i("[WikiLinks]", "Coarse location granted");
+        } else {
+            Log.w("[WikiLinks]", "Location permission denied");
+        }
+    }
+
+    // ------------------------------------------------------------------------------------------------
+    // WorkManager Scheduling
+    // ------------------------------------------------------------------------------------------------
+
+    /**
+     * Calculates the initial delay until the next 8:00 UTC.
+     *
+     * @return milliseconds until next 8 UTC
+     */
+    private long computeInitialDelayTo8UTC() {
+        Calendar nowUtc = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+        Calendar next8 = (Calendar) nowUtc.clone();
+        next8.set(Calendar.HOUR_OF_DAY, 8);
+        next8.set(Calendar.MINUTE, 0);
+        next8.set(Calendar.SECOND, 0);
+        next8.set(Calendar.MILLISECOND, 0);
+        if (nowUtc.after(next8)) {
+            next8.add(Calendar.DAY_OF_YEAR, 1);
+        }
+        return next8.getTimeInMillis() - nowUtc.getTimeInMillis();
+    }
+
+    /**
+     * Schedules a repeating WorkManager job at 8 UTC every day.
+     */
+    private void scheduleDailyWork() {
+        long initialDelay = computeInitialDelayTo8UTC();
+        PeriodicWorkRequest dailyWork = new PeriodicWorkRequest.Builder(
+                DailyNotificationWorker.class,
+                PERIODIC_INTERVAL_DAYS,
+                TimeUnit.DAYS
+        )
+                .setInitialDelay(initialDelay, TimeUnit.MILLISECONDS)
+                .build();
+
+        WorkManager.getInstance(this)
+                .enqueueUniquePeriodicWork(
+                        WORK_NAME,
+                        ExistingPeriodicWorkPolicy.UPDATE,
+                        dailyWork
+                );
+    }
+
+    // ------------------------------------------------------------------------------------------------
+    // Position Service Binding
+    // ------------------------------------------------------------------------------------------------
 
     private final ServiceConnection connection = new ServiceConnection() {
         @Override
@@ -71,102 +223,61 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
-    private final ActivityResultLauncher<String> notifPermissionRequest =
-            registerForActivityResult(new ActivityResultContracts.RequestPermission(), granted -> {
-                if (granted) {
-                    scheduleDailyWork();
-                } else {
-                    Log.w("[WikiLinks]", "Notification permission denied");
-                }
-            });
-
-    private long computeInitialDelayTo8UTC() {
-        Calendar nowUtc = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-        Calendar next8 = (Calendar) nowUtc.clone();
-        next8.set(Calendar.HOUR_OF_DAY, 8);
-        next8.set(Calendar.MINUTE, 0);
-        next8.set(Calendar.SECOND, 0);
-        next8.set(Calendar.MILLISECOND, 0);
-
-        if (nowUtc.after(next8)) {
-            next8.add(Calendar.DAY_OF_YEAR, 1);
-        }
-        return next8.getTimeInMillis() - nowUtc.getTimeInMillis();
-    }
-
-    private void scheduleDailyWork() {
-        long initialDelay = computeInitialDelayTo8UTC();
-
-        PeriodicWorkRequest dailyWork =
-                new PeriodicWorkRequest.Builder(DailyNotificationWorker.class, 1, TimeUnit.DAYS)
-                        .setInitialDelay(initialDelay, TimeUnit.MILLISECONDS)
-                        .build();
-
-        WorkManager.getInstance(this)
-                .enqueueUniquePeriodicWork(
-                        "daily-notif-work",
-                        ExistingPeriodicWorkPolicy.UPDATE,
-                        dailyWork
-                );
-    }
-
-    @SuppressLint({"SetJavaScriptEnabled"})
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_main);
-        AndroidBug5497Workaround.assistActivity(this);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
-            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
-            return insets;
-        });
+    /**
+     * Binds to the PositionService for location updates.
+     */
+    private void bindPositionService() {
         Intent svcIntent = new Intent(this, PositionService.class);
         bindService(svcIntent, connection, BIND_AUTO_CREATE);
+    }
 
-        // Entry point to save the notification intent
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            notifPermissionRequest.launch(Manifest.permission.POST_NOTIFICATIONS);
-        } else {
-            scheduleDailyWork();
-        }
+    // ------------------------------------------------------------------------------------------------
+    // WebView Setup
+    // ------------------------------------------------------------------------------------------------
 
-        locationPermissionRequest.launch(new String[] {
-                Manifest.permission.ACCESS_FINE_LOCATION,
-                Manifest.permission.ACCESS_COARSE_LOCATION
-        });
-
+    @SuppressLint("SetJavaScriptEnabled")
+    private void initializeWebView() {
         webView = findViewById(R.id.webview);
         webView.getSettings().setJavaScriptEnabled(true);
         webView.getSettings().setDomStorageEnabled(true);
-
         webView.addJavascriptInterface(new JavaScriptObject(), "AndroidApp");
         webView.loadUrl(BuildConfig.WEBVIEW_URL);
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if (serviceBound) {
-            unbindService(connection);
-        }
+    /**
+     * Applies window insets padding for edge-to-edge UI.
+     */
+    private void applyEdgeToEdgePadding() {
+        ViewCompat.setOnApplyWindowInsetsListener(
+                findViewById(R.id.main),
+                (v, insets) -> {
+                    Insets bars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+                    v.setPadding(bars.left, bars.top, bars.right, bars.bottom);
+                    return insets;
+                }
+        );
     }
 
+    // ------------------------------------------------------------------------------------------------
+    // JavaScript Interface
+    // ------------------------------------------------------------------------------------------------
+
+    /**
+     * Exposes methods to JavaScript to communicate with the website.
+     */
     class JavaScriptObject {
         @JavascriptInterface
         public void requestLocation() {
             if (!serviceBound) return;
 
-            // Vérifie la permission runtime
             if (ActivityCompat.checkSelfPermission(
-                    MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION
+                    MainActivity.this,
+                    Manifest.permission.ACCESS_FINE_LOCATION
             ) != PackageManager.PERMISSION_GRANTED) {
                 Log.w("[WikiLinks]", "No location permission");
                 return;
             }
 
-            // Appel asynchrone du service
             positionService.requestLocation(new PositionService.LocationResultListener() {
                 @Override
                 public void onLocationResult(double lat, double lon) {
