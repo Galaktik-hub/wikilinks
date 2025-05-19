@@ -19,6 +19,11 @@ export class PlayerHistory {
         this.steps.push(step);
     }
 
+    removeLastObjectiveStep(): void {
+        const lastIdx = this.steps.map(step => step.type).lastIndexOf("foundPage");
+        this.steps = this.steps.filter((_, i) => i !== lastIdx);
+    }
+
     getHistory(): HistoryStep[] {
         return this.steps;
     }

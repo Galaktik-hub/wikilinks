@@ -26,7 +26,7 @@ const PlayerProgressPanel: React.FC = () => {
 
     useEffect(() => {
         playersContext.getHistory();
-    }, []);
+    }, [gameContext.articles]);
 
     useEffect(() => {
         const updatedProgress = playersContext.players.map((player: {username: string}) => {
@@ -41,7 +41,7 @@ const PlayerProgressPanel: React.FC = () => {
             };
         });
         setPlayersProgress(updatedProgress);
-    }, [playersContext, gameContext.articles.length]);
+    }, [playersContext.players, playersContext.histories, gameContext.articles.length]);
 
     return (
         <CollapsiblePanel title="Progression des joueurs" contentId="player-progress-content">

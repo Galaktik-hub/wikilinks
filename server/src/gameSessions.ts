@@ -155,6 +155,7 @@ export class GameSession {
             if (member.ws.readyState === member.ws.OPEN) {
                 // Reset player variables (If they already played a previous game)
                 member.reset();
+                member.objectivesToVisit = this.articles;
                 member.ws.send(JSON.stringify({kind: "game_started", startArticle: this.startArticle, articles: this.articles}));
             }
         });
@@ -208,13 +209,13 @@ export class GameSession {
 
         const players = Array.from(this.members.values());
         players.sort((a, b) => {
-            const aFound = a.foundArticles;
-            const bFound = b.foundArticles;
+            const aFound = a.objectivesVisited.length;
+            const bFound = b.objectivesVisited.length;
             if (bFound !== aFound) {
                 return bFound - aFound; // more found articles first
             }
-            const aVisited = a.visitedArticles;
-            const bVisited = b.visitedArticles;
+            const aVisited = a.articlesVisited.length;
+            const bVisited = b.articlesVisited.length;
             return aVisited - bVisited;
         });
 
@@ -225,8 +226,8 @@ export class GameSession {
         let group: string[] = [];
 
         players.forEach((player, index) => {
-            const found = player.foundArticles;
-            const visited = player.visitedArticles;
+            const found = player.objectivesVisited.length;
+            const visited = player.articlesVisited.length;
 
             logger.info(`Player ${player.name} found ${found} articles and visited ${visited} pages`);
 
@@ -250,7 +251,7 @@ export class GameSession {
 
         logger.info(`Scoreboard: ${JSON.stringify(Array.from(this.scoreboard.entries()))}`);
 
-        if (players[0]?.foundArticles === this.numberOfArticles) {
+        if (players[0]?.objectivesVisited.length === this.numberOfArticles) {
             this.endGame();
         }
     }
@@ -265,12 +266,10 @@ export class GameSession {
                 const article = this.articles.find(article => article === data.page_name);
                 logger.info(`Article: "${data.page_name}"`);
                 if (article) {
-                    player.history.addStep("foundPage", {page_name: data.page_name});
-                    player.foundArticles++;
+                    player.foundPage(article);
                     data.type = "foundPage";
                 } else {
-                    player.history.addStep("visitedPage", {page_name: data.page_name});
-                    player.visitedArticles++;
+                    player.visitPage(data.page_name);
                 }
                 break;
             }
@@ -295,6 +294,8 @@ export class GameSession {
                                 player: player.name,
                                 ...data,
                             },
+                            obj_visited: member.objectivesVisited,
+                            obj_to_visit: member.objectivesToVisit,
                         },
                     }),
                 );
@@ -333,7 +334,7 @@ export class GameSession {
             names.forEach(name => {
                 const player = this.members.get(name);
                 if (player) {
-                    const score = player.foundArticles * 100 - player.visitedArticles * 5;
+                    const score = player.objectivesVisited.length * 100 - player.articlesVisited.length * 5;
                     results.push({rank, name: player.name, score});
                 }
             });

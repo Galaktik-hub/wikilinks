@@ -89,12 +89,12 @@ export const GameProvider: React.FC<{children: React.ReactNode}> = ({children}) 
                     setCurrentTitle(data.startArticle);
                     setArticles(data.articles.map((n: string) => ({name: n, found: false})));
                     break;
-                case "game_update":
-                    if (data.event.type === "foundPage") {
-                        const p = data.event.data.page_name;
-                        setArticles(prev => prev.map(a => (a.name === p ? {...a, found: true} : a)));
-                    }
+                case "game_update": {
+                    const objectivesVisited: string[] = data.event.obj_visited;
+                    const objectivesToVisit: string[] = data.event.obj_to_visit;
+                    setArticles(() => objectivesToVisit.map(name => ({name, found: false})).concat(objectivesVisited.map(name => ({name, found: true}))));
                     break;
+                }
                 case "game_over":
                     setIsGameOver(true);
                     setLoading(false);

@@ -102,6 +102,7 @@ export const PlayersProvider: React.FC<{children: React.ReactNode}> = ({children
             case "Escargot":
                 break;
             case "Gomme":
+                // back side
                 break;
             case "Desorienteur":
                 break;
