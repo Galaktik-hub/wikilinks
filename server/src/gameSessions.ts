@@ -71,8 +71,7 @@ export class GameSession {
      * Adds a player into the session if the capacity is not reached.
      * The player is added with the role "client".
      */
-    public addPlayer(playerName: string): boolean {
-        const player = this.members.get(playerName);
+    public addPlayer(player: Player): boolean {
         if (this.members.size >= this.maxPlayers) return false;
         this.members.set(player.name, player);
         this.bots.forEach(bot => {
