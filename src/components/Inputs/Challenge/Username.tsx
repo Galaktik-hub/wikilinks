@@ -98,7 +98,7 @@ export default function UsernameInput() {
 
     return (
         <div className="w-full max-w-md bg-gray-800 p-4 rounded-lg shadow-md text-white">
-            <h3 className="text-lg font-semibold mb-2">Username</h3>
+            <h3 className="text-lg font-semibold mb-2">Pseudo</h3>
             {loading ? (
                 <p>Chargement...</p>
             ) : editMode ? (
@@ -117,7 +117,7 @@ export default function UsernameInput() {
                             className="px-3 py-1 bg-gray-600 hover:bg-gray-500 rounded-full"
                             disabled={saving}
                         >
-                            Cancel
+                            Annuler
                         </button>
                         <button
                             onClick={handleSave}
