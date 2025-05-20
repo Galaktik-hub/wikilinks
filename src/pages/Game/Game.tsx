@@ -46,7 +46,7 @@ const Game: React.FC = () => {
                         <ObjectivesPanel />
                     </>
                 )}
-                <WikiPagePanel startArticle={startArticle} />
+                <WikiPagePanel startArticle={gameContext.currentArticle || startArticle} />
                 {(isMobile || isIntermediate) && <ExitButton isHost={false} />}
             </div>
             {isDesktop && (

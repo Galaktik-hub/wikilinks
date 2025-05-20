@@ -22,6 +22,8 @@ export interface GameContextType {
     // articles
     startArticle: string;
     articles: Article[];
+    currentArticle: string | null;
+    setCurrentArticle: (article: string | null) => void;
 
     // game state
     isGameOver: boolean;
@@ -59,6 +61,7 @@ export const GameProvider: React.FC<{children: React.ReactNode}> = ({children}) 
     // articles
     const [articles, setArticles] = useState<Article[]>([]);
     const [startArticle, setStart] = useState("");
+    const [currentArticle, setCurrentArticle] = useState<string | null>(null);
 
     // scoreboard
     const [scoreboard, setScoreboard] = useState<ResultProps[]>([]);
@@ -160,6 +163,8 @@ export const GameProvider: React.FC<{children: React.ReactNode}> = ({children}) 
                 setIsGameOver,
                 startArticle,
                 articles,
+                currentArticle,
+                setCurrentArticle,
                 scoreboard,
                 createGame,
                 joinGame,
