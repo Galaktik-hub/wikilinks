@@ -65,13 +65,15 @@ export class Player {
     foundPage(page_name: string): boolean {
         if (this.priorityObjective && page_name !== this.priorityObjective) {
             this.visitPage(page_name);
-            this.ws.send(JSON.stringify({
-                kind: "game_artifact",
-                artefact: "Dictateur",
-                data: {
-                    targetArticle: this.priorityObjective,
-                }
-            }));
+            this.ws.send(
+                JSON.stringify({
+                    kind: "game_artifact",
+                    artefact: "Dictateur",
+                    data: {
+                        targetArticle: this.priorityObjective,
+                    },
+                }),
+            );
             this.history.addStep("artifactEffect", {artefact: "Dictateur", source: page_name});
             return false;
         }
@@ -151,25 +153,29 @@ export class Player {
                 this.history.removeLastByType("foundPage");
             }
         });
-        this.ws.send(JSON.stringify({
-            kind: "game_artifact",
-            artefact: "Mine",
-            data: {
-                source: page,
-            }
-        }))
+        this.ws.send(
+            JSON.stringify({
+                kind: "game_artifact",
+                artefact: "Mine",
+                data: {
+                    source: page,
+                },
+            }),
+        );
         this.history.addStep("artifactEffect", {artefact: "Mine", source: page});
     }
 
     async useArtifactDesorienteur() {
         const randomArticle = await WikipediaServices.fetchRandomPopularWikipediaPages(1, 0);
-        this.ws.send(JSON.stringify({
-            kind: "game_artifact",
-            artefact: "Desorienteur",
-            data: {
-                randomArticle: randomArticle[0],
-            }
-        }));
+        this.ws.send(
+            JSON.stringify({
+                kind: "game_artifact",
+                artefact: "Desorienteur",
+                data: {
+                    randomArticle: randomArticle[0],
+                },
+            }),
+        );
         this.history.addStep("artifactEffect", {artefact: "Desorienteur", source: randomArticle[0]});
     }
 
@@ -177,13 +183,15 @@ export class Player {
         if (this.objectivesToVisit.length === 0) return;
         const idx = Math.floor(Math.random() * this.objectivesToVisit.length);
         this.priorityObjective = this.objectivesToVisit[idx];
-        this.ws.send(JSON.stringify({
-            kind: "game_artifact",
-            artefact: "Dictateur",
-            data: {
-                targetArticle: this.priorityObjective,
-            }
-        }));
+        this.ws.send(
+            JSON.stringify({
+                kind: "game_artifact",
+                artefact: "Dictateur",
+                data: {
+                    targetArticle: this.priorityObjective,
+                },
+            }),
+        );
     }
 
     reset() {

@@ -175,7 +175,7 @@ export const PlayersProvider: React.FC<{children: React.ReactNode}> = ({children
                 artifactExecDictateur(data!.targetArticle);
                 break;
         }
-    }
+    };
 
     const artifactExecMine = (username: string) => {
         openModal({
@@ -199,7 +199,7 @@ export const PlayersProvider: React.FC<{children: React.ReactNode}> = ({children
             title: "Effet d'artefact",
             type: "confirmation",
             content: {
-                message: `${(artifactDefinitions.Dictateur.definition).replace("{page_obj}", page_obj.replace(/_/g, " "))}`,
+                message: `${artifactDefinitions.Dictateur.definition.replace("{page_obj}", page_obj.replace(/_/g, " "))}`,
                 okButton: {
                     label: "Ok",
                     onClick: () => {
@@ -208,7 +208,7 @@ export const PlayersProvider: React.FC<{children: React.ReactNode}> = ({children
                 },
             },
         });
-    }
+    };
 
     return <PlayersContext.Provider value={{players, inventory, foundArtifact, usedArtifact, histories, getHistory}}>{children}</PlayersContext.Provider>;
 };

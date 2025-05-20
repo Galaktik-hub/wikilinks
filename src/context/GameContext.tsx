@@ -131,13 +131,10 @@ export const GameProvider: React.FC<{children: React.ReactNode}> = ({children}) 
             setCurrentTitle(title);
             return true;
         } else {
-            showPopup(
-                "error",
-                `${artifactDefinitions.Escargot.definition} (${remainingDelay}s restant)`
-            );
+            showPopup("error", `${artifactDefinitions.Escargot.definition} (${remainingDelay}s restant)`);
         }
         return false;
-    }
+    };
 
     const createGame = (payload: any) => ws.send({kind: "create_game_session", ...payload});
     const joinGame = (payload: any) => ws.send({kind: "join_game_session", ...payload});
