@@ -277,7 +277,7 @@ export class GameSession {
                     let luckPercentage = 0;
                     let unluckPercentage = 0;
                     if (hasArtifact) {
-                        const percentages = this.calculatePercentages();
+                        const percentages = this.calculatePercentagesLuck();
                         luckPercentage = percentages.luckPercentage;
                         unluckPercentage = percentages.unluckPercentage;
                         logger.info(`Page "${data.page_name}" has luck percentage: ${luckPercentage} and unluck percentage: ${unluckPercentage}`);
@@ -365,18 +365,17 @@ export class GameSession {
      * Determines whether a page found for the first time contains an artifact.
      */
     private determineArtifactFoundPage(): boolean {
-        return Math.random() > 0.5; 
+        return Math.random() > 0.5;
     }
 
     /**
      * Calculate the percentages of luck and bad luck for an artifact.
      */
-    private calculatePercentages(): { luckPercentage: number; unluckPercentage: number } {
+    private calculatePercentagesLuck(): {luckPercentage: number; unluckPercentage: number} {
         const luckPercentage = Math.round(Math.random() * 100);
         const unluckPercentage = 100 - luckPercentage;
-        return { luckPercentage, unluckPercentage };
+        return {luckPercentage, unluckPercentage};
     }
-
 }
 
 export class GameSessionManager {
