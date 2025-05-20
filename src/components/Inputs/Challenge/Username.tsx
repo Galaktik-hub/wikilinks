@@ -30,7 +30,7 @@ export default function UsernameInput() {
                 challengeContext.setUsername(name);
             } catch (err: any) {
                 console.error("Error fetching username:", err);
-                setError("Unable to fetch username");
+                setError("Impossible de récupérer le pseudo");
             } finally {
                 setLoading(false);
             }
@@ -51,7 +51,7 @@ export default function UsernameInput() {
                     });
                 } else {
                     setSaving(false);
-                    setError("Username is already taken");
+                    setError("Le pseudo est déjà pris");
                     pendingUsername.current = null;
                 }
             } else if (data.kind === "register_username_response") {
@@ -65,7 +65,7 @@ export default function UsernameInput() {
                         pendingUsername.current = null;
                     })();
                 } else {
-                    setError("Registration failed");
+                    setError("Impossible de sauvegarder le pseudo");
                     pendingUsername.current = null;
                 }
             }
@@ -81,7 +81,7 @@ export default function UsernameInput() {
         setError(null);
         const trimmed = inputValue.trim();
         if (!/^[A-Za-z0-9_]{1,20}$/.test(trimmed)) {
-            setError("Username must be 1–20 chars: letters, digits or underscore");
+            setError("Le pseudo doit contenir entre 1 et 20 caractères alphanumériques ou underscores");
             return;
         }
 
@@ -100,7 +100,7 @@ export default function UsernameInput() {
         <div className="w-full max-w-md bg-gray-800 p-4 rounded-lg shadow-md text-white">
             <h3 className="text-lg font-semibold mb-2">Username</h3>
             {loading ? (
-                <p>Loading...</p>
+                <p>Chargement...</p>
             ) : editMode ? (
                 <div className="flex flex-col gap-2">
                     <input
@@ -108,7 +108,7 @@ export default function UsernameInput() {
                         value={inputValue}
                         onChange={e => setInputValue(e.target.value)}
                         className="w-full px-3 py-2 rounded border border-gray-600 bg-gray-700 focus:outline-none"
-                        placeholder="Enter new username"
+                        placeholder="Entrez votre pseudo"
                         disabled={saving}
                     />
                     <div className="flex gap-2 justify-end">
@@ -124,19 +124,19 @@ export default function UsernameInput() {
                             className="px-3 py-1 bg-green-600 hover:bg-green-500 rounded-full"
                             disabled={saving || inputValue.trim() === ""}
                         >
-                            {saving ? "Saving..." : "Save"}
+                            {saving ? "Sauvegarde..." : "Sauvegarder"}
                         </button>
                     </div>
                     {error && <p className="text-red-500 mt-2">{error}</p>}
                 </div>
             ) : (
                 <div className="flex items-center justify-between">
-                    <span className="text-xl">{username || "Not set"}</span>
+                    <span className="text-xl">{username || "Pas défini"}</span>
                     <button
                         onClick={startEditing}
                         className="px-3 py-1 bg-blueSecondary hover:bg-blue-900 rounded-full"
                     >
-                        Edit
+                        Modifier
                     </button>
                 </div>
             )}
