@@ -272,6 +272,16 @@ export class GameSession {
                 } else {
                     player.history.addStep("visitedPage", {page_name: data.page_name});
                     player.visitedArticles++;
+                    const hasArtifact = this.determineArtifactFoundPage();
+                    logger.info(`Page "${data.page_name}" has artifact: ${hasArtifact}`);
+                    let luckPercentage = 0;
+                    let unluckPercentage = 0;
+                    if (hasArtifact) {
+                        const percentages = this.calculatePercentages();
+                        luckPercentage = percentages.luckPercentage;
+                        unluckPercentage = percentages.unluckPercentage;
+                        logger.info(`Page "${data.page_name}" has luck percentage: ${luckPercentage} and unluck percentage: ${unluckPercentage}`);
+                    }
                 }
                 break;
             }
@@ -350,6 +360,23 @@ export class GameSession {
         this.articles = [];
         this.startArticle = "";
     }
+
+    /**
+     * Determines whether a page found for the first time contains an artifact.
+     */
+    private determineArtifactFoundPage(): boolean {
+        return Math.random() > 0.5; 
+    }
+
+    /**
+     * Calculate the percentages of luck and bad luck for an artifact.
+     */
+    private calculatePercentages(): { luckPercentage: number; unluckPercentage: number } {
+        const luckPercentage = Math.round(Math.random() * 100);
+        const unluckPercentage = 100 - luckPercentage;
+        return { luckPercentage, unluckPercentage };
+    }
+
 }
 
 export class GameSessionManager {
