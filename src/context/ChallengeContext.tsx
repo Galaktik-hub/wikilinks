@@ -9,6 +9,7 @@ interface Article {
 export interface ChallengeContextType {
     // connection/session
     username: string | null;
+    setUsername: (username: string | null) => void;
     sessionId: string;
 
     // articles
@@ -24,6 +25,7 @@ export interface ChallengeContextType {
     // actions
     createGame: (payload: {username: string; startArticle: string}) => void;
     startGame: () => void;
+    getTodayChallenge: () => void;
 }
 
 const ChallengeContext = createContext<ChallengeContextType | undefined>(undefined);
@@ -48,13 +50,14 @@ export const ChallengeProvider: React.FC<{children: React.ReactNode}> = ({childr
             switch (data.kind) {
                 case "challenge_session_created":
                     setSessionId(data.sessionId);
-                    setTargetArticle(data.targetArticle);
-                    setUsername(data.username);
                     break;
                 case "challenge_ended":
                     setIsGameOver(true);
                     setArticles([]);
                     setStartArticle("");
+                    break;
+                case "today_challenge":
+                    setTargetArticle(data.targetArticle);
                     break;
             }
         };
@@ -68,10 +71,15 @@ export const ChallengeProvider: React.FC<{children: React.ReactNode}> = ({childr
         ws.send({kind: "start_challenge"});
     };
 
+    const getTodayChallenge = () => {
+        ws.send({kind: "get_today_challenge"});
+    }
+
     return (
         <ChallengeContext.Provider
             value={{
                 username,
+                setUsername,
                 sessionId,
                 isGameOver,
                 setIsGameOver,
@@ -81,6 +89,7 @@ export const ChallengeProvider: React.FC<{children: React.ReactNode}> = ({childr
                 articles,
                 createGame,
                 startGame,
+                getTodayChallenge,
             }}>
             {children}
         </ChallengeContext.Provider>

@@ -3,8 +3,10 @@ package fr.wikilinks;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -296,6 +298,26 @@ public class MainActivity extends AppCompatActivity {
                     webView.post(() -> webView.evaluateJavascript(js, null));
                 }
             });
+        }
+
+        @JavascriptInterface
+        public void getUsername() {
+            // Retrieve username from SharedPreferences
+            SharedPreferences prefs = MainActivity.this.getPreferences(Context.MODE_PRIVATE);
+            String name = prefs.getString("username", "");
+            String quoted = JSONObject.quote(name);
+            String js = "window.onUsernameReceived(" + quoted + ");";
+            webView.post(() -> webView.evaluateJavascript(js, null));
+        }
+
+        @JavascriptInterface
+        public void setUsername(String username) {
+            SharedPreferences prefs = MainActivity.this.getPreferences(Context.MODE_PRIVATE);
+            prefs.edit()
+                    .putString("username", username)
+                    .apply();
+            String js = "window.onUsernameSaved();";
+            webView.post(() -> webView.evaluateJavascript(js, null));
         }
     }
 }

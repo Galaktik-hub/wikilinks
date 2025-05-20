@@ -12,13 +12,9 @@ export interface Location {
 export async function getLocation(): Promise<Location> {
     return new Promise((resolve, reject) => {
         window.onLocationReceived = coords => {
-            delete window.onLocationReceived;
-            delete window.onLocationError;
             resolve(coords);
         };
         window.onLocationError = msg => {
-            delete window.onLocationReceived;
-            delete window.onLocationError;
             reject(new Error(msg));
         };
 

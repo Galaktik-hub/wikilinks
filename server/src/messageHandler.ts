@@ -3,6 +3,7 @@ import {GameSessionManager, GameType} from "./gameSessions";
 import {Player} from "./player/player";
 import logger from "./logger";
 import {ChallengeSession, ChallengeSessionManager} from "./challenge/challengeManager";
+import {checkUsernameUniqueness, registerUsername} from "./challengeUsernameUtils";
 
 export interface ClientContext {
     currentRoomId: number | null;
@@ -238,6 +239,38 @@ export async function handleMessage(ws: WebSocket, message: any, context: Client
             });
             break;
         }
+        case "get_today_challenge": {
+            const article = await ChallengeSession.fetchTodayChallenge();
+            ws.send(
+                JSON.stringify({
+                    kind: "today_challenge",
+                    targetArticle: article.targetArticle,
+                }),
+            );
+            break;
+        }
+        case "check_username_challenge": {
+            const usernameToCheck = message.usernameToCheck;
+            const available = await checkUsernameUniqueness(usernameToCheck);
+            ws.send(
+                JSON.stringify({
+                    kind: "check_username_response",
+                    available: available,
+                }),
+            )
+            break;
+        }
+        case "register_username_challenge": {
+            const {usernameToRegister, removeOld, oldUsername} = message;
+            const success = await registerUsername(usernameToRegister, removeOld, oldUsername);
+            ws.send(
+                JSON.stringify({
+                    kind: "register_username_response",
+                    success: success,
+                }),
+            )
+            break;
+        }
         case "get_history": {
             const {currentGameSessionId, currentUser} = context;
             if (!currentGameSessionId || !currentUser) {
@@ -386,12 +419,10 @@ export async function handleMessage(ws: WebSocket, message: any, context: Client
             const player = new Player(message.username, ws, "creator", true);
             context.currentUser = player;
             const challenge = ChallengeSessionManager.createSession(player, message.startArticle);
-            const article = await ChallengeSession.fetchTodayChallenge();
             context.currentChallengeSessionId = challenge.id;
             ws.send(
                 JSON.stringify({
                     kind: "challenge_session_created",
-                    targetArticle: article.targetArticle,
                     id: challenge.id,
                 }),
             );
