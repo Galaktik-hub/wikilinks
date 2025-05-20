@@ -103,6 +103,7 @@ export const PlayersProvider: React.FC<{children: React.ReactNode}> = ({children
             case "Teleporteur":
                 break;
             case "Escargot":
+                gameCtx.setPageChangeDelay(60);
                 break;
             case "Gomme":
                 // back side
@@ -137,7 +138,7 @@ export const PlayersProvider: React.FC<{children: React.ReactNode}> = ({children
         // Go back
         const newIdx = Math.max(0, idx - stepsBack);
         const previousTitle = seq[newIdx];
-        gameCtx.setCurrentTitle(previousTitle);
+        gameCtx.changeCurrentTitle(previousTitle);
     };
 
     const playArtifactMine = (username: string) => {

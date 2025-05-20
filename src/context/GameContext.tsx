@@ -4,6 +4,8 @@ import React, {createContext, useContext, useEffect, useState} from "react";
 import {useWebSocket} from "./WebSocketContext.tsx";
 import {GameSettingsType} from "../components/Sections/WaitingRoom/GameSettings/GameSettings.tsx";
 import {ResultProps} from "../pages/Result/Result.tsx";
+import {usePopup} from "./PopupContext.tsx";
+import {artifactDefinitions} from "../../server/src/player/inventory/inventoryProps.ts";
 
 interface Article {
     name: string;
@@ -25,7 +27,8 @@ export interface GameContextType {
     startArticle: string;
     articles: Article[];
     currentTitle: string;
-    setCurrentTitle: (title: string) => void;
+    changeCurrentTitle: (title: string) => boolean;
+    setPageChangeDelay: (delay: number) => void;
 
     // game state
     isGameOver: boolean;
@@ -47,6 +50,7 @@ const GameContext = createContext<GameContextType | undefined>(undefined);
 
 export const GameProvider: React.FC<{children: React.ReactNode}> = ({children}) => {
     const ws = useWebSocket()!;
+    const {showPopup} = usePopup();
 
     // connexion/session
     const [leaderName, setLeader] = useState<string | null>(null);
@@ -63,7 +67,10 @@ export const GameProvider: React.FC<{children: React.ReactNode}> = ({children}) 
     // articles
     const [articles, setArticles] = useState<Article[]>([]);
     const [startArticle, setStart] = useState("");
+
+    // article navigation
     const [currentTitle, setCurrentTitle] = useState<string>(startArticle);
+    const [remainingDelay, setPageChangeDelay] = useState<number>(0);
 
     // scoreboard
     const [scoreboard, setScoreboard] = useState<ResultProps[]>([]);
@@ -110,6 +117,27 @@ export const GameProvider: React.FC<{children: React.ReactNode}> = ({children}) 
         ws.onMessage(handler);
         return () => ws.offMessage(handler);
     }, [ws]);
+
+    useEffect(() => {
+        if (remainingDelay <= 0) return;
+        const timerId = setInterval(() => {
+            setPageChangeDelay(prev => Math.max(0, prev - 1));
+        }, 1000);
+        return () => clearInterval(timerId);
+    }, [remainingDelay]);
+
+    const changeCurrentTitle = (title: string) => {
+        if (remainingDelay <= 0) {
+            setCurrentTitle(title);
+            return true;
+        } else {
+            showPopup(
+                "error",
+                `${artifactDefinitions.Escargot.definition} (${remainingDelay}s restant)`
+            );
+        }
+        return false;
+    }
 
     const createGame = (payload: any) => ws.send({kind: "create_game_session", ...payload});
     const joinGame = (payload: any) => ws.send({kind: "join_game_session", ...payload});
@@ -167,7 +195,8 @@ export const GameProvider: React.FC<{children: React.ReactNode}> = ({children}) 
                 startArticle,
                 articles,
                 currentTitle,
-                setCurrentTitle,
+                changeCurrentTitle,
+                setPageChangeDelay,
                 scoreboard,
                 createGame,
                 joinGame,

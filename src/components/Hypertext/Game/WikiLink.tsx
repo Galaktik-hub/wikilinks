@@ -12,15 +12,15 @@ const WikiLink: React.FC<WikiLinkProps> = ({title, children, ...props}) => {
 
     const handleClick = (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
         e.preventDefault();
-        gameContext.setCurrentTitle(title);
-
-        socketContext.send({
-            kind: "game_event",
-            event: {
-                type: "visitedPage",
-                page_name: title,
-            },
-        });
+        if (gameContext.changeCurrentTitle(title)) {
+            socketContext.send({
+                kind: "game_event",
+                event: {
+                    type: "visitedPage",
+                    page_name: title,
+                },
+            });
+        }
     };
 
     return (

@@ -88,6 +88,7 @@ export class Player {
                 case "Teleporteur":
                     break;
                 case "Escargot":
+                    // front side
                     break;
                 case "Gomme":
                     this.useArtifactGomme();
