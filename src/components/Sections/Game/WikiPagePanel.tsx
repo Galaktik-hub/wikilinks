@@ -11,10 +11,25 @@ interface ObjectivesPanelProps {
 
 const ObjectivesPanel: React.FC<ObjectivesPanelProps> = props => {
     preventCtrlF();
+
+    const [showNotification, setShowNotification] = React.useState(true);
+
+    const chancePercentage = 60;
+
     return (
         <div className="card-container flex flex-col justify-center xl-custom:mb-32 mb-12">
-            <div className="flex justify-start w-full">
+            <div className="flex justify-between items-center w-full">
                 <h2 className="blue-title-effect">Page Wikipedia</h2>
+
+                {showNotification && (
+                    <div className="flex items-center bg-background text-white px-3 py-1 rounded-md my-2 w-fit">
+                        <div className="border border-white text-white rounded-full w-5 h-5 flex items-center justify-center mr-2">!</div>
+                        <div className="flex flex-col text-bluePrimary">
+                            <p className="m-0 text-sm">Artefact disponible</p>
+                            <p className="m-0 text-sm">Chance : {chancePercentage}%</p>
+                        </div>
+                    </div>
+                )}
             </div>
 
             <WikiNavigationProvider className="flex flex-col items-center gap-2 self-center mt-2 w-full text-base text-white" startArticle={props.startArticle}>
