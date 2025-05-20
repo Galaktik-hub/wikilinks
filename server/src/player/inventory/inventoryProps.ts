@@ -65,7 +65,7 @@ export const artifactDefinitions: Record<ArtifactName, {definition: string; imme
         target: "self",
     },
     Dictateur: {
-        definition: "Vous devez vous rendre impérativement vers {page_obj} avant les prochains objectifs, ou il ne seront pas comptabilisés.",
+        definition: "Vous devez vous rendre impérativement vers {page_obj} avant les prochains objectifs.",
         immediate: true,
         positive: false,
         target: "self",

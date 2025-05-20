@@ -65,11 +65,13 @@ export const PlayersProvider: React.FC<{children: React.ReactNode}> = ({children
                 case "game_update":
                     if (data.event) {
                         const {type, data: ev} = data.event;
-                        if (type === "trapped_article" && ev.player === gameCtx.username) playArtifact("Mine");
                         const name = ev.player || ev.playerName;
                         const step: TimelineStep = {id: Date.now(), type, data: ev};
                         setHistories(prev => ({...prev, [name]: [...(prev[name] || []), step]}));
                     }
+                    break;
+                case "game_artifact":
+                    artifactExecution(data.artefact as ArtifactName, data.data);
                     break;
             }
         };
@@ -87,36 +89,36 @@ export const PlayersProvider: React.FC<{children: React.ReactNode}> = ({children
         ws.send({kind: "game_event", event: {type: "usedArtifact", artefact: name}});
     };
 
+    // The player plays or activates an artefact
     const playArtifact = (name: ArtifactName) => {
         const username = gameCtx.username;
         if (!username) return;
         switch (name) {
             case "GPS":
-                playArtifactGPS();
+                // Back side
                 break;
             case "Retour":
                 playArtifactRetour(username);
                 break;
             case "Mine":
-                playArtifactMine(username);
+                // TODO: Send the target article to the server
                 break;
             case "Teleporteur":
+                // Back side
                 break;
             case "Escargot":
                 gameCtx.setPageChangeDelay(60);
                 break;
             case "Gomme":
-                // back side
+                // Back side
                 break;
             case "Desorienteur":
+                // Back side
                 break;
             case "Dictateur":
+                // Back side
                 break;
         }
-    };
-
-    const playArtifactGPS = () => {
-        return;
     };
 
     const playArtifactRetour = (username: string, stepsBack: number = 1) => {
@@ -141,7 +143,40 @@ export const PlayersProvider: React.FC<{children: React.ReactNode}> = ({children
         gameCtx.changeCurrentTitle(previousTitle);
     };
 
-    const playArtifactMine = (username: string) => {
+    // Executing an artefact after server processing
+    const artifactExecution = (name: ArtifactName, data?: Record<string, string>) => {
+        const username = gameCtx.username;
+        if (!username) return;
+        switch (name) {
+            case "GPS":
+                // Implemented solver first
+                // Write by another type bot to answer in the chat to make the answer accessible ?
+                break;
+            case "Retour":
+                // Front side
+                break;
+            case "Mine":
+                artifactExecMine(username);
+                break;
+            case "Teleporteur":
+                // Implemented solver first
+                // gameCtx.changeCurrentTitle(data!.page_name);
+                break;
+            case "Escargot":
+                // Front side
+                break;
+            case "Gomme":
+                // Back side - no special return
+                break;
+            case "Desorienteur":
+                gameCtx.changeCurrentTitle(data!.randomArticle);
+                break;
+            case "Dictateur":
+                break;
+        }
+    }
+
+    const artifactExecMine = (username: string) => {
         openModal({
             title: "Effet d'artefact",
             type: "confirmation",

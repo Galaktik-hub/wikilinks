@@ -3,6 +3,7 @@ import {WebSocket} from "ws";
 import {PlayerHistory} from "./history/playerHistory";
 import {Inventory} from "./inventory/inventory";
 import {ArtifactName} from "./inventory/inventoryProps";
+import {WikipediaServices} from "../WikipediaService";
 
 export type PlayerRole = "creator" | "client";
 
@@ -72,11 +73,13 @@ export class Player {
         this.inventory.removeArtifact(name, quantity);
     }
 
-    useArtifact(name: ArtifactName): boolean {
+    async useArtifact(name: ArtifactName): Promise<boolean> {
+        this.inventory.addArtifact("Desorienteur");
         const result = this.inventory.useArtifact(name);
         if (result) {
             switch (name) {
                 case "GPS":
+                    // Implemented solver first
                     break;
                 case "Retour": {
                     this.articlesVisited.pop();
@@ -86,15 +89,16 @@ export class Player {
                     this.useArtifactMine();
                     break;
                 case "Teleporteur":
+                    // Implemented solver first
                     break;
                 case "Escargot":
-                    // front side
+                    // Front side
                     break;
                 case "Gomme":
                     this.useArtifactGomme();
                     break;
                 case "Desorienteur":
-                    // front side
+                    await this.useArtifactDesorienteur();
                     break;
                 case "Dictateur":
                     break;
@@ -112,6 +116,7 @@ export class Player {
     }
 
     useArtifactMine() {
+        // TODO: Set the target article in the gameSession (find a way to do it
         return null;
     }
 
@@ -125,7 +130,25 @@ export class Player {
                 this.history.removeLastByType("foundPage");
             }
         });
+        this.ws.send(JSON.stringify({
+            kind: "game_artifact",
+            artefact: "Mine",
+            data: {
+                source: page,
+            }
+        }))
         this.history.addStep("artifactEffect", {artefact: "Mine", source: page});
+    }
+
+    async useArtifactDesorienteur() {
+        const randomArticle = await WikipediaServices.fetchRandomPopularWikipediaPages(1, 0);
+        this.ws.send(JSON.stringify({
+            kind: "game_artifact",
+            artefact: "Desorienteur",
+            data: {
+                randomArticle: randomArticle[0],
+            }
+        }));
     }
 
     reset() {

@@ -25,9 +25,10 @@ export class WikipediaServices {
      * special pages (those with a colon in the title) as well as articles that do not pass a popularity threshold.
      *
      * @param numberOfArticles The number of articles to return.
+     * @param popularThreshold The minimum popularity threshold.
      * @returns A promise resolving to an array of article titles.
      */
-    public static async fetchRandomPopularWikipediaPages(numberOfArticles: number): Promise<string[]> {
+    public static async fetchRandomPopularWikipediaPages(numberOfArticles: number, popularThreshold?: number): Promise<string[]> {
         try {
             // Calculate date range: from 6 months ago to today.
             const today = new Date();
@@ -67,7 +68,7 @@ export class WikipediaServices {
 
             // Convert the Map to an array and filter to keep only those articles surpassing the threshold.
             const popularArticles = Array.from(aggregatedArticles.entries())
-                .filter(([_, totalViews]) => totalViews >= WikipediaServices.POPULAR_THRESHOLD)
+                .filter(([_, totalViews]) => totalViews >= (popularThreshold ?? WikipediaServices.POPULAR_THRESHOLD))
                 .map(([article]) => article);
 
             if (popularArticles.length === 0) {

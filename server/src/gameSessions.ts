@@ -258,7 +258,7 @@ export class GameSession {
     /**
      * Handles game events (e.g., player actions) and dispatches them to everyone.
      */
-    public handleGameEvent(playerName: string, data: any): void {
+    public async handleGameEvent(playerName: string, data: any): Promise<void> {
         const player = this.members.get(playerName);
         switch (data.type) {
             case "visitedPage": {
@@ -272,7 +272,6 @@ export class GameSession {
                 }
                 if (this.trappedArticles.includes(data.page_name)) {
                     player.playArtifactMine(data.page_name);
-                    data.type = "trapped_article";
                 }
                 break;
             }
@@ -280,7 +279,7 @@ export class GameSession {
                 player.foundArtifact(data.artefact);
                 break;
             case "usedArtifact":
-                player.useArtifact(data.artefact);
+                await player.useArtifact(data.artefact);
                 break;
             default:
                 logger.error(`Unknown event type: ${data.type}`);

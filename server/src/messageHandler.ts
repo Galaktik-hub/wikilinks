@@ -176,7 +176,7 @@ export async function handleMessage(ws: WebSocket, message: any, context: Client
         }
         case "game_event": {
             const session = getSessionOrError(ws, context);
-            session.handleGameEvent(context.currentUser.name, message.event);
+            await session.handleGameEvent(context.currentUser.name, message.event);
             break;
         }
         case "update_settings": {
