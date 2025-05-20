@@ -265,8 +265,9 @@ export class GameSession {
                 const article = this.articles.find(article => article === data.page_name);
                 logger.info(`Article: "${data.page_name}"`);
                 if (article) {
-                    player.foundPage(article);
-                    data.type = "foundPage";
+                    if (player.foundPage(article)) {
+                        data.type = "foundPage";
+                    }
                 } else {
                     player.visitPage(data.page_name);
                 }

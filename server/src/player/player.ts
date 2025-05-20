@@ -16,9 +16,12 @@ export class Player {
     isLeader: boolean;
     inventory: Inventory;
     history: PlayerHistory;
+
+    // articles
     objectivesVisited: string[];
     objectivesToVisit: string[];
     articlesVisited: string[];
+    priorityObjective: string | null;
 
     constructor(name: string, ws: WebSocket, role: PlayerRole = "client", isLeader: boolean = false) {
         this.id = randomUUID();
@@ -30,9 +33,11 @@ export class Player {
         this.isLeader = isLeader;
         this.inventory = new Inventory();
         this.history = new PlayerHistory();
+
         this.objectivesVisited = [];
         this.objectivesToVisit = [];
         this.articlesVisited = [];
+        this.priorityObjective = null;
     }
 
     startGame(startArticle: string, articles: string[]): void {
@@ -57,11 +62,27 @@ export class Player {
         this.articlesVisited.push(page_name);
     }
 
-    foundPage(page_name: string) {
+    foundPage(page_name: string): boolean {
+        if (this.priorityObjective && page_name !== this.priorityObjective) {
+            this.visitPage(page_name);
+            this.ws.send(JSON.stringify({
+                kind: "game_artifact",
+                artefact: "Dictateur",
+                data: {
+                    targetArticle: this.priorityObjective,
+                }
+            }));
+            this.history.addStep("artifactEffect", {artefact: "Dictateur", source: page_name});
+            return false;
+        }
         this.history.addStep("foundPage", {page_name: page_name});
         this.articlesVisited.push(page_name);
         this.objectivesVisited.push(page_name);
         this.objectivesToVisit = this.objectivesToVisit.filter(name => name !== page_name);
+        if (this.priorityObjective === page_name) {
+            this.priorityObjective = null;
+        }
+        return true;
     }
 
     foundArtifact(name: ArtifactName, quantity: number = 1) {
@@ -74,7 +95,6 @@ export class Player {
     }
 
     async useArtifact(name: ArtifactName): Promise<boolean> {
-        this.inventory.addArtifact("Desorienteur");
         const result = this.inventory.useArtifact(name);
         if (result) {
             switch (name) {
@@ -101,6 +121,7 @@ export class Player {
                     await this.useArtifactDesorienteur();
                     break;
                 case "Dictateur":
+                    this.useArtifactDictateur();
                     break;
             }
             // Enregistrement de l'action d'utilisation d'un artefact
@@ -147,6 +168,20 @@ export class Player {
             artefact: "Desorienteur",
             data: {
                 randomArticle: randomArticle[0],
+            }
+        }));
+        this.history.addStep("artifactEffect", {artefact: "Desorienteur", source: randomArticle[0]});
+    }
+
+    useArtifactDictateur() {
+        if (this.objectivesToVisit.length === 0) return;
+        const idx = Math.floor(Math.random() * this.objectivesToVisit.length);
+        this.priorityObjective = this.objectivesToVisit[idx];
+        this.ws.send(JSON.stringify({
+            kind: "game_artifact",
+            artefact: "Dictateur",
+            data: {
+                targetArticle: this.priorityObjective,
             }
         }));
     }

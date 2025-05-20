@@ -3,7 +3,7 @@
 import React, {createContext, useContext, useEffect, useState} from "react";
 import {TimelineStep} from "../components/Sections/Game/CollapsiblePanel/PlayerProgressPanel";
 import {useWebSocket} from "./WebSocketContext.tsx";
-import {ArtifactName, Artifact} from "../../server/src/player/inventory/inventoryProps.ts";
+import {ArtifactName, Artifact, artifactDefinitions} from "../../server/src/player/inventory/inventoryProps.ts";
 import {useGameContext} from "./GameContext.tsx";
 import {useModalContext} from "../components/Modals/ModalProvider.tsx";
 
@@ -172,6 +172,7 @@ export const PlayersProvider: React.FC<{children: React.ReactNode}> = ({children
                 gameCtx.changeCurrentTitle(data!.randomArticle);
                 break;
             case "Dictateur":
+                artifactExecDictateur(data!.targetArticle);
                 break;
         }
     }
@@ -192,6 +193,22 @@ export const PlayersProvider: React.FC<{children: React.ReactNode}> = ({children
             },
         });
     };
+
+    const artifactExecDictateur = (page_obj: string) => {
+        openModal({
+            title: "Effet d'artefact",
+            type: "confirmation",
+            content: {
+                message: `${(artifactDefinitions.Dictateur.definition).replace("{page_obj}", page_obj.replace(/_/g, " "))}`,
+                okButton: {
+                    label: "Ok",
+                    onClick: () => {
+                        closeModal();
+                    },
+                },
+            },
+        });
+    }
 
     return <PlayersContext.Provider value={{players, inventory, foundArtifact, usedArtifact, histories, getHistory}}>{children}</PlayersContext.Provider>;
 };
