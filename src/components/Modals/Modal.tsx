@@ -58,14 +58,16 @@ const Modal: React.FC<ModalProps> = ({isOpen, onClose, title, description, type,
                     <div className="text-white text-center">
                         <p className="mb-4">{(content as ModalConfirmationProps).message}</p>
                         <div className="flex gap-4 justify-center">
-                            <button
-                                onClick={() => {
-                                    isOpen = false;
-                                    onClose();
-                                }}
-                                className="bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded-lg">
-                                {(content as ModalConfirmationProps).cancelButton.label}
-                            </button>
+                            {(content as ModalConfirmationProps).cancelButton && (
+                                <button
+                                    onClick={() => {
+                                        isOpen = false;
+                                        onClose();
+                                    }}
+                                    className="bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded-lg">
+                                    {(content as ModalConfirmationProps).cancelButton!.label}
+                                </button>
+                            )}
                             <button
                                 onClick={(content as ModalConfirmationProps).okButton.onClick}
                                 className="bg-blueSecondary hover:bg-blue-900 text-white py-2 px-4 rounded-lg">

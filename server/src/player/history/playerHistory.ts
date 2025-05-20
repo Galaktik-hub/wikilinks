@@ -1,13 +1,7 @@
 import {HistoryStep, HistoryType} from "./playerHistoryProps";
-import {Player} from "../player";
 
 export class PlayerHistory {
     private steps: HistoryStep[] = [];
-
-    constructor(private player: Player) {
-        // Enregistrement de l'action de démarrage dès la création de l'historique
-        this.addStep("start");
-    }
 
     // Ajoute une étape à l'historique, en injectant automatiquement le nom du joueur dans les données
     addStep(type: HistoryType, data?: Record<string, string>): void {
@@ -19,9 +13,16 @@ export class PlayerHistory {
         this.steps.push(step);
     }
 
+    removeLastByType(type: HistoryType): number {
+        const lastIdx = this.steps.map(step => step.type).lastIndexOf(type);
+        if (lastIdx >= 0) {
+            this.steps.splice(lastIdx, 1);
+        }
+        return lastIdx;
+    }
+
     removeLastObjectiveStep(): void {
-        const lastIdx = this.steps.map(step => step.type).lastIndexOf("foundPage");
-        this.steps = this.steps.filter((_, i) => i !== lastIdx);
+        this.removeLastByType("foundPage");
     }
 
     getHistory(): HistoryStep[] {

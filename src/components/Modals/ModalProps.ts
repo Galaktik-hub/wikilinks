@@ -30,7 +30,7 @@ export interface ModalFormProps {
 // Interface pour le ModalConfirmation (confirmation avec deux boutons)
 export interface ModalConfirmationProps {
     message: string;
-    cancelButton: ButtonField;
+    cancelButton?: ButtonField;
     okButton: ButtonField;
 }
 

@@ -1,4 +1,4 @@
-export type HistoryType = "start" | "foundArtifact" | "usedArtifact" | "foundPage" | "visitedPage";
+export type HistoryType = "start" | "foundArtifact" | "usedArtifact" | "foundPage" | "visitedPage" | "artifactEffect";
 
 export interface HistoryStep {
     type: HistoryType;

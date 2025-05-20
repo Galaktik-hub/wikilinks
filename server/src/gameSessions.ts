@@ -27,6 +27,7 @@ export class GameSession {
     public type: GameType;
     public articles: string[];
     public startArticle: string;
+    public trappedArticles: string[];
     public hasStarted: boolean;
     public scoreboard: Map<number, string[]>;
 
@@ -42,6 +43,7 @@ export class GameSession {
         this.type = type;
         this.articles = [];
         this.startArticle = "";
+        this.trappedArticles = [];
         this.hasStarted = false;
         this.scoreboard = new Map();
 
@@ -153,10 +155,7 @@ export class GameSession {
         this.hasStarted = true;
         this.members.forEach(member => {
             if (member.ws.readyState === member.ws.OPEN) {
-                // Reset player variables (If they already played a previous game)
-                member.reset();
-                member.objectivesToVisit = this.articles;
-                member.ws.send(JSON.stringify({kind: "game_started", startArticle: this.startArticle, articles: this.articles}));
+                member.startGame(this.startArticle, this.articles);
             }
         });
     }
@@ -270,6 +269,10 @@ export class GameSession {
                     data.type = "foundPage";
                 } else {
                     player.visitPage(data.page_name);
+                }
+                if (this.trappedArticles.includes(data.page_name)) {
+                    player.playArtifactMine(data.page_name);
+                    data.type = "trapped_article";
                 }
                 break;
             }

@@ -119,7 +119,7 @@ export const GameProvider: React.FC<{children: React.ReactNode}> = ({children}) 
     const checkRoomExists = async (code: number) => {
         await ws.waitForConnection();
         return new Promise<boolean>(resolve => {
-            const handler = (data: {kind: string, exists: boolean}) => {
+            const handler = (data: {kind: string; exists: boolean}) => {
                 if (data.kind === "room_check_result") {
                     resolve(data.exists);
                 }
@@ -132,7 +132,7 @@ export const GameProvider: React.FC<{children: React.ReactNode}> = ({children}) 
 
     const checkUsernameTaken = async (name: string, code: number) => {
         return new Promise<boolean>(resolve => {
-            const handler = (data: {kind: string, taken: boolean}) => {
+            const handler = (data: {kind: string; taken: boolean}) => {
                 if (data.kind === "username_check_result") resolve(data.taken);
             };
             ws.onMessage(handler);
@@ -144,7 +144,7 @@ export const GameProvider: React.FC<{children: React.ReactNode}> = ({children}) 
     const checkGameHasStarted = async (code: number) => {
         await ws.waitForConnection();
         return new Promise<boolean>(resolve => {
-            const handler = (data: {kind: string, started: boolean}) => {
+            const handler = (data: {kind: string; started: boolean}) => {
                 if (data.kind === "game_started_check_result") resolve(data.started);
             };
             ws.onMessage(handler);

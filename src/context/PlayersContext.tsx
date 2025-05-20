@@ -5,6 +5,7 @@ import {TimelineStep} from "../components/Sections/Game/CollapsiblePanel/PlayerP
 import {useWebSocket} from "./WebSocketContext.tsx";
 import {ArtifactName, Artifact} from "../../server/src/player/inventory/inventoryProps.ts";
 import {useGameContext} from "./GameContext.tsx";
+import {useModalContext} from "../components/Modals/ModalProvider.tsx";
 
 interface PlayerInfo {
     username: string;
@@ -29,6 +30,7 @@ export const PlayersContext = createContext<PlayersContextType | undefined>(unde
 export const PlayersProvider: React.FC<{children: React.ReactNode}> = ({children}) => {
     const ws = useWebSocket()!;
     const gameCtx = useGameContext()!;
+    const {openModal, closeModal} = useModalContext();
     const [players, setPlayers] = useState<PlayerInfo[]>([]);
     const [inventory, setInventory] = useState<Record<ArtifactName, Artifact>>({} as Record<ArtifactName, Artifact>);
     const [histories, setHistories] = useState<Record<string, TimelineStep[]>>({});
@@ -63,6 +65,7 @@ export const PlayersProvider: React.FC<{children: React.ReactNode}> = ({children
                 case "game_update":
                     if (data.event) {
                         const {type, data: ev} = data.event;
+                        if (type === "trapped_article" && ev.player === gameCtx.username) playArtifact("Mine");
                         const name = ev.player || ev.playerName;
                         const step: TimelineStep = {id: Date.now(), type, data: ev};
                         setHistories(prev => ({...prev, [name]: [...(prev[name] || []), step]}));
@@ -95,7 +98,7 @@ export const PlayersProvider: React.FC<{children: React.ReactNode}> = ({children
                 playArtifactRetour(username);
                 break;
             case "Mine":
-                playArtifactMine();
+                playArtifactMine(username);
                 break;
             case "Teleporteur":
                 break;
@@ -113,14 +116,14 @@ export const PlayersProvider: React.FC<{children: React.ReactNode}> = ({children
 
     const playArtifactGPS = () => {
         return;
-    }
+    };
 
-    const playArtifactRetour = (username: string) => {
+    const playArtifactRetour = (username: string, stepsBack: number = 1) => {
         const hist = histories[username] ?? [];
         // build sequence that contains only the pages
         const seq: string[] = [];
         hist.forEach(step => {
-            if (step.type === "foundPage" || step.type === "visitedPage") {
+            if (step.type === "foundPage" || step.type === "visitedPage" || step.type === "start") {
                 const page = (step.data as any).page_name;
                 if (seq[seq.length - 1] !== page) {
                     seq.push(page);
@@ -132,20 +135,29 @@ export const PlayersProvider: React.FC<{children: React.ReactNode}> = ({children
         let idx = seq.lastIndexOf(current);
         if (idx === -1) idx = seq.length - 1;
         // Go back
-        const newIdx = idx > 0 ? idx - 1 : 0;
+        const newIdx = Math.max(0, idx - stepsBack);
         const previousTitle = seq[newIdx];
         gameCtx.setCurrentTitle(previousTitle);
-    }
+    };
 
-    const playArtifactMine = () => {
+    const playArtifactMine = (username: string) => {
+        openModal({
+            title: "Effet d'artefact",
+            type: "confirmation",
+            content: {
+                message: "Vous venez de tomber sur un artefact piégé de mines par un adversaire. Vous reculez de 5 articles.",
+                okButton: {
+                    label: "Suivant",
+                    onClick: () => {
+                        playArtifactRetour(username, 5);
+                        closeModal();
+                    },
+                },
+            },
+        });
+    };
 
-    }
-
-    return (
-        <PlayersContext.Provider value={{players, inventory, foundArtifact, usedArtifact, histories, getHistory}}>
-            {children}
-        </PlayersContext.Provider>
-    );
+    return <PlayersContext.Provider value={{players, inventory, foundArtifact, usedArtifact, histories, getHistory}}>{children}</PlayersContext.Provider>;
 };
 
 export const usePlayersContext = (): PlayersContextType => {
