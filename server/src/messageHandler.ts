@@ -2,11 +2,14 @@ import {WebSocket} from "ws";
 import {GameSessionManager, GameType} from "./gameSessions";
 import {Player} from "./player/player";
 import logger from "./logger";
+import {ChallengeSession, ChallengeSessionManager} from "./challenge/challengeManager";
+import {checkUsernameUniqueness, registerUsername} from "./utils/challengeUsernameUtils";
 
 export interface ClientContext {
     currentRoomId: number | null;
     currentUser: Player | null;
     currentGameSessionId: number | null;
+    currentChallengeSessionId: string | null;
 }
 
 interface SessionSummary {
@@ -175,8 +178,15 @@ export async function handleMessage(ws: WebSocket, message: any, context: Client
             break;
         }
         case "game_event": {
-            const session = getSessionOrError(ws, context);
-            await session.handleGameEvent(context.currentUser.name, message.event);
+            const {currentGameSessionId, currentChallengeSessionId, currentUser} = context;
+            const gameSession = GameSessionManager.getSession(currentGameSessionId);
+            if (gameSession) {
+                gameSession.handleGameEvent(currentUser.name, message.event);
+            }
+            const challengeSession = ChallengeSessionManager.getSession(currentChallengeSessionId);
+            if (challengeSession) {
+                challengeSession.handleEvent(message.event.page_name);
+            }
             break;
         }
         case "update_settings": {
@@ -211,6 +221,38 @@ export async function handleMessage(ws: WebSocket, message: any, context: Client
                     );
                 }
             });
+            break;
+        }
+        case "get_today_challenge": {
+            const article = await ChallengeSession.fetchTodayChallenge();
+            ws.send(
+                JSON.stringify({
+                    kind: "today_challenge",
+                    targetArticle: article.targetArticle,
+                }),
+            );
+            break;
+        }
+        case "check_username_challenge": {
+            const usernameToCheck = message.usernameToCheck;
+            const available = await checkUsernameUniqueness(usernameToCheck);
+            ws.send(
+                JSON.stringify({
+                    kind: "check_username_response",
+                    available: available,
+                }),
+            );
+            break;
+        }
+        case "register_username_challenge": {
+            const {usernameToRegister, removeOld, oldUsername} = message;
+            const success = await registerUsername(usernameToRegister, removeOld, oldUsername);
+            ws.send(
+                JSON.stringify({
+                    kind: "register_username_response",
+                    success: success,
+                }),
+            );
             break;
         }
         case "get_history": {
@@ -310,15 +352,59 @@ export async function handleMessage(ws: WebSocket, message: any, context: Client
             );
             break;
         }
+        case "create_challenge_session": {
+            const player = new Player(message.username, ws, "creator", true);
+            context.currentUser = player;
+            const challenge = ChallengeSessionManager.createSession(player, message.startArticle);
+            context.currentChallengeSessionId = challenge.id;
+            ws.send(
+                JSON.stringify({
+                    kind: "challenge_session_created",
+                    id: challenge.id,
+                }),
+            );
+            break;
+        }
+        case "start_challenge": {
+            const {currentChallengeSessionId, currentUser} = context;
+            if (!currentChallengeSessionId || !currentUser) {
+                ws.send(
+                    JSON.stringify({
+                        kind: "error",
+                        message: "Not in a challenge session",
+                    }),
+                );
+                return;
+            }
+            const session = ChallengeSessionManager.getSession(currentChallengeSessionId);
+            if (!session) {
+                ws.send(
+                    JSON.stringify({
+                        kind: "error",
+                        message: "Challenge session not found",
+                    }),
+                );
+                return;
+            }
+            await session.start();
+            break;
+        }
         case "disconnect": {
-            const {currentRoomId, currentUser} = context;
+            const {currentRoomId, currentChallengeSessionId, currentUser} = context;
             if (currentRoomId && currentUser) {
                 const session = GameSessionManager.getSession(currentRoomId);
                 if (session) {
                     session.handlePlayerDeparture(currentUser.name);
                 }
             }
-            ws.close();
+            if (currentChallengeSessionId && currentUser) {
+                ChallengeSessionManager.endSession(currentChallengeSessionId);
+            }
+            ws.send(
+                JSON.stringify({
+                    kind: "disconnected",
+                }),
+            );
             break;
         }
         case "close_room": {
@@ -344,6 +430,8 @@ export async function handleMessage(ws: WebSocket, message: any, context: Client
             const allSessions = GameSessionManager.getAllPublicSessions();
             logger.info(`Number of sessions : ${allSessions.size}`);
             const sessionsArray: SessionSummary[] = [];
+            const article = await ChallengeSession.fetchTodayChallenge();
+            const challengeCount = await ChallengeSession.fetchNumberPlayerTodayChallenge();
             allSessions.forEach((session, id) => {
                 sessionsArray.push({
                     id: id,
@@ -359,6 +447,8 @@ export async function handleMessage(ws: WebSocket, message: any, context: Client
                 JSON.stringify({
                     kind: "all_sessions",
                     sessions: sessionsArray,
+                    challengeArticle: article.targetArticle,
+                    challengeCount: challengeCount,
                 }),
             );
             break;

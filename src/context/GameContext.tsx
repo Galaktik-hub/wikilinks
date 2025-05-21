@@ -6,6 +6,7 @@ import {GameSettingsType} from "../components/Sections/WaitingRoom/GameSettings/
 import {ResultProps} from "../pages/Result/Result.tsx";
 import {usePopup} from "./PopupContext.tsx";
 import {artifactDefinitions} from "../../server/src/player/inventory/inventoryProps.ts";
+import {useNavigate} from "react-router-dom";
 
 interface Article {
     name: string;
@@ -51,6 +52,7 @@ const GameContext = createContext<GameContextType | undefined>(undefined);
 export const GameProvider: React.FC<{children: React.ReactNode}> = ({children}) => {
     const ws = useWebSocket()!;
     const {showPopup} = usePopup();
+    const navigate = useNavigate();
 
     // connexion/session
     const [leaderName, setLeader] = useState<string | null>(null);
@@ -110,7 +112,7 @@ export const GameProvider: React.FC<{children: React.ReactNode}> = ({children}) 
                     setStart("");
                     break;
                 case "room_closed":
-                    ws.ws?.close();
+                    navigate("/");
                     break;
             }
         };
