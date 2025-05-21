@@ -5,6 +5,7 @@ import ObjectiveItem from "./ObjectiveItem.tsx";
 import CollapsiblePanel from "./CollapsiblePanel.tsx";
 import {useEffect} from "react";
 import {useGameContext} from "../../../../context/GameContext.tsx";
+import {useChallengeContext} from "../../../../context/ChallengeContext";
 
 interface Objective {
     id: string;
@@ -14,10 +15,11 @@ interface Objective {
 
 const ObjectivesPanel: React.FC = () => {
     const gameContext = useGameContext();
+    const challengeContext = useChallengeContext();
     const [objectives, setObjectives] = React.useState<Objective[]>([]);
 
-    useEffect(() => {
-        if (gameContext.articles) {
+    const fetchObjectives = () => {
+        if (gameContext.articles && gameContext.articles.length > 0) {
             const updatedObjectives: Objective[] = [];
             gameContext.articles.forEach((article: {name: string; found: boolean}, index: number) => {
                 updatedObjectives.push({
@@ -27,8 +29,19 @@ const ObjectivesPanel: React.FC = () => {
                 });
             });
             setObjectives(updatedObjectives);
+        } else if (challengeContext.targetArticle) {
+            const targetObjective: Objective = {
+                id: "target-objective",
+                text: `Atteindre l'article ${challengeContext.targetArticle.replace(/_+/g, " ")}`,
+                isReached: false,
+            };
+            setObjectives([targetObjective]);
         }
-    }, [gameContext.articles]);
+    };
+
+    useEffect(() => {
+        fetchObjectives();
+    }, []);
 
     return (
         <CollapsiblePanel title="Objectifs" contentId="objectives-content">

@@ -2,6 +2,7 @@ import React, {createContext, useContext, useEffect, useState} from "react";
 import {useWebSocket} from "./WebSocketContext.tsx";
 import {GameSettingsType} from "../components/Sections/WaitingRoom/GameSettings/GameSettings.tsx";
 import {ResultProps} from "../pages/Result/Result.tsx";
+import {useNavigate} from "react-router-dom";
 
 interface Article {
     name: string;
@@ -43,6 +44,7 @@ const GameContext = createContext<GameContextType | undefined>(undefined);
 
 export const GameProvider: React.FC<{children: React.ReactNode}> = ({children}) => {
     const ws = useWebSocket()!;
+    const navigate = useNavigate();
 
     // connexion/session
     const [leaderName, setLeader] = useState<string | null>(null);
@@ -97,7 +99,7 @@ export const GameProvider: React.FC<{children: React.ReactNode}> = ({children}) 
                     setStart("");
                     break;
                 case "room_closed":
-                    ws.ws?.close();
+                    navigate("/");
                     break;
             }
         };

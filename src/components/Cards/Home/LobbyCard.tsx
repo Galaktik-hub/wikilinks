@@ -22,7 +22,7 @@ export const LobbyCard: React.FC<LobbyCardProps> = ({inputPlaceholder, buttonTex
     };
 
     return (
-        <div className="card-container flex flex-col gap-4 min-w-60 w-[360px]">
+        <div className="card-container flex flex-col gap-4 min-w-60 w-[340px]">
             <Input placeholder={inputPlaceholder} value={inputValue} onChange={setInputValue} maxLength={maxLength} />
             <MainButton color="14, 165, 233" className="bg-bluePrimary w-full" onClick={handleSubmit}>
                 {icon}
