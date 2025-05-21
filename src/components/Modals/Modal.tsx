@@ -44,8 +44,7 @@ const Modal: React.FC<ModalProps> = ({isOpen, onClose, title, type, content}) =>
                             {(content as ModalFormProps).cancelButton && (
                                 <button
                                     onClick={() => {
-                                        isOpen = false;
-                                        onClose();
+                                        (content as ModalConfirmationProps).cancelButton!.onClick();
                                     }}
                                     className="bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded-lg">
                                     {(content as ModalConfirmationProps).cancelButton!.label}
@@ -72,8 +71,7 @@ const Modal: React.FC<ModalProps> = ({isOpen, onClose, title, type, content}) =>
                             {(content as ModalConfirmationProps).cancelButton && (
                                 <button
                                     onClick={() => {
-                                        isOpen = false;
-                                        onClose();
+                                        (content as ModalConfirmationProps).cancelButton!.onClick();
                                     }}
                                     className="bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded-lg">
                                     {(content as ModalConfirmationProps).cancelButton!.label}

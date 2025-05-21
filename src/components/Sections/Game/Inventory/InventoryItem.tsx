@@ -1,77 +1,24 @@
 "use client";
-import * as React from "react";
-import {useModalContext} from "../../../Modals/ModalProvider.tsx";
+import React, {useState} from "react";
 import {StackableArtifact} from "../../../../../server/src/player/inventory/inventoryProps.ts";
+import InventoryItemModal from "../../../Modals/Inventory/InventoryItemModal.tsx";
 
 export interface InventoryItemProps {
     item: StackableArtifact;
-    onConfirm: () => void;
+    onConfirm: (targetPage?: string) => void;
 }
 
 const InventoryItem: React.FC<InventoryItemProps & {Icon: React.FC<{color?: string; className?: string}>}> = ({item, onConfirm, Icon}) => {
-    const {name, definition, count} = item;
-    const {openModal, closeModal} = useModalContext();
-    const [remaining, setRemaining] = React.useState(count);
-    const [targetPage, setTargetPage] = React.useState("");
+    const {name, count} = item;
+    const [showModal, setShowModal] = useState(false);
 
-    // Met à jour remaining si la prop count change
-    React.useEffect(() => {
-        setRemaining(count);
-    }, [count]);
-
-    const isDisabled = remaining === 0;
+    const isDisabled = count === 0;
     const itemColor = isDisabled ? "#374151" : "var(--bluePrimary)";
     const countColor = isDisabled ? "#374151" : "#ffffff";
 
     const handleClick = () => {
         if (isDisabled) return;
-        if (name === "Mine") {
-            const newContent = {
-                message: definition,
-                inputFields: [
-                    {
-                        id: "pseudo",
-                        value: targetPage,
-                        onChange: setTargetPage,
-                        placeholder: "Article cible",
-                        autoFocus: true,
-                    },
-                ],
-                cancelButton: {label: "Annuler", onClick: () => closeModal()},
-                submitButton: {
-                    label: "Utiliser",
-                    onClick: () => {
-                        if (targetPage.trim()) {
-                            onConfirm();
-                        }
-                    },
-                    disabled: !targetPage.trim(),
-                },
-                isValid: targetPage.trim(),
-            };
-            openModal({
-                title: `Utiliser l'artefact ${name}`,
-                type: "form",
-                content: newContent,
-            });
-        } else {
-            openModal({
-                title: `Utiliser l'artefact ${name}`,
-                type: "confirmation",
-                content: {
-                    message: definition,
-                    cancelButton: {label: "Annuler", onClick: () => closeModal()},
-                    okButton: {
-                        label: "Utiliser",
-                        onClick: () => {
-                            onConfirm();
-                            closeModal();
-                            setRemaining(prev => prev - 1);
-                        },
-                    },
-                },
-            });
-        }
+        setShowModal(true);
     };
 
     return (
@@ -91,8 +38,11 @@ const InventoryItem: React.FC<InventoryItemProps & {Icon: React.FC<{color?: stri
                 {isDisabled ? "Aucun" : "Voir"}
             </button>
             <span className="absolute top-0 right-0 self-start p-1.5 text-sm text-center whitespace-nowrap" style={{color: countColor}}>
-                x{remaining}
+                x{count}
             </span>
+
+            {/* Modal pour renseigner le username lors du join */}
+            {showModal && <InventoryItemModal artifact={item} onConfirm={onConfirm} onCancel={() => setShowModal(false)} />}
         </article>
     );
 };
