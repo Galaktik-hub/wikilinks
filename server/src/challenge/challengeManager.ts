@@ -34,8 +34,7 @@ export class ChallengeSession {
 
         // Initialize player state
         this.player.reset();
-        this.player.visitedArticles = 1;
-        this.player.foundArticles = 0;
+        this.player.articlesVisited.push(this.startArticle);
         this.startTimestamp = new Date();
     }
 
@@ -97,12 +96,10 @@ export class ChallengeSession {
     public handleEvent(pageName: string): void {
         logger.info(`Player ${this.player.name} visited page "${pageName}" in a challenge.`);
         if (pageName === this.targetArticle) {
-            this.player.history.addStep("foundPage", {page_name: pageName});
-            this.player.foundArticles++;
+            this.player.foundPage(pageName);
             this.finish();
         } else {
-            this.player.history.addStep("visitedPage", {page_name: pageName});
-            this.player.visitedArticles++;
+            this.player.visitPage(pageName);
         }
     }
 
@@ -111,7 +108,7 @@ export class ChallengeSession {
      */
     public async finish(): Promise<void> {
         this.finishTimestamp = new Date();
-        const score = 1000 - this.player.visitedArticles * 5;
+        const score = 1000 - this.player.articlesVisited.length * 5;
 
         logger.info(`Player ${this.player.name} finished challenge with score ${score}`);
 
@@ -119,7 +116,7 @@ export class ChallengeSession {
         this.player.ws.send(
             JSON.stringify({
                 kind: "challenge_ended",
-                visited: this.player.visitedArticles,
+                visited: this.player.articlesVisited.length,
                 score,
             }),
         );
@@ -142,7 +139,7 @@ export class ChallengeSession {
                         startArticle: this.startArticle,
                         startTimestamp: this.startTimestamp,
                         finishTimestamp: this.finishTimestamp,
-                        articlesCount: this.player.visitedArticles,
+                        articlesCount: this.player.articlesVisited.length,
                         articles: history,
                     },
                 ],

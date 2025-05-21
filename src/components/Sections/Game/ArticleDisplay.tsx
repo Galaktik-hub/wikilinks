@@ -6,6 +6,8 @@ import WikiLink from "../../Hypertext/Game/WikiLink";
 import {cleanHTMLContent} from "../../../utils/Game/ArticleCleaningUtils.ts";
 import {useNavigate} from "react-router-dom";
 import {useGameContext} from "../../../context/GameContext.tsx";
+import {useChallengeContext} from "../../../context/ChallengeContext";
+import {isAndroid} from "../../../functions/androidCheck";
 
 interface ArticleDisplayProps {
     className?: string;
@@ -13,16 +15,18 @@ interface ArticleDisplayProps {
 
 const ArticleDisplay: React.FC<ArticleDisplayProps> = ({className}) => {
     const gameContext = useGameContext();
+    const challengeContext = useChallengeContext();
     const [content, setContent] = useState("");
     const [tocItems, setTocItems] = useState<TOCItem[]>([]);
     const [mainImage, setMainImage] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
     const sectionsToRemove = ["Voir aussi", "Notes et références", "Références"];
     const navigate = useNavigate();
+    const currentTitle = isAndroid() ? challengeContext.currentTitle : gameContext.currentTitle;
 
     const fetchArticle = useCallback(async () => {
         try {
-            const url = `https://fr.wikipedia.org/w/api.php?action=parse&page=${encodeURIComponent(gameContext.currentTitle)}&prop=text&format=json&origin=*`;
+            const url = `https://fr.wikipedia.org/w/api.php?action=parse&page=${encodeURIComponent(currentTitle)}&prop=text&format=json&origin=*`;
             const response = await fetch(url);
             const textResponse = await response.text();
             let data;
@@ -112,8 +116,8 @@ const ArticleDisplay: React.FC<ArticleDisplayProps> = ({className}) => {
 
     return (
         <div className={`article-content ${className}`}>
-            {mainImage && <img src={mainImage} alt={gameContext.currentTitle} className="article-image" />}
-            <h1 className="text-center text-white my-4">{gameContext.currentTitle.replace(/_/g, " ")}</h1>
+            {mainImage && <img src={mainImage} alt={currentTitle} className="article-image" />}
+            <h1 className="text-center text-white my-4">{currentTitle.replace(/_/g, " ")}</h1>
             {tocItems.length > 0 && <TOC items={tocItems} />}
             <div>{parse(content, options)}</div>
         </div>

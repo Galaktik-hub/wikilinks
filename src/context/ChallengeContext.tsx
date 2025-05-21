@@ -17,6 +17,8 @@ export interface ChallengeContextType {
     setStartArticle: (article: string) => void;
     targetArticle: string;
     articles: Article[];
+    currentTitle: string;
+    setCurrentTitle: (title: string) => void;
 
     // game state
     isGameOver: boolean;
@@ -44,6 +46,9 @@ export const ChallengeProvider: React.FC<{children: React.ReactNode}> = ({childr
     const [articles, setArticles] = useState<Article[]>([]);
     const [startArticle, setStartArticle] = useState("");
     const [targetArticle, setTargetArticle] = useState("");
+
+    // article navigation
+    const [currentTitle, setCurrentTitle] = useState<string>(startArticle);
 
     useEffect(() => {
         const handler = (data: any) => {
@@ -87,6 +92,8 @@ export const ChallengeProvider: React.FC<{children: React.ReactNode}> = ({childr
                 setStartArticle,
                 targetArticle,
                 articles,
+                currentTitle,
+                setCurrentTitle,
                 createGame,
                 startGame,
                 getTodayChallenge,
