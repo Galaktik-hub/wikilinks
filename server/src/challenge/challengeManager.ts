@@ -5,6 +5,13 @@ import {Player} from "../player/player";
 import ChallengeModel, {ChallengeDocument} from "../models/models";
 import {randomUUID} from "node:crypto";
 
+interface Leaderboard {
+    name: string;
+    history: string[];
+    score: number;
+    rank: number;
+}
+
 /**
  * Manages a single-player Wikipedia challenge: fetching articles,
  * handling page visits and completions, and recording the result in MongoDB.
@@ -67,6 +74,31 @@ export class ChallengeSession {
         return challenge.players.length;
     }
 
+    public static async fetchTodayLeaderboard(): Promise<Leaderboard[]> {
+        const {start, end} = ChallengeSession.getTodayAndTomorrowDateObject();
+
+        // We sort by score, then by startTimestamp
+        const challenge: ChallengeDocument | null = await ChallengeModel.findOne({date: {$gte: start, $lt: end}}).exec();
+
+        if (!challenge) {
+            throw new Error(`Aucun challenge trouvé entre ${start.toISOString()} et ${end.toISOString()}`);
+        }
+
+        const sortedPlayers = [...challenge.players].sort((a, b) => {
+            if (b.score !== a.score) {
+                return b.score - a.score;
+            }
+            return a.startTimestamp.getTime() - b.startTimestamp.getTime();
+        });
+
+        return sortedPlayers.map((player, index) => ({
+            name: player.name,
+            history: player.articles,
+            score: player.score,
+            rank: index + 1,
+        }));
+    }
+
     /**
      * Returns two Date objects: one for today and one for tomorrow.
      * The exact time spawn between the two is 24 hours and both are set to 08:00 UTC.
@@ -111,7 +143,13 @@ export class ChallengeSession {
      */
     public async finish(): Promise<void> {
         this.finishTimestamp = new Date();
-        const score = 1000 - this.player.visitedArticles * 5;
+        // Calculate score based on visited articles and time taken
+        const timeTakenInSeconds = Math.floor((this.finishTimestamp.getTime() - this.startTimestamp.getTime()) / 1000);
+        let score = 1000 - this.player.visitedArticles * 5 - timeTakenInSeconds / 2;
+
+        if (score < 0) {
+            score = 0;
+        }
 
         logger.info(`Player ${this.player.name} finished challenge with score ${score}`);
 
@@ -134,19 +172,23 @@ export class ChallengeSession {
                     return this.startArticle;
                 }
             });
-            await ChallengeModel.updateOne({
-                _id: this.targetArticleId,
-                players: [
-                    {
-                        name: this.player.name,
-                        startArticle: this.startArticle,
-                        startTimestamp: this.startTimestamp,
-                        finishTimestamp: this.finishTimestamp,
-                        articlesCount: this.player.visitedArticles,
-                        articles: history,
+            await ChallengeModel.updateOne(
+                {_id: this.targetArticleId},
+                {
+                    $push: {
+                        players: {
+                            name: this.player.name,
+                            startArticle: this.startArticle,
+                            startTimestamp: this.startTimestamp,
+                            finishTimestamp: this.finishTimestamp,
+                            articlesCount: this.player.visitedArticles,
+                            articles: history,
+                            score: score,
+                        },
                     },
-                ],
-            });
+                },
+            );
+
             logger.info(`Score enregistré pour ${this.player.name}: ${score}`);
         } catch (err: any) {
             logger.error(`Erreur lors de l'enregistrement du score: ${err.message}`);

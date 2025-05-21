@@ -20,6 +20,16 @@ declare global {
              * Retrieves the username from the Android app
              */
             getUsername: () => void;
+
+            /**
+             * To know if the player has already played today
+             */
+            isTodayChallengePlayed: () => void;
+
+            /**
+             * To set the player as played today
+             */
+            setTodayChallengePlayed: () => void;
         };
 
         /**
@@ -41,5 +51,10 @@ declare global {
          * JS Callback called by Android when the username is received
          */
         onUsernameReceived?: (name: string) => void;
+
+        /**
+         * JS Callback called by Android when the player has already played today
+         */
+        onTodayChallengePlayed?: (hasPlayer: boolean) => void;
     }
 }
