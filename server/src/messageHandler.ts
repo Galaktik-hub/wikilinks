@@ -251,7 +251,6 @@ export async function handleMessage(ws: WebSocket, message: any, context: Client
         }
         case "get_today_leaderboard": {
             const leaderboard = await ChallengeSession.fetchTodayLeaderboard();
-            console.log(JSON.stringify(leaderboard));
             ws.send(
                 JSON.stringify({
                     kind: "today_leaderboard",
