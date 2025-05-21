@@ -41,8 +41,7 @@ const InventoryItem: React.FC<InventoryItemProps & {Icon: React.FC<{color?: stri
                 x{count}
             </span>
 
-            {/* Modal pour renseigner le username lors du join */}
-            {showModal && <InventoryItemModal artifact={item} onConfirm={onConfirm} onCancel={() => setShowModal(false)} />}
+            {showModal && <InventoryItemModal artifact={item} onConfirm={page => onConfirm(page)} onCancel={() => setShowModal(false)} />}
         </article>
     );
 };
