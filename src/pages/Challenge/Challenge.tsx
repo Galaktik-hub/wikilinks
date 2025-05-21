@@ -1,16 +1,16 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, {useEffect, useState} from "react";
 import Layout from "../../components/Layout.tsx";
 import Podium from "../../components/Sections/Result/Podium/Podium.tsx";
 import Leaderboard from "../../components/Sections/Result/LeaderBoard/LeaderBoard.tsx";
 import Header from "../../components/Header/Header.tsx";
-import { useNavigate } from "react-router-dom";
-import { isAndroid } from "../../functions/androidCheck.ts";
-import { getClosestArticleFromLocation, getLocation } from "../../utils/Location/LocationUtils";
-import { useChallengeContext } from "../../context/ChallengeContext";
+import {useNavigate} from "react-router-dom";
+import {isAndroid} from "../../functions/androidCheck.ts";
+import {getClosestArticleFromLocation, getLocation} from "../../utils/Location/LocationUtils";
+import {useChallengeContext} from "../../context/ChallengeContext";
 import ExitButton from "../../components/Buttons/WaitingRoom/ExitButton";
-import { useModalContext } from "../../components/Modals/ModalProvider";
+import {useModalContext} from "../../components/Modals/ModalProvider";
 import UsernameInput from "../../components/Inputs/Challenge/Username";
 import LaunchButtonChallenge from "../../components/Buttons/Challenge/Game/LaunchButtonChallenge.tsx";
 
@@ -58,7 +58,7 @@ const podiumPlayers = players.slice(0, 3);
 
 const Challenge: React.FC = () => {
     const navigate = useNavigate();
-    const { openModal, closeModal } = useModalContext();
+    const {openModal, closeModal} = useModalContext();
     const challengeContext = useChallengeContext();
     const alreadyPlayed = false;
     const [targetArticle, setTargetArticle] = useState<string | undefined>(undefined);
@@ -88,7 +88,7 @@ const Challenge: React.FC = () => {
     // 3. Create session once username and startArticle are defined
     useEffect(() => {
         if (username && startArticle) {
-            challengeContext.createGame({ username, startArticle });
+            challengeContext.createGame({username, startArticle});
         }
     }, [username, startArticle]);
 
@@ -100,17 +100,19 @@ const Challenge: React.FC = () => {
     // Disabled until username exists
     const isDisabled = !username;
 
-    const helpMessage = <div>Ceci est le message qui explique le but et règles du jeu du challenge quotidien</div>;
+    const helpMessage =
+        "Votre but est de trouver une seule page tirée aléatoirement chaque jour. Vous devez être le plus rapide possible, mais aussi trouver l'article en un minimum de clics. Votre article de départ est le plus proche géographiquement de vous.";
 
-    const handleHelp = () => openModal({
-        title: "Aide - Challenge du jour",
-        type: "confirmation",
-        content: {
-            message: helpMessage,
-            cancelButton: { label: "Retour", onClick: closeModal },
-            okButton: { label: "Ok", onClick: closeModal }
-        }
-    });
+    const handleHelp = () =>
+        openModal({
+            title: "Aide - Challenge du jour",
+            type: "confirmation",
+            content: {
+                message: helpMessage,
+                cancelButton: {label: "Retour", onClick: closeModal},
+                okButton: {label: "Ok", onClick: closeModal},
+            },
+        });
 
     const handleLaunch = () => {
         challengeContext.startGame();
@@ -123,17 +125,12 @@ const Challenge: React.FC = () => {
                 <div className="title-block flex-col">
                     <div className="relative flex items-center w-full">
                         <h2 className="blue-title-effect w-full text-center">Objectif du jour</h2>
-                        <button
-                            onClick={handleHelp}
-                            className="px-3 py-1 text-white bg-blueSecondary hover:bg-blue-900 rounded-full absolute right-0"
-                        >
+                        <button onClick={handleHelp} className="px-2.5 py-0.5 text-white bg-blueSecondary hover:bg-blue-900 rounded-full absolute right-0">
                             ?
                         </button>
                     </div>
                     <div className="w-full flex items-center">
-                        <h1 className="text-lg text-white">
-                            {targetArticle?.replace(/_/g, " ") ?? "Chargement..."}
-                        </h1>
+                        <h1 className="text-lg text-white">{targetArticle?.replace(/_/g, " ") ?? "Chargement..."}</h1>
                     </div>
                 </div>
 
@@ -142,20 +139,12 @@ const Challenge: React.FC = () => {
                 <section className="w-full flex gap-6">
                     <div className="w-full flex flex-col gap-6">
                         <Podium players={podiumPlayers} />
-                        <Leaderboard
-                            players={players}
-                            showCourse={alreadyPlayed}
-                            currentPlayerName={username || ""}
-                        />
+                        <Leaderboard players={players} showCourse={alreadyPlayed} currentPlayerName={username || ""} />
                     </div>
                 </section>
 
                 <section className="w-full flex flex-wrap justify-center gap-x-12 gap-y-4 mt-6 max-md:mt-2">
-                    <LaunchButtonChallenge
-                        onLaunch={handleLaunch}
-                        alreadyPlayed={alreadyPlayed}
-                        disabled={isDisabled}
-                    />
+                    <LaunchButtonChallenge onLaunch={handleLaunch} alreadyPlayed={alreadyPlayed} disabled={isDisabled} />
                     <ExitButton isHost={false} />
                 </section>
             </div>

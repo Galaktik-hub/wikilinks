@@ -1,7 +1,7 @@
-import { useEffect, useRef, useState } from "react";
-import { getUsername, setUsername } from "../../../utils/Username/UsernameUtils";
-import { useChallengeContext } from "../../../context/ChallengeContext";
-import { useWebSocket } from "../../../context/WebSocketContext";
+import {useEffect, useRef, useState} from "react";
+import {getUsername, setUsername} from "../../../utils/Username/UsernameUtils";
+import {useChallengeContext} from "../../../context/ChallengeContext";
+import {useWebSocket} from "../../../context/WebSocketContext";
 
 /**
  * UsernameInput component
@@ -46,8 +46,8 @@ export default function UsernameInput() {
                     ws.send({
                         kind: "register_username_challenge",
                         usernameToRegister: pendingUsername.current,
-                        removeOld: !!username,              // si on a un ancien pseudo
-                        oldUsername: username || undefined  // à supprimer si présent
+                        removeOld: !!username, // si on a un ancien pseudo
+                        oldUsername: username || undefined, // à supprimer si présent
                     });
                 } else {
                     setSaving(false);
@@ -87,7 +87,7 @@ export default function UsernameInput() {
 
         setSaving(true);
         pendingUsername.current = trimmed;
-        ws.send({ kind: "check_username_challenge", usernameToCheck: trimmed });
+        ws.send({kind: "check_username_challenge", usernameToCheck: trimmed});
     };
 
     const startEditing = () => {
@@ -97,12 +97,12 @@ export default function UsernameInput() {
     };
 
     return (
-        <div className="w-full max-w-md bg-gray-800 p-4 rounded-lg shadow-md text-white">
-            <h3 className="text-lg font-semibold mb-2">Pseudo</h3>
+        <div className="card-container flex flex-col justify-center items-center text-white gap-3">
+            <h3 className="blue-title-effect w-full text-center">Pseudo</h3>
             {loading ? (
                 <p>Chargement...</p>
             ) : editMode ? (
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-col gap-2 w-full">
                     <input
                         type="text"
                         value={inputValue}
@@ -112,30 +112,22 @@ export default function UsernameInput() {
                         disabled={saving}
                     />
                     <div className="flex gap-2 justify-end">
-                        <button
-                            onClick={() => setEditMode(false)}
-                            className="px-3 py-1 bg-gray-600 hover:bg-gray-500 rounded-full"
-                            disabled={saving}
-                        >
+                        <button onClick={() => setEditMode(false)} className="px-3 py-1 bg-gray-600 hover:bg-gray-500 rounded-md" disabled={saving}>
                             Annuler
                         </button>
                         <button
                             onClick={handleSave}
-                            className="px-3 py-1 bg-green-600 hover:bg-green-500 rounded-full"
-                            disabled={saving || inputValue.trim() === ""}
-                        >
+                            className={`px-3 py-1 ${saving || inputValue.trim() === "" ? "bg-gray-900" : "bg-green-600 hover:bg-green-500"} rounded-md`}
+                            disabled={saving || inputValue.trim() === ""}>
                             {saving ? "Sauvegarde..." : "Sauvegarder"}
                         </button>
                     </div>
                     {error && <p className="text-red-500 mt-2">{error}</p>}
                 </div>
             ) : (
-                <div className="flex items-center justify-between">
-                    <span className="text-xl">{username || "Pas défini"}</span>
-                    <button
-                        onClick={startEditing}
-                        className="px-3 py-1 bg-blueSecondary hover:bg-blue-900 rounded-full"
-                    >
+                <div className="w-full flex justify-between">
+                    <span className="text-lg">{username || "Pas défini"}</span>
+                    <button onClick={startEditing} className="px-3 py-1 bg-blueSecondary hover:bg-blue-900 rounded-md">
                         Modifier
                     </button>
                 </div>

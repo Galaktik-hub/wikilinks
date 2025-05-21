@@ -73,7 +73,7 @@ export const ChallengeProvider: React.FC<{children: React.ReactNode}> = ({childr
 
     const getTodayChallenge = () => {
         ws.send({kind: "get_today_challenge"});
-    }
+    };
 
     return (
         <ChallengeContext.Provider

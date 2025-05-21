@@ -10,7 +10,7 @@ type LaunchButtonProps = {
     disabled?: boolean;
 };
 
-const LaunchButtonChallenge: React.FC<LaunchButtonProps> = ({ onLaunch, alreadyPlayed, disabled = false }) => {
+const LaunchButtonChallenge: React.FC<LaunchButtonProps> = ({onLaunch, alreadyPlayed, disabled = false}) => {
     const isDisabled = alreadyPlayed || disabled;
 
     return (
@@ -26,11 +26,8 @@ const LaunchButtonChallenge: React.FC<LaunchButtonProps> = ({ onLaunch, alreadyP
                     : "text-gray-400 bg-gray-700 cursor-not-allowed"
             }`}
             ariaLabel={!alreadyPlayed ? "Jouer le challenge" : "Déjà joué..."}
-            disabled={isDisabled}
-        >
-            <span className="text-center text-xl">
-                {!alreadyPlayed ? "Jouer le challenge" : "Déjà joué..."}
-            </span>
+            disabled={isDisabled}>
+            <span className="text-center text-xl">{!alreadyPlayed ? "Jouer le challenge" : "Déjà joué..."}</span>
             {!isDisabled && <PlaySVG className="ml-2 w-6 h-6 text-white" />}
         </MainButton>
     );

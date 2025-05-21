@@ -1,4 +1,4 @@
-import mongoose, { Document, Schema, Model } from "mongoose";
+import mongoose, {Document, Schema, Model} from "mongoose";
 
 /**
  * Mongoose schema and model for username documents
@@ -11,8 +11,8 @@ interface UsernameDoc extends Document {
 const USERNAME_REGEX = /^[A-Za-z0-9_]{1,20}$/;
 
 const UsernameSchema = new Schema<UsernameDoc>({
-    username: { type: String, required: true, unique: true, maxlength: 20, match: USERNAME_REGEX },
-    createdAt: { type: Date, default: Date.now }
+    username: {type: String, required: true, unique: true, maxlength: 20, match: USERNAME_REGEX},
+    createdAt: {type: Date, default: Date.now},
 });
 
 const UsernameModel: Model<UsernameDoc> = mongoose.models.Username || mongoose.model<UsernameDoc>("Username", UsernameSchema);
@@ -27,7 +27,7 @@ export async function checkUsernameUniqueness(usernameToCheck: string): Promise<
     if (!USERNAME_REGEX.test(usernameToCheck)) {
         throw new Error("Invalid username format");
     }
-    const exists = await UsernameModel.exists({ username: usernameToCheck });
+    const exists = await UsernameModel.exists({username: usernameToCheck});
     return !exists;
 }
 
@@ -39,11 +39,7 @@ export async function checkUsernameUniqueness(usernameToCheck: string): Promise<
  * @param oldUsername The old username to delete if removeOld is true
  * @returns true if registration succeeded, false if duplicate prevented it
  */
-export async function registerUsername(
-    usernameToRegister: string,
-    removeOld: boolean = false,
-    oldUsername?: string
-): Promise<boolean> {
+export async function registerUsername(usernameToRegister: string, removeOld: boolean = false, oldUsername?: string): Promise<boolean> {
     // Validate format of new username
     if (!USERNAME_REGEX.test(usernameToRegister)) {
         throw new Error("Invalid username format");
@@ -54,7 +50,7 @@ export async function registerUsername(
             throw new Error("Invalid old username format");
         }
         try {
-            await UsernameModel.deleteOne({ username: oldUsername });
+            await UsernameModel.deleteOne({username: oldUsername});
         } catch (err) {
             console.error("Error deleting old username:", err);
             // proceed even if deletion fails
@@ -63,7 +59,7 @@ export async function registerUsername(
 
     // Create the new username entry
     try {
-        await UsernameModel.create({ username: usernameToRegister });
+        await UsernameModel.create({username: usernameToRegister});
         return true;
     } catch (err: any) {
         // Handle duplication error

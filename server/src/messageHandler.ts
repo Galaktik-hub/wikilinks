@@ -3,7 +3,7 @@ import {GameSessionManager, GameType} from "./gameSessions";
 import {Player} from "./player/player";
 import logger from "./logger";
 import {ChallengeSession, ChallengeSessionManager} from "./challenge/challengeManager";
-import {checkUsernameUniqueness, registerUsername} from "./challengeUsernameUtils";
+import {checkUsernameUniqueness, registerUsername} from "./utils/challengeUsernameUtils";
 
 export interface ClientContext {
     currentRoomId: number | null;
@@ -257,7 +257,7 @@ export async function handleMessage(ws: WebSocket, message: any, context: Client
                     kind: "check_username_response",
                     available: available,
                 }),
-            )
+            );
             break;
         }
         case "register_username_challenge": {
@@ -268,7 +268,7 @@ export async function handleMessage(ws: WebSocket, message: any, context: Client
                     kind: "register_username_response",
                     success: success,
                 }),
-            )
+            );
             break;
         }
         case "get_history": {
