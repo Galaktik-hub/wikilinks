@@ -14,6 +14,7 @@ int initialiser_graphe(Graphe* graphe, int nombre_sommets, int nombre_aretes) {
 
     for (int i = 0; i <= nombre_sommets; i++) {
         graphe->sommets[i].id_article = -1;
+		graphe->sommets[i].id_graphe = -1;
         graphe->sommets[i].debut_in_array = -1;
         graphe->sommets[i].nombre_aretes = 0;
     }
@@ -63,6 +64,7 @@ int lire_fichier_et_creer_graphe(const char* chemin_fichier, Graphe* graphe) {
 
     int lecture_arretes = 0;
     int index_arete = 0;
+	int index_sommet = 0;
 
     while (fgets(ligne, sizeof(ligne), fichier)) {
         if (ligne[0] == '-') {
@@ -71,12 +73,14 @@ int lire_fichier_et_creer_graphe(const char* chemin_fichier, Graphe* graphe) {
         }
 
         if (!lecture_arretes) {
-            int id_article, debut_in_array, nombre_aretes_sommet;
-            if (sscanf(ligne, "%d %d %d", &id_article, &debut_in_array, &nombre_aretes_sommet) == 3) {
-                graphe->sommets[id_article].id_article = id_article;
-                graphe->sommets[id_article].debut_in_array = debut_in_array;
-                graphe->sommets[id_article].nombre_aretes = nombre_aretes_sommet;
+            int id_article, id_graphe, debut_in_array, nombre_aretes_sommet;
+            if (sscanf(ligne, "%d %d %d %d", &id_article, &id_graphe, &debut_in_array, &nombre_aretes_sommet) == 3) {
+				graphe->sommets[index_sommet].id_graphe = id_graphe;
+                graphe->sommets[index_sommet].id_article = id_article;
+                graphe->sommets[index_sommet].debut_in_array = debut_in_array;
+                graphe->sommets[index_sommet].nombre_aretes = nombre_aretes_sommet;
             }
+			index_sommet++;
         } else {
             int id_article_depart, id_article_arrival;
             if (sscanf(ligne, "%d %d", &id_article_depart, &id_article_arrival) == 2) {

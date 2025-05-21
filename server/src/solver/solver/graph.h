@@ -15,6 +15,7 @@ typedef struct {
 
 typedef struct {
     int id_article;
+    int id_graphe;
     int debut_in_array;
     int nombre_aretes;
 } Sommet;

@@ -2,6 +2,8 @@
 """
 Extract the page contents from the Wikipedia dump, extract links in a graph form,
 store intermediate graph using titles, convert to id-based graph, and dump to file.
+Each node also has a graph_id, assigned sequentially starting from 0 in the order nodes are added.
+Edges in the dump file are serialized using these graph_ids.
 """
 import bz2
 import sys
@@ -13,19 +15,33 @@ INFOBOX_STARTERS = ("[[", "]]", "{{", "}}", "|", "<!", "*", "=", "{|")
 
 class Graph:
     def __init__(self):
+        # mapping from page_id to list of linked titles
         self.nodesStr: dict[int, list[str]] = {}
+        # mapping from page_id to list of linked page_ids
         self.nodesId: dict[int, list[int]] = {}
+        # sequential counter for total edges
+        self.verticesLength = 0
+        # map page_id to assigned graph_id
+        self.nodeGraphId: dict[int, int] = {}
+        # next graph_id
+        self._next_graph_id = 0
 
     def addNode(self, node_id: int):
         if node_id not in self.nodesStr:
+            # record the node and assign a graph_id
             self.nodesStr[node_id] = []
+            self.nodeGraphId[node_id] = self._next_graph_id
+            self._next_graph_id += 1
 
     def addEdge(self, from_id: int, to_title: str):
         if from_id not in self.nodesStr:
-            self.nodesStr[from_id] = []
+            # ensure node exists and gets a graph_id
+            self.addNode(from_id)
         self.nodesStr[from_id].append(to_title)
+        self.verticesLength += 1
 
     def convertToIdGraph(self, id_store):
+        # convert stored title edges to id edges
         for from_id, titles in self.nodesStr.items():
             self.nodesId[from_id] = []
             for title in titles:
@@ -35,12 +51,22 @@ class Graph:
 
     def dumpToFile(self, filepath: str):
         with open(filepath, "w", encoding="utf-8") as f:
-            for node_id, edges in self.nodesId.items():
-                f.write(f"id={node_id}\n")
-                f.write(f"l={len(edges)}\n")
-                for eid in edges:
-                    f.write(f"l={eid}\n")
-                f.write("\n")
+            # header: number of nodes and total edges
+            f.write(f"{len(self.nodesId)} {self.verticesLength}\n")
+            position_in_array = 0
+            # write node lines: page_id, graph_id, position, degree
+            for node_id in self.nodesId:
+                graph_id = self.nodeGraphId[node_id]
+                degree = len(self.nodesId[node_id])
+                f.write(f"{node_id} {graph_id} {position_in_array} {degree}\n")
+                position_in_array += degree
+            # separator and edge list (using graph_ids)
+            f.write("-\n")
+            for from_id, edges in self.nodesId.items():
+                from_gid = self.nodeGraphId[from_id]
+                for to_id in edges:
+                    to_gid = self.nodeGraphId[to_id]
+                    f.write(f"{from_gid} {to_gid}\n")
 
 
 class idStorer:
@@ -50,7 +76,6 @@ class idStorer:
     def storeId(self, title: str, page_id: int):
         norm = normalizeTitle(title)
         self.ids[norm] = int(page_id)
-
 
 
 def normalizeTitle(s):
@@ -97,8 +122,7 @@ def extract(source, output_file):
 
     title_search_pattern = re.compile(r'(?<=[A-Za-z0-9]):(?=[A-Za-z0-9])')
 
-    i = 0
-    j = 0
+    i = j = 0
     doc = parse(stream)
     for event, node in doc:
         if event == START_ELEMENT and node.localName == "page":
@@ -111,29 +135,30 @@ def extract(source, output_file):
                 continue
             page_id = int(getText(node.getElementsByTagName("id")[0].childNodes))
             id_store.storeId(title, page_id)
+
             try:
                 redirect = node.getElementsByTagName("redirect")[0].getAttribute("title")
-            except:
+            except IndexError:
                 redirect = None
+
+            # ensure node is registered with a graph_id
+            graph.addNode(page_id)
 
             if not redirect:
                 text = getText(node.getElementsByTagName("text")[0].childNodes)
                 links = parseWikiText(text)
-                graph.addNode(int(page_id))
                 for link_title in links:
-                    graph.addEdge(int(page_id), normalizeTitle(link_title))
+                    graph.addEdge(page_id, normalizeTitle(link_title))
             else:
-                graph.addNode(int(page_id))
-                graph.addEdge(int(page_id), normalizeTitle(redirect))
+                graph.addEdge(page_id, normalizeTitle(redirect))
 
             i += 1
             if i % 1000 == 0:
                 print(f"Processed {i} pages", file=sys.stderr)
-                if i > 2_650_000:
+                if i > 1000:
                     break
 
-
-    # Convert to int-based graph and dump
+    # Convert to id-based graph and dump
     graph.convertToIdGraph(id_store)
     graph.dumpToFile(output_file)
     print("Graph extraction complete.", file=sys.stderr)
