@@ -10,6 +10,7 @@ export interface InputField {
     type?: string;
     maxLength?: number;
     autoFocus?: boolean;
+    autoComplete: "on" | "off";
 }
 
 // Interface pour les boutons

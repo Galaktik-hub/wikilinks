@@ -30,6 +30,7 @@ export default function InventoryItemModal(props: InventoryItemModalProps) {
                         onChange: setTargetPage,
                         placeholder: "Article cible",
                         autoFocus: true,
+                        autoComplete: "on",
                     },
                 ],
                 cancelButton: {label: "Annuler", onClick: () => onClose()},

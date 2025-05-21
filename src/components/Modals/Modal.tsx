@@ -1,11 +1,13 @@
 "use client";
-import * as React from "react";
+import React, {useState} from "react";
 import CloseSVG from "../../assets/WaitingRoom/CloseSVG.tsx";
 import {Timeline, Text} from "@mantine/core";
 import {ModalProps, ModalFormProps, ModalConfirmationProps, ModalTimelineProps, formatContent} from "./ModalProps.ts";
 import {timelineConfig} from "./TimelineConfig.tsx";
+import {AutocompleteArticle} from "../Sections/Game/Inventory/AutocompleteArticle.tsx";
 
 const Modal: React.FC<ModalProps> = ({isOpen, onClose, title, type, content}) => {
+    const [focusedFieldId, setFocusedFieldId] = useState<string | null>(null);
     if (!isOpen) return null;
 
     return (
@@ -32,12 +34,18 @@ const Modal: React.FC<ModalProps> = ({isOpen, onClose, title, type, content}) =>
                                     type={field.type || "text"}
                                     value={field.value}
                                     onChange={e => field.onChange(e.target.value)}
+                                    onFocus={() => setFocusedFieldId(field.id)}
+                                    onBlur={() => setTimeout(() => setFocusedFieldId(null), 150)}
                                     onKeyDown={field.onKeyDown}
                                     className="w-full px-4 py-3 bg-[#12151A] text-white rounded-lg border border-gray-700 focus:border-bluePrimary focus:ring-1 focus:ring-bluePrimary transition-all outline-none"
                                     placeholder={field.placeholder}
                                     autoFocus={field.autoFocus}
                                     maxLength={field.maxLength}
+                                    autoComplete={field.autoComplete}
                                 />
+                                {field.autoComplete === "on" && focusedFieldId === field.id && (
+                                    <AutocompleteArticle query={field.value} onSelect={value => field.onChange(value)} />
+                                )}
                             </div>
                         ))}
                         <div className="flex gap-4 justify-center">
