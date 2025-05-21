@@ -249,6 +249,16 @@ export async function handleMessage(ws: WebSocket, message: any, context: Client
             );
             break;
         }
+        case "get_today_leaderboard": {
+            const leaderboard = await ChallengeSession.fetchTodayLeaderboard();
+            ws.send(
+                JSON.stringify({
+                    kind: "today_leaderboard",
+                    leaderboard: leaderboard,
+                }),
+            );
+            break;
+        }
         case "check_username_challenge": {
             const usernameToCheck = message.usernameToCheck;
             const available = await checkUsernameUniqueness(usernameToCheck);

@@ -11,6 +11,7 @@ import GameEndScreen from "../../../components/Sections/Game/EndGame/GameEndScre
 import {useChallengeContext} from "../../../context/ChallengeContext";
 import {isAndroid} from "../../../functions/androidCheck";
 import {useNavigate} from "react-router-dom";
+import {setPlayedToday} from "../../../utils/Challenge/ChallengeUtils";
 
 const Game: React.FC = () => {
     const challengeContext = useChallengeContext();
@@ -37,6 +38,7 @@ const Game: React.FC = () => {
 
     useEffect(() => {
         setIsGameOver(challengeContext.isGameOver);
+        setPlayedToday();
     }, [challengeContext.isGameOver]);
 
     return (
