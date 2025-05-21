@@ -399,6 +399,11 @@ export async function handleMessage(ws: WebSocket, message: any, context: Client
             }
             if (currentChallengeSessionId && currentUser) {
                 ChallengeSessionManager.endSession(currentChallengeSessionId);
+                ws.send(
+                    JSON.stringify({
+                        kind: "challenge_ended",
+                    }),
+                )
             }
             ws.send(
                 JSON.stringify({

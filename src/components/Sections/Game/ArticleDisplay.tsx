@@ -7,7 +7,6 @@ import {cleanHTMLContent} from "../../../utils/Game/ArticleCleaningUtils.ts";
 import {useNavigate} from "react-router-dom";
 import {useGameContext} from "../../../context/GameContext.tsx";
 import {useChallengeContext} from "../../../context/ChallengeContext";
-import {isAndroid} from "../../../functions/androidCheck";
 
 interface ArticleDisplayProps {
     className?: string;
@@ -22,7 +21,7 @@ const ArticleDisplay: React.FC<ArticleDisplayProps> = ({className}) => {
     const [error, setError] = useState<string | null>(null);
     const sectionsToRemove = ["Voir aussi", "Notes et références", "Références"];
     const navigate = useNavigate();
-    const currentTitle = isAndroid() ? challengeContext.currentTitle : gameContext.currentTitle;
+    const currentTitle = challengeContext.sessionId !== "" ? challengeContext.currentTitle : gameContext.currentTitle;
 
     const fetchArticle = useCallback(async () => {
         try {
@@ -72,7 +71,7 @@ const ArticleDisplay: React.FC<ArticleDisplayProps> = ({className}) => {
         if (content) content.scrollTop = 0;
         // Supprime le hash de l'URL
         navigate(window.location.pathname + window.location.search, {replace: true});
-    }, [gameContext.currentTitle]);
+    }, [currentTitle]);
 
     useEffect(() => {
         fetchArticle();
