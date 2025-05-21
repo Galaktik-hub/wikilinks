@@ -12,7 +12,7 @@ interface PlayerProgressBarProps {
 const PlayerProgressItem: React.FC<PlayerProgressBarProps> = ({playerName, percentage, history}) => {
     const normalizedPercentage = Math.min(Math.max(percentage, 0), 100);
     const progressWidth = `${normalizedPercentage}%`;
-    const {openModal} = useModalContext();
+    const {openModal, closeModal} = useModalContext();
 
     const handleClick = () => {
         openModal({
@@ -21,6 +21,7 @@ const PlayerProgressItem: React.FC<PlayerProgressBarProps> = ({playerName, perce
             content: {
                 username: playerName,
                 timelineSteps: history,
+                cancelButton: {label: "Fermer", onClick: () => closeModal()},
             },
         });
     };

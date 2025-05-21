@@ -38,7 +38,7 @@ export const GameCode: React.FC<GameCodeProps> = ({code}) => {
                     </div>
                 ),
                 okButton: {
-                    label: "OK",
+                    label: "Fermer",
                     onClick: () => {
                         closeModal();
                     },

@@ -12,6 +12,7 @@ const InventoryItem: React.FC<InventoryItemProps & {Icon: React.FC<{color?: stri
     const {name, definition, count} = item;
     const {openModal, closeModal} = useModalContext();
     const [remaining, setRemaining] = React.useState(count);
+    const [targetPage, setTargetPage] = React.useState("");
 
     // Met à jour remaining si la prop count change
     React.useEffect(() => {
@@ -24,22 +25,53 @@ const InventoryItem: React.FC<InventoryItemProps & {Icon: React.FC<{color?: stri
 
     const handleClick = () => {
         if (isDisabled) return;
-        openModal({
-            title: `Utiliser l'artefact ${name}`,
-            type: "confirmation",
-            content: {
+        if (name === "Mine") {
+            const newContent = {
                 message: definition,
+                inputFields: [
+                    {
+                        id: "pseudo",
+                        value: targetPage,
+                        onChange: setTargetPage,
+                        placeholder: "Article cible",
+                        autoFocus: true,
+                    },
+                ],
                 cancelButton: {label: "Annuler", onClick: () => closeModal()},
-                okButton: {
+                submitButton: {
                     label: "Utiliser",
                     onClick: () => {
-                        onConfirm();
-                        closeModal();
-                        setRemaining(prev => prev - 1);
+                        if (targetPage.trim()) {
+                            onConfirm();
+                        }
+                    },
+                    disabled: !targetPage.trim(),
+                },
+                isValid: targetPage.trim(),
+            };
+            openModal({
+                title: `Utiliser l'artefact ${name}`,
+                type: "form",
+                content: newContent,
+            });
+        } else {
+            openModal({
+                title: `Utiliser l'artefact ${name}`,
+                type: "confirmation",
+                content: {
+                    message: definition,
+                    cancelButton: {label: "Annuler", onClick: () => closeModal()},
+                    okButton: {
+                        label: "Utiliser",
+                        onClick: () => {
+                            onConfirm();
+                            closeModal();
+                            setRemaining(prev => prev - 1);
+                        },
                     },
                 },
-            },
-        });
+            });
+        }
     };
 
     return (
