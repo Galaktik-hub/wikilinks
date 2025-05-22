@@ -6,6 +6,7 @@ import {useGameContext} from "./GameContext.tsx";
 import {useModalContext} from "../components/Modals/ModalProvider.tsx";
 import {HistoryStep} from "../../packages/shared-types/player/history";
 import {Artifact, artifactDefinitions, ArtifactName} from "../../packages/shared-types/player/inventory";
+import {useChallengeContext} from "./ChallengeContext";
 
 interface PlayerInfo {
     username: string;
@@ -23,6 +24,7 @@ interface PlayersContextType {
     // history
     histories: Record<string, HistoryStep[]>;
     getHistory: () => void;
+    exit: () => void;
 }
 
 export const PlayersContext = createContext<PlayersContextType | undefined>(undefined);
@@ -30,6 +32,7 @@ export const PlayersContext = createContext<PlayersContextType | undefined>(unde
 export const PlayersProvider: React.FC<{children: React.ReactNode}> = ({children}) => {
     const ws = useWebSocket()!;
     const gameCtx = useGameContext()!;
+    const challengeCtx = useChallengeContext();
     const {openModal, closeModal} = useModalContext();
     const [players, setPlayers] = useState<PlayerInfo[]>([]);
     const [inventory, setInventory] = useState<Record<ArtifactName, Artifact>>({} as Record<ArtifactName, Artifact>);
@@ -210,7 +213,16 @@ export const PlayersProvider: React.FC<{children: React.ReactNode}> = ({children
         });
     };
 
-    return <PlayersContext.Provider value={{players, inventory, foundArtifact, usedArtifact, histories, getHistory}}>{children}</PlayersContext.Provider>;
+    const exit = () => {
+        setPlayers([]);
+        setInventory({} as Record<ArtifactName, Artifact>);
+        setHistories({});
+        gameCtx.resetGame();
+        challengeCtx.resetChallenge();
+        ws.resetMessages();
+    };
+
+    return <PlayersContext.Provider value={{players, inventory, foundArtifact, usedArtifact, histories, getHistory, exit}}>{children}</PlayersContext.Provider>;
 };
 
 export const usePlayersContext = (): PlayersContextType => {

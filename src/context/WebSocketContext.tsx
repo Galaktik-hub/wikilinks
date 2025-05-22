@@ -14,6 +14,7 @@ interface WebSocketContextType {
     onMessage: (handler: (data: any) => void) => void;
     offMessage: (handler: (data: any) => void) => void;
     waitForConnection: () => Promise<void>;
+    resetMessages: () => void;
 }
 
 const WebSocketContext = createContext<WebSocketContextType | undefined>(undefined);
@@ -84,8 +85,12 @@ export const WebSocketProvider: React.FC<{children: React.ReactNode}> = ({childr
         });
     };
 
+    const resetMessages = () => {
+        setMessages([]);
+    };
+
     return (
-        <WebSocketContext.Provider value={{ws: wsRef.current, isConnected, messages, send, onMessage, offMessage, waitForConnection}}>
+        <WebSocketContext.Provider value={{ws: wsRef.current, isConnected, messages, send, onMessage, offMessage, waitForConnection, resetMessages}}>
             <GameProvider>
                 <ChallengeProvider>
                     <PlayersProvider>{children}</PlayersProvider>

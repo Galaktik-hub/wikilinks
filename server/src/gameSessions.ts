@@ -366,6 +366,7 @@ export class GameSession {
         this.hasStarted = false;
         this.articles = [];
         this.startArticle = "";
+        this.trappedArticles = [];
     }
 
     /**

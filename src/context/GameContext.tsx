@@ -45,6 +45,7 @@ export interface GameContextType {
     checkRoomExists: (code: number) => Promise<boolean>;
     checkUsernameTaken: (name: string, code: number) => Promise<boolean>;
     checkGameHasStarted: (code: number) => Promise<boolean>;
+    resetGame: () => void;
 }
 
 const GameContext = createContext<GameContextType | undefined>(undefined);
@@ -180,6 +181,19 @@ export const GameProvider: React.FC<{children: React.ReactNode}> = ({children}) 
         });
     };
 
+    const resetGame = () => {
+        setLeader(null);
+        setUsername(null);
+        setRoomCode(-1);
+        setLoading(false);
+        setSettings({timeLimit: 10, numberOfArticles: 4, maxPlayers: 10, type: "private"});
+        setIsGameOver(false);
+        setArticles([]);
+        setStart("");
+        setCurrentTitle("");
+        setScoreboard([]);
+    };
+
     return (
         <GameContext.Provider
             value={{
@@ -203,6 +217,7 @@ export const GameProvider: React.FC<{children: React.ReactNode}> = ({children}) 
                 checkRoomExists,
                 checkUsernameTaken,
                 checkGameHasStarted,
+                resetGame,
             }}>
             {children}
         </GameContext.Provider>
