@@ -5,18 +5,21 @@ import {MantineProvider} from "@mantine/core";
 import {ModalProvider} from "./components/Modals/ModalProvider.tsx";
 import {PopupProvider} from "./context/PopupContext";
 import {WebSocketProvider} from "./context/WebSocketContext.tsx";
+import {BrowserRouter as Router} from "react-router-dom";
 
 function App() {
     return (
-        <MantineProvider>
-            <PopupProvider>
-                <ModalProvider>
-                    <WebSocketProvider>
-                        <AppRoutes />
-                    </WebSocketProvider>
-                </ModalProvider>
-            </PopupProvider>
-        </MantineProvider>
+        <Router>
+            <MantineProvider>
+                <PopupProvider>
+                    <ModalProvider>
+                        <WebSocketProvider>
+                            <AppRoutes />
+                        </WebSocketProvider>
+                    </ModalProvider>
+                </PopupProvider>
+            </MantineProvider>
+        </Router>
     );
 }
 

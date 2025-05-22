@@ -7,23 +7,30 @@ import MainButton from "../../MainButton.tsx";
 type LaunchButtonProps = {
     onLaunch: () => void;
     alreadyPlayed: boolean;
+    disabled?: boolean;
 };
 
-const LaunchButtonGame: React.FC<LaunchButtonProps> = ({onLaunch, alreadyPlayed}) => {
+const LaunchButtonChallenge: React.FC<LaunchButtonProps> = ({onLaunch, alreadyPlayed, disabled = false}) => {
+    const isDisabled = alreadyPlayed || disabled;
+
     return (
         <MainButton
             color=""
-            onClick={onLaunch}
+            onClick={() => {
+                if (isDisabled) return;
+                onLaunch();
+            }}
             className={`${
-                !alreadyPlayed
+                !isDisabled
                     ? "text-white bg-green-600 shadow-[0px_0px_10px_rgba(16,185,64,0.5)] hover:shadow-[0px_0px_15px_rgba(16,185,64,1)]"
                     : "text-gray-400 bg-gray-700 cursor-not-allowed"
             }`}
-            ariaLabel={!alreadyPlayed ? "Jouer le challenge" : "Déjà joué..."}>
+            ariaLabel={!alreadyPlayed ? "Jouer le challenge" : "Déjà joué..."}
+            disabled={isDisabled}>
             <span className="text-center text-xl">{!alreadyPlayed ? "Jouer le challenge" : "Déjà joué..."}</span>
-            {!alreadyPlayed && <PlaySVG className="ml-2 w-6 h-6 text-white" />}
+            {!isDisabled && <PlaySVG className="ml-2 w-6 h-6 text-white" />}
         </MainButton>
     );
 };
 
-export default LaunchButtonGame;
+export default LaunchButtonChallenge;

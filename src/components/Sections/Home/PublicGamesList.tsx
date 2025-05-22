@@ -28,7 +28,6 @@ interface Game {
 }
 
 export const PublicGamesList: React.FC = () => {
-    // const socket2 = useContext(SocketContext);
     const socketContext = useWebSocket();
     const gameContext = useGameContext();
     const navigate = useNavigate();

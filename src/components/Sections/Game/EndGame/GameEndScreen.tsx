@@ -6,9 +6,10 @@ import {motion, AnimatePresence} from "framer-motion";
 
 interface GameEndScreenProps {
     isVisible: boolean;
+    endPageToRedirect: string;
 }
 
-const GameEndScreen: React.FC<GameEndScreenProps> = ({isVisible}) => {
+const GameEndScreen: React.FC<GameEndScreenProps> = ({isVisible, endPageToRedirect}) => {
     const navigate = useNavigate();
     const [progress, setProgress] = useState(0);
     const redirectTime = 5000; // 5 seconds
@@ -29,7 +30,7 @@ const GameEndScreen: React.FC<GameEndScreenProps> = ({isVisible}) => {
                 animationFrame = requestAnimationFrame(animate);
             } else {
                 // Redirect to results page
-                navigate("/result");
+                navigate(`/${endPageToRedirect}`);
             }
         };
 

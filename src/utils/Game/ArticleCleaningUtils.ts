@@ -35,6 +35,7 @@ export const cleanHTMLContent = (html: Element, sectionsToRemove?: string[]): st
 
     doc.querySelectorAll(".mw-editsection").forEach(el => el.remove());
     doc.querySelectorAll("img").forEach(img => img.remove());
+    doc.querySelectorAll("video, audio, source").forEach(el => el.remove());
 
     // Supprimer tous les cite_note dans tous les éléments
     doc.querySelectorAll("sup").forEach(sup => {
@@ -72,7 +73,14 @@ export const cleanHTMLContent = (html: Element, sectionsToRemove?: string[]): st
         }
     });
 
-    let cleanedHTML = doc.body.innerHTML;
-    cleanedHTML = removeClasses(cleanedHTML);
-    return cleanedHTML;
+    doc.body.innerHTML = removeClasses(doc.body.innerHTML);
+
+    doc.querySelectorAll("table").forEach(table => {
+        const wrapper = doc.createElement("div");
+        wrapper.className = "table-container";
+        table.parentNode?.insertBefore(wrapper, table);
+        wrapper.appendChild(table);
+    });
+
+    return doc.body.innerHTML;
 };

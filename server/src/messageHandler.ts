@@ -2,11 +2,14 @@ import {WebSocket} from "ws";
 import {GameSessionManager, GameType} from "./gameSessions";
 import {Player} from "./player/player";
 import logger from "./logger";
+import {ChallengeSession, ChallengeSessionManager} from "./challenge/challengeManager";
+import {checkUsernameUniqueness, registerUsername} from "./utils/challengeUsernameUtils";
 
 export interface ClientContext {
     currentRoomId: number | null;
     currentUser: Player | null;
     currentGameSessionId: number | null;
+    currentChallengeSessionId: string | null;
 }
 
 interface SessionSummary {
@@ -17,6 +20,34 @@ interface SessionSummary {
     leaderName: string;
     timeLimit: number;
     numberOfArticles: number;
+}
+
+/**
+ * Checks that the client is in an active session and returns the session.
+ * Sends an error message via the socket if this is not the case and returns null.
+ */
+function getSessionOrError(ws: WebSocket, context: ClientContext): ReturnType<typeof GameSessionManager.getSession> | null {
+    const {currentGameSessionId, currentUser} = context;
+    if (!currentGameSessionId || !currentUser) {
+        ws.send(
+            JSON.stringify({
+                kind: "error",
+                message: "Not in a game session",
+            }),
+        );
+        return null;
+    }
+    const session = GameSessionManager.getSession(currentGameSessionId);
+    if (!session) {
+        ws.send(
+            JSON.stringify({
+                kind: "error",
+                message: "Game session not found",
+            }),
+        );
+        return null;
+    }
+    return session;
 }
 
 export async function handleMessage(ws: WebSocket, message: any, context: ClientContext) {
@@ -87,7 +118,7 @@ export async function handleMessage(ws: WebSocket, message: any, context: Client
                 return;
             }
             const player = new Player(message.playerName, ws, "client", false);
-            if (!session.addPlayer(player.name)) {
+            if (!session.addPlayer(player)) {
                 ws.send(
                     JSON.stringify({
                         kind: "error",
@@ -118,38 +149,13 @@ export async function handleMessage(ws: WebSocket, message: any, context: Client
             break;
         }
         case "send_message": {
-            const {currentRoomId, currentUser} = context;
-            if (!currentRoomId || !currentUser) {
-                ws.send(JSON.stringify({kind: "error", message: "Not in a room"}));
-                return;
-            }
-            const session = GameSessionManager.getSession(currentRoomId);
-            if (!session) return;
-            session.sendMessage(currentUser.name, message.content);
+            const session = getSessionOrError(ws, context);
+            session.sendMessage(context.currentUser.name, message.content);
             break;
         }
         case "start_game": {
-            const {currentGameSessionId, currentUser} = context;
-            if (!currentGameSessionId || !currentUser) {
-                ws.send(
-                    JSON.stringify({
-                        kind: "error",
-                        message: "Not in a game session",
-                    }),
-                );
-                return;
-            }
-            const session = GameSessionManager.getSession(currentGameSessionId);
-            if (!session) {
-                ws.send(
-                    JSON.stringify({
-                        kind: "error",
-                        message: "Game session not found",
-                    }),
-                );
-                return;
-            }
-            if (session.leader.name !== currentUser.name) {
+            const session = getSessionOrError(ws, context);
+            if (session.leader.name !== context.currentUser.name) {
                 ws.send(
                     JSON.stringify({
                         kind: "error",
@@ -172,51 +178,20 @@ export async function handleMessage(ws: WebSocket, message: any, context: Client
             break;
         }
         case "game_event": {
-            const {currentGameSessionId, currentUser} = context;
-            if (!currentGameSessionId || !currentUser) {
-                ws.send(
-                    JSON.stringify({
-                        kind: "error",
-                        message: "Not in a game session",
-                    }),
-                );
-                return;
+            const {currentGameSessionId, currentChallengeSessionId, currentUser} = context;
+            const gameSession = GameSessionManager.getSession(currentGameSessionId);
+            if (gameSession) {
+                gameSession.handleGameEvent(currentUser.name, message.event);
             }
-            const session = GameSessionManager.getSession(currentGameSessionId);
-            if (!session) {
-                ws.send(
-                    JSON.stringify({
-                        kind: "error",
-                        message: "Game session not found",
-                    }),
-                );
-                return;
+            const challengeSession = ChallengeSessionManager.getSession(currentChallengeSessionId);
+            if (challengeSession) {
+                challengeSession.handleEvent(message.event.page_name);
             }
-            session.handleGameEvent(currentUser.name, message.event);
             break;
         }
         case "update_settings": {
-            const {currentGameSessionId, currentUser} = context;
-            if (!currentGameSessionId || !currentUser) {
-                ws.send(
-                    JSON.stringify({
-                        kind: "error",
-                        message: "Not in a game session",
-                    }),
-                );
-                return;
-            }
-            const session = GameSessionManager.getSession(currentGameSessionId);
-            if (!session) {
-                ws.send(
-                    JSON.stringify({
-                        kind: "error",
-                        message: "Game session not found",
-                    }),
-                );
-                return;
-            }
-            if (session.leader.name !== currentUser.name) {
+            const session = getSessionOrError(ws, context);
+            if (session.leader.name !== context.currentUser.name) {
                 ws.send(
                     JSON.stringify({
                         kind: "error",
@@ -248,27 +223,50 @@ export async function handleMessage(ws: WebSocket, message: any, context: Client
             });
             break;
         }
+        case "get_today_challenge": {
+            const article = await ChallengeSession.fetchTodayChallenge();
+            ws.send(
+                JSON.stringify({
+                    kind: "today_challenge",
+                    targetArticle: article.targetArticle,
+                }),
+            );
+            break;
+        }
+        case "get_today_leaderboard": {
+            const leaderboard = await ChallengeSession.fetchTodayLeaderboard();
+            ws.send(
+                JSON.stringify({
+                    kind: "today_leaderboard",
+                    leaderboard: leaderboard,
+                }),
+            );
+            break;
+        }
+        case "check_username_challenge": {
+            const usernameToCheck = message.usernameToCheck;
+            const available = await checkUsernameUniqueness(usernameToCheck);
+            ws.send(
+                JSON.stringify({
+                    kind: "check_username_response",
+                    available: available,
+                }),
+            );
+            break;
+        }
+        case "register_username_challenge": {
+            const {usernameToRegister, removeOld, oldUsername} = message;
+            const success = await registerUsername(usernameToRegister, removeOld, oldUsername);
+            ws.send(
+                JSON.stringify({
+                    kind: "register_username_response",
+                    success: success,
+                }),
+            );
+            break;
+        }
         case "get_history": {
-            const {currentGameSessionId, currentUser} = context;
-            if (!currentGameSessionId || !currentUser) {
-                ws.send(
-                    JSON.stringify({
-                        kind: "error",
-                        message: "Not in a game session",
-                    }),
-                );
-                return;
-            }
-            const session = GameSessionManager.getSession(currentGameSessionId);
-            if (!session) {
-                ws.send(
-                    JSON.stringify({
-                        kind: "error",
-                        message: "Game session not found",
-                    }),
-                );
-                return;
-            }
+            const session = getSessionOrError(ws, context);
             ws.send(
                 JSON.stringify({
                     kind: "history",
@@ -277,29 +275,20 @@ export async function handleMessage(ws: WebSocket, message: any, context: Client
             );
             break;
         }
+        case "init_inventory": {
+            const session = getSessionOrError(ws, context);
+            ws.send(
+                JSON.stringify({
+                    kind: "inventory",
+                    inventory: session.initInventory(),
+                }),
+            );
+            break;
+        }
         case "mute_player": {
-            const {currentGameSessionId, currentUser} = context;
-            if (!currentGameSessionId || !currentUser) {
-                ws.send(
-                    JSON.stringify({
-                        kind: "error",
-                        message: "Not in a game session",
-                    }),
-                );
-                return;
-            }
-            const session = GameSessionManager.getSession(currentGameSessionId);
-            if (!session) {
-                ws.send(
-                    JSON.stringify({
-                        kind: "error",
-                        message: "Game session not found",
-                    }),
-                );
-                return;
-            }
+            const session = getSessionOrError(ws, context);
             const targetPlayerName = message.playerName;
-            const currentMember = session.members.get(currentUser.name);
+            const currentMember = session.members.get(context.currentUser.name);
             if (currentMember.muted.has(targetPlayerName)) {
                 currentMember.muted.delete(targetPlayerName);
             } else {
@@ -308,26 +297,7 @@ export async function handleMessage(ws: WebSocket, message: any, context: Client
             break;
         }
         case "exclude_player": {
-            const {currentGameSessionId, currentUser} = context;
-            if (!currentGameSessionId || !currentUser) {
-                ws.send(
-                    JSON.stringify({
-                        kind: "error",
-                        message: "Not in a game session",
-                    }),
-                );
-                return;
-            }
-            const session = GameSessionManager.getSession(currentGameSessionId);
-            if (!session) {
-                ws.send(
-                    JSON.stringify({
-                        kind: "error",
-                        message: "Game session not found",
-                    }),
-                );
-                return;
-            }
+            const session = getSessionOrError(ws, context);
             const targetPlayerName = message.playerName;
             const targetMember = session.members.get(targetPlayerName);
             if (targetMember) {
@@ -392,15 +362,64 @@ export async function handleMessage(ws: WebSocket, message: any, context: Client
             );
             break;
         }
+        case "create_challenge_session": {
+            const player = new Player(message.username, ws, "creator", true);
+            context.currentUser = player;
+            const challenge = ChallengeSessionManager.createSession(player, message.startArticle);
+            context.currentChallengeSessionId = challenge.id;
+            ws.send(
+                JSON.stringify({
+                    kind: "challenge_session_created",
+                    id: challenge.id,
+                }),
+            );
+            break;
+        }
+        case "start_challenge": {
+            const {currentChallengeSessionId, currentUser} = context;
+            if (!currentChallengeSessionId || !currentUser) {
+                ws.send(
+                    JSON.stringify({
+                        kind: "error",
+                        message: "Not in a challenge session",
+                    }),
+                );
+                return;
+            }
+            const session = ChallengeSessionManager.getSession(currentChallengeSessionId);
+            if (!session) {
+                ws.send(
+                    JSON.stringify({
+                        kind: "error",
+                        message: "Challenge session not found",
+                    }),
+                );
+                return;
+            }
+            await session.start();
+            break;
+        }
         case "disconnect": {
-            const {currentRoomId, currentUser} = context;
+            const {currentRoomId, currentChallengeSessionId, currentUser} = context;
             if (currentRoomId && currentUser) {
                 const session = GameSessionManager.getSession(currentRoomId);
                 if (session) {
                     session.handlePlayerDeparture(currentUser.name);
                 }
             }
-            ws.close();
+            if (currentChallengeSessionId && currentUser) {
+                ChallengeSessionManager.endSession(currentChallengeSessionId);
+                ws.send(
+                    JSON.stringify({
+                        kind: "challenge_ended",
+                    }),
+                );
+            }
+            ws.send(
+                JSON.stringify({
+                    kind: "disconnected",
+                }),
+            );
             break;
         }
         case "close_room": {
@@ -426,6 +445,8 @@ export async function handleMessage(ws: WebSocket, message: any, context: Client
             const allSessions = GameSessionManager.getAllPublicSessions();
             logger.info(`Number of sessions : ${allSessions.size}`);
             const sessionsArray: SessionSummary[] = [];
+            const article = await ChallengeSession.fetchTodayChallenge();
+            const challengeCount = await ChallengeSession.fetchNumberPlayerTodayChallenge();
             allSessions.forEach((session, id) => {
                 sessionsArray.push({
                     id: id,
@@ -441,6 +462,8 @@ export async function handleMessage(ws: WebSocket, message: any, context: Client
                 JSON.stringify({
                     kind: "all_sessions",
                     sessions: sessionsArray,
+                    challengeArticle: article.targetArticle,
+                    challengeCount: challengeCount,
                 }),
             );
             break;

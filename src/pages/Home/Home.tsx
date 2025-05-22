@@ -13,7 +13,7 @@ const Home: React.FC = () => {
             <div className="flex flex-col w-full overflow-hidden items-center justify-center">
                 <Banner />
                 <CreateOrJoinGame />
-                <DailyChallengeSection title="Les extincteurs" playerCount={247} />
+                <DailyChallengeSection />
                 <PublicGamesList />
             </div>
         </Layout>

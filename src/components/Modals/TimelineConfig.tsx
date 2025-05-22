@@ -1,16 +1,15 @@
-import * as React from "react";
-import {IconBook, IconFlag, IconPackage, IconWorld} from "@tabler/icons-react";
-
-export type TimelineType = "start" | "foundArtifact" | "usedArtifact" | "foundPage" | "visitedPage";
+import {ReactNode} from "react";
+import {IconBook, IconFlag, IconPackage, IconWorld, IconAlertOctagon} from "@tabler/icons-react";
+import {HistoryType} from "../../../packages/shared-types/player/history";
 
 // --- Mapping de configuration de la timeline
 export const timelineConfig: Record<
-    TimelineType,
+    HistoryType,
     {
         title: string;
         content: string | null;
         color: string;
-        icon: React.ReactNode;
+        icon: ReactNode;
     }
 > = {
     start: {
@@ -42,5 +41,11 @@ export const timelineConfig: Record<
         content: "{user} a visité la page {page_name}",
         color: "blue",
         icon: <IconWorld size={16} color="white" />,
+    },
+    artifactEffect: {
+        title: "Effet d'artefact",
+        content: "{user} a subi l'effet de l'artefact {artefact} sur la page {source}",
+        color: "red",
+        icon: <IconAlertOctagon size={16} color="white" />,
     },
 };

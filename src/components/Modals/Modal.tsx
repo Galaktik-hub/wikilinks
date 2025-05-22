@@ -1,11 +1,13 @@
 "use client";
-import * as React from "react";
+import React, {useState} from "react";
 import CloseSVG from "../../assets/WaitingRoom/CloseSVG.tsx";
 import {Timeline, Text} from "@mantine/core";
 import {ModalProps, ModalFormProps, ModalConfirmationProps, ModalTimelineProps, formatContent} from "./ModalProps.ts";
 import {timelineConfig} from "./TimelineConfig.tsx";
+import {AutocompleteArticle} from "../Sections/Game/Inventory/AutocompleteArticle.tsx";
 
-const Modal: React.FC<ModalProps> = ({isOpen, onClose, title, description, type, content}) => {
+const Modal: React.FC<ModalProps> = ({isOpen, onClose, title, type, content}) => {
+    const [focusedFieldId, setFocusedFieldId] = useState<string | null>(null);
     if (!isOpen) return null;
 
     return (
@@ -13,14 +15,14 @@ const Modal: React.FC<ModalProps> = ({isOpen, onClose, title, description, type,
             <div className="bg-darkBg p-8 rounded-xl shadow-lg border border-gray-700 w-full max-w-md mx-4 transform transition-all flex flex-col gap-5">
                 <div className="relative flex justify-center items-center w-full">
                     <h2 className="blue-title-effect text-xl">{title}</h2>
-                    {type !== "form" ? (
+                    {(content.cancelButton !== undefined || type === "confirmation") && (
                         <button onClick={onClose} className="absolute right-0 text-gray-400 hover:text-white transition-all">
                             <CloseSVG onClick={() => (isOpen = false)} />
                         </button>
-                    ) : null}
+                    )}
                 </div>
 
-                {description && <p className="text-white text-center mb-6">{description}</p>}
+                {content.message && <p className="text-white text-center">{content.message}</p>}
 
                 {/* Affichage du contenu en fonction du type de modal */}
                 {type === "form" ? (
@@ -32,40 +34,57 @@ const Modal: React.FC<ModalProps> = ({isOpen, onClose, title, description, type,
                                     type={field.type || "text"}
                                     value={field.value}
                                     onChange={e => field.onChange(e.target.value)}
+                                    onFocus={() => setFocusedFieldId(field.id)}
+                                    onBlur={() => setTimeout(() => setFocusedFieldId(null), 150)}
                                     onKeyDown={field.onKeyDown}
                                     className="w-full px-4 py-3 bg-[#12151A] text-white rounded-lg border border-gray-700 focus:border-bluePrimary focus:ring-1 focus:ring-bluePrimary transition-all outline-none"
                                     placeholder={field.placeholder}
                                     autoFocus={field.autoFocus}
                                     maxLength={field.maxLength}
+                                    autoComplete={field.autoComplete}
                                 />
+                                {field.autoComplete === "on" && focusedFieldId === field.id && (
+                                    <AutocompleteArticle query={field.value} onSelect={value => field.onChange(value)} />
+                                )}
                             </div>
                         ))}
-
-                        <button
-                            onClick={(content as ModalFormProps).submitButton.onClick}
-                            disabled={(content as ModalFormProps).submitButton.disabled || !(content as ModalFormProps).isValid}
-                            className={`w-full py-2 rounded-lg transition-all 
-                                ${
-                                    (content as ModalFormProps).submitButton.disabled || !(content as ModalFormProps).isValid
-                                        ? "bg-gray-700 text-gray-400 cursor-not-allowed"
-                                        : "bg-blueSecondary hover:bg-blue-900 text-white"
-                                }`}>
-                            {(content as ModalFormProps).submitButton.label}
-                        </button>
+                        <div className="flex gap-4 justify-center">
+                            {(content as ModalFormProps).cancelButton && (
+                                <button
+                                    onClick={() => {
+                                        (content as ModalConfirmationProps).cancelButton!.onClick();
+                                    }}
+                                    className="bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded-lg">
+                                    {(content as ModalConfirmationProps).cancelButton!.label}
+                                </button>
+                            )}
+                            <button
+                                onClick={(content as ModalFormProps).submitButton.onClick}
+                                disabled={(content as ModalFormProps).submitButton.disabled || !(content as ModalFormProps).isValid}
+                                className={`py-2 px-4 rounded-lg transition-all 
+                                    ${
+                                        (content as ModalFormProps).submitButton.disabled || !(content as ModalFormProps).isValid
+                                            ? "bg-gray-700 text-gray-400 cursor-not-allowed"
+                                            : "bg-blueSecondary hover:bg-blue-900 text-white"
+                                    }`}>
+                                {(content as ModalFormProps).submitButton.label}
+                            </button>
+                        </div>
                     </div>
                 ) : type === "confirmation" ? (
                     // Modal avec message de confirmation
                     <div className="text-white text-center">
-                        <p className="mb-4">{(content as ModalConfirmationProps).message}</p>
+                        {/*<p className="mb-4">{(content as ModalConfirmationProps).message}</p>*/}
                         <div className="flex gap-4 justify-center">
-                            <button
-                                onClick={() => {
-                                    isOpen = false;
-                                    onClose();
-                                }}
-                                className="bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded-lg">
-                                {(content as ModalConfirmationProps).cancelButton.label}
-                            </button>
+                            {(content as ModalConfirmationProps).cancelButton && (
+                                <button
+                                    onClick={() => {
+                                        (content as ModalConfirmationProps).cancelButton!.onClick();
+                                    }}
+                                    className="bg-gray-600 hover:bg-gray-700 text-white py-2 px-4 rounded-lg">
+                                    {(content as ModalConfirmationProps).cancelButton!.label}
+                                </button>
+                            )}
                             <button
                                 onClick={(content as ModalConfirmationProps).okButton.onClick}
                                 className="bg-blueSecondary hover:bg-blue-900 text-white py-2 px-4 rounded-lg">
