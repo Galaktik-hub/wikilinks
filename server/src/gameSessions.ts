@@ -30,6 +30,7 @@ export class GameSession {
     public trappedArticles: string[];
     public hasStarted: boolean;
     public scoreboard: Map<number, string[]>;
+    public difficulty: number;
 
     public leader: Player;
     public members: Map<string, Player>;
@@ -37,12 +38,13 @@ export class GameSession {
 
     public visitedPages: Map<string, {hasArtifact: boolean; luckPercentage?: number; unluckPercentage?: number}>;
 
-    constructor(id: number, timeLimit: number, numberOfArticles: number, maxPlayers: number, type: GameType, leader: Player) {
+    constructor(id: number, timeLimit: number, numberOfArticles: number, maxPlayers: number, type: GameType, difficulty: number, leader: Player) {
         this.id = id;
         this.timeLimit = timeLimit;
         this.numberOfArticles = numberOfArticles;
         this.maxPlayers = maxPlayers;
         this.type = type;
+        this.difficulty = difficulty;
         this.articles = [];
         this.startArticle = "";
         this.trappedArticles = [];
@@ -169,7 +171,7 @@ export class GameSession {
      */
     public async initializeArticles(): Promise<void> {
         const totalCount = this.numberOfArticles + 1;
-        const articles = await WikipediaServices.fetchRandomPopularWikipediaPages(totalCount);
+        const articles = await WikipediaServices.fetchRandomPopularWikipediaPages(totalCount, this.difficulty);
         if (articles.length > 0) {
             this.articles = articles.map(item => item.replace(/\s+/g, "_"));
             this.startArticle = this.articles.pop()!;
@@ -460,6 +462,7 @@ export class GameSessionManager {
         numberOfArticles: number;
         maxPlayers: number;
         type: GameType;
+        difficulty: number;
         leader: Player;
         ws: WebSocket;
     }): GameSession {
@@ -468,7 +471,7 @@ export class GameSessionManager {
             id = randomInt(100000, 1000000);
         } while (this.sessions.has(id));
 
-        const session = new GameSession(id, params.timeLimit, params.numberOfArticles, params.maxPlayers, params.type, params.leader);
+        const session = new GameSession(id, params.timeLimit, params.numberOfArticles, params.maxPlayers, params.type, params.difficulty, params.leader);
         this.sessions.set(id, session);
         return session;
     }
@@ -505,5 +508,13 @@ export class GameSessionManager {
             }
         });
         return publicSessions;
+    }
+
+    public static getNumberActivePlayers(): number {
+        let count = 0;
+        this.sessions.forEach(session => {
+            count += session.members.size;
+        });
+        return count;
     }
 }
