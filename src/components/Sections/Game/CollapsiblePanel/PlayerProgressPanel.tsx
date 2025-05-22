@@ -20,6 +20,7 @@ const PlayerProgressPanel: React.FC = () => {
     const [playersProgress, setPlayersProgress] = useState<PlayerProgress[]>([]);
 
     useEffect(() => {
+        if (!gameContext.articles.length)  return;
         playersContext.getHistory();
     }, [gameContext.articles]);
 
