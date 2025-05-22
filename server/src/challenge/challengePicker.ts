@@ -44,7 +44,7 @@ async function generateChallenges(n: number) {
         let attempts = 0;
 
         while (attempts < 10) {
-            const [candidate] = await WikipediaServices.fetchRandomPopularWikipediaPages(1);
+            const [candidate] = await WikipediaServices.fetchRandomPopularWikipediaPages(1, 1);
             if (!candidate) {
                 logger.warn(`Aucun article populaire trouvé (tentative ${attempts + 1})`);
                 attempts++;

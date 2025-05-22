@@ -1,6 +1,6 @@
 const DifficultySVG = () => {
     return (
-        <svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <svg width="30" height="30" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
             {/* Top circle */}
             <path
                 d="M96.003 193.988c23.562 0 42.664-19.101 42.664-42.67 0-23.564-19.101-42.665-42.664-42.665-23.565 0-42.67 19.101-42.67 42.665 0 23.569 19.107 42.67 42.67 42.67z"
