@@ -2,9 +2,9 @@ import logger from "./logger";
 import axios from "axios";
 
 export class WikipediaServices {
-    private static POPULAR_THRESHOLD = 75000;
+    private static POPULAR_THRESHOLDS = [150000, 90000, 50000, 10000, 0];
     // Number of random sample dates to pick within the last 6 months.
-    private static RANDOM_SAMPLE_COUNT = 200;
+    private static RANDOM_SAMPLE_COUNT = 290;
 
     /**
      * Generates a random date between two Date objects.
@@ -26,10 +26,10 @@ export class WikipediaServices {
      * special pages (those with a colon in the title) as well as articles that do not pass a popularity threshold.
      *
      * @param numberOfArticles The number of articles to return.
-     * @param popularThreshold The minimum popularity threshold.
+     * @param difficulty The difficulty level.
      * @returns A promise resolving to an array of article titles.
      */
-    public static async fetchRandomPopularWikipediaPages(numberOfArticles: number, popularThreshold?: number): Promise<string[]> {
+    public static async fetchRandomPopularWikipediaPages(numberOfArticles: number, difficulty?: number): Promise<string[]> {
         const today = new Date();
         // Exclude today's date because API may not be up to date
         const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
@@ -70,7 +70,7 @@ export class WikipediaServices {
 
         // Filter popular
         const popular = Array.from(aggregated.entries())
-            .filter(([, total]) => total >= (popularThreshold ?? this.POPULAR_THRESHOLD))
+            .filter(([, total]) => total >= this.POPULAR_THRESHOLDS[difficulty - 1])
             .map(([a]) => a);
 
         if (!popular.length) {
