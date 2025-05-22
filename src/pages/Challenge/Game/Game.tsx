@@ -17,7 +17,6 @@ const Game: React.FC = () => {
     const challengeContext = useChallengeContext();
     const [isGameOver, setIsGameOver] = useState(false);
     const navigate = useNavigate();
-    const startArticle = challengeContext.startArticle || "Paris";
 
     const isMobile = useMediaQuery({maxWidth: 767});
     const isDesktop = useMediaQuery({minWidth: 1200});
@@ -48,7 +47,7 @@ const Game: React.FC = () => {
 
             <div className="flex flex-col w-full h-full gap overflow-hidden items-center justify-center p-4 relative gap-5">
                 {(isMobile || isIntermediate) && <ObjectivesPanel />}
-                <WikiPagePanel startArticle={startArticle} />
+                <WikiPagePanel />
                 {(isMobile || isIntermediate) && <ExitButton isHost={false} />}
             </div>
         </Layout>

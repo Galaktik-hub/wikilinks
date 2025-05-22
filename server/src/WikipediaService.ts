@@ -26,9 +26,10 @@ export class WikipediaServices {
      * special pages (those with a colon in the title) as well as articles that do not pass a popularity threshold.
      *
      * @param numberOfArticles The number of articles to return.
+     * @param popularThreshold The minimum popularity threshold.
      * @returns A promise resolving to an array of article titles.
      */
-    public static async fetchRandomPopularWikipediaPages(numberOfArticles: number): Promise<string[]> {
+    public static async fetchRandomPopularWikipediaPages(numberOfArticles: number, popularThreshold?: number): Promise<string[]> {
         const today = new Date();
         // Exclude today's date because API may not be up to date
         const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
@@ -69,7 +70,7 @@ export class WikipediaServices {
 
         // Filter popular
         const popular = Array.from(aggregated.entries())
-            .filter(([, total]) => total >= this.POPULAR_THRESHOLD)
+            .filter(([, total]) => total >= (popularThreshold ?? this.POPULAR_THRESHOLD))
             .map(([a]) => a);
 
         if (!popular.length) {

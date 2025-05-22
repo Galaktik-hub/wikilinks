@@ -1,9 +1,11 @@
 "use client";
 
 import React, {createContext, useContext, useEffect, useState} from "react";
-import {TimelineStep} from "../components/Sections/Game/CollapsiblePanel/PlayerProgressPanel";
 import {useWebSocket} from "./WebSocketContext.tsx";
-import {Artifact} from "../../server/src/player/inventory/inventoryProps.ts";
+import {useGameContext} from "./GameContext.tsx";
+import {useModalContext} from "../components/Modals/ModalProvider.tsx";
+import {HistoryStep} from "../../packages/shared-types/player/history";
+import {Artifact, artifactDefinitions, ArtifactName} from "../../packages/shared-types/player/inventory";
 
 interface PlayerInfo {
     username: string;
@@ -14,12 +16,12 @@ interface PlayersContextType {
     players: PlayerInfo[];
 
     // inventory
-    inventory: Record<string, Artifact>;
-    addArtifact: (name: string) => void;
-    useArtifact: (name: string) => void;
+    inventory: Record<ArtifactName, Artifact>;
+    foundArtifact: (name: ArtifactName) => void;
+    usedArtifact: (name: ArtifactName, data?: Record<string, string>) => void;
 
     // history
-    histories: Record<string, TimelineStep[]>;
+    histories: Record<string, HistoryStep[]>;
     getHistory: () => void;
 }
 
@@ -27,13 +29,18 @@ export const PlayersContext = createContext<PlayersContextType | undefined>(unde
 
 export const PlayersProvider: React.FC<{children: React.ReactNode}> = ({children}) => {
     const ws = useWebSocket()!;
+    const gameCtx = useGameContext()!;
+    const {openModal, closeModal} = useModalContext();
     const [players, setPlayers] = useState<PlayerInfo[]>([]);
-    const [inventory, setInventory] = useState<Record<string, Artifact>>({});
-    const [histories, setHistories] = useState<Record<string, TimelineStep[]>>({});
+    const [inventory, setInventory] = useState<Record<ArtifactName, Artifact>>({} as Record<ArtifactName, Artifact>);
+    const [histories, setHistories] = useState<Record<string, HistoryStep[]>>({});
 
     useEffect(() => {
         const handler = (data: any) => {
             switch (data.kind) {
+                case "game_launched":
+                    initInventory();
+                    break;
                 case "players_update":
                     setPlayers(data.players);
                     setHistories(prev => {
@@ -44,8 +51,13 @@ export const PlayersProvider: React.FC<{children: React.ReactNode}> = ({children
                         return updated;
                     });
                     break;
+                case "inventory": {
+                    const own = data.inventory.find((i: any) => i.player === gameCtx.username);
+                    if (own) setInventory(own.inventory);
+                    break;
+                }
                 case "history": {
-                    const map: Record<string, TimelineStep[]> = {};
+                    const map: Record<string, HistoryStep[]> = {};
                     data.history.forEach((h: any) => (map[h.player] = h.history));
                     setHistories(map);
                     break;
@@ -53,14 +65,13 @@ export const PlayersProvider: React.FC<{children: React.ReactNode}> = ({children
                 case "game_update":
                     if (data.event) {
                         const {type, data: ev} = data.event;
-                        if (["foundArtifact", "usedArtifact"].includes(type)) {
-                            const name = ev.artefact;
-                            setInventory(prev => ({...prev, [name]: ev}));
-                        }
                         const name = ev.player || ev.playerName;
-                        const step: TimelineStep = {id: Date.now(), type, data: ev};
+                        const step: HistoryStep = {type, data: ev, id: new Date()};
                         setHistories(prev => ({...prev, [name]: [...(prev[name] || []), step]}));
                     }
+                    break;
+                case "game_artifact":
+                    artifactExecution(data.artefact as ArtifactName, data.data);
                     break;
             }
         };
@@ -70,11 +81,136 @@ export const PlayersProvider: React.FC<{children: React.ReactNode}> = ({children
         };
     }, [ws]);
 
+    const initInventory = () => ws.send({kind: "init_inventory"});
     const getHistory = () => ws.send({kind: "get_history"});
-    const addArtifact = (name: string) => ws.send({kind: "game_event", event: {type: "addArtifact", artefact: name}});
-    const useArtifact = (name: string) => ws.send({kind: "game_event", event: {type: "useArtifact", artefact: name}});
+    const foundArtifact = (name: ArtifactName) => ws.send({kind: "game_event", event: {type: "foundArtifact", artefact: name}});
+    const usedArtifact = (name: ArtifactName, data?: Record<string, string>) => {
+        playArtifact(name);
+        ws.send({kind: "game_event", event: {type: "usedArtifact", artefact: name, data: data}});
+    };
 
-    return <PlayersContext.Provider value={{players, inventory, addArtifact, useArtifact, histories, getHistory}}>{children}</PlayersContext.Provider>;
+    // The player plays or activates an artefact
+    const playArtifact = (name: ArtifactName) => {
+        const username = gameCtx.username;
+        if (!username) return;
+        switch (name) {
+            case "GPS":
+                // Back side
+                break;
+            case "Retour":
+                playArtifactRetour(username);
+                break;
+            case "Mine":
+                // Back side
+                break;
+            case "Teleporteur":
+                // Back side
+                break;
+            case "Escargot":
+                gameCtx.setPageChangeDelay(60);
+                break;
+            case "Gomme":
+                // Back side
+                break;
+            case "Desorienteur":
+                // Back side
+                break;
+            case "Dictateur":
+                // Back side
+                break;
+        }
+    };
+
+    const playArtifactRetour = (username: string, stepsBack: number = 1) => {
+        const hist = histories[username] ?? [];
+        // build sequence that contains only the pages
+        const seq: string[] = [];
+        hist.forEach(step => {
+            if (step.type === "foundPage" || step.type === "visitedPage" || step.type === "start") {
+                const page = (step.data as any).page_name;
+                if (seq[seq.length - 1] !== page) {
+                    seq.push(page);
+                }
+            }
+        });
+        // Find current page in the sequence
+        const current = gameCtx.currentTitle;
+        let idx = seq.lastIndexOf(current);
+        if (idx === -1) idx = seq.length - 1;
+        // Go back
+        const newIdx = Math.max(0, idx - stepsBack);
+        const previousTitle = seq[newIdx];
+        gameCtx.changeCurrentTitle(previousTitle);
+    };
+
+    // Executing an artefact after server processing
+    const artifactExecution = (name: ArtifactName, data?: Record<string, string>) => {
+        const username = gameCtx.username;
+        if (!username) return;
+        switch (name) {
+            case "GPS":
+                // Implemented solver first
+                // Write by another type bot to answer in the chat to make the answer accessible ?
+                break;
+            case "Retour":
+                // Front side
+                break;
+            case "Mine":
+                artifactExecMine(username);
+                break;
+            case "Teleporteur":
+                // Implemented solver first
+                // gameCtx.changeCurrentTitle(data!.page_name);
+                break;
+            case "Escargot":
+                // Front side
+                break;
+            case "Gomme":
+                // Back side - no special return
+                break;
+            case "Desorienteur":
+                gameCtx.changeCurrentTitle(data!.randomArticle);
+                break;
+            case "Dictateur":
+                artifactExecDictateur(data!.targetArticle);
+                break;
+        }
+    };
+
+    const artifactExecMine = (username: string) => {
+        openModal({
+            title: "Effet d'artefact",
+            type: "confirmation",
+            content: {
+                message: "Vous venez de tomber sur un artefact piégé de mines par un adversaire. Vous reculez de 5 articles.",
+                okButton: {
+                    label: "Suivant",
+                    onClick: () => {
+                        playArtifactRetour(username, 5);
+                        closeModal();
+                    },
+                },
+            },
+        });
+    };
+
+    const artifactExecDictateur = (page_obj: string) => {
+        openModal({
+            title: "Effet d'artefact",
+            type: "confirmation",
+            content: {
+                message: `${artifactDefinitions.Dictateur.definition.replace("{page_obj}", page_obj.replace(/_/g, " "))}`,
+                okButton: {
+                    label: "Ok",
+                    onClick: () => {
+                        closeModal();
+                    },
+                },
+            },
+        });
+    };
+
+    return <PlayersContext.Provider value={{players, inventory, foundArtifact, usedArtifact, histories, getHistory}}>{children}</PlayersContext.Provider>;
 };
 
 export const usePlayersContext = (): PlayersContextType => {

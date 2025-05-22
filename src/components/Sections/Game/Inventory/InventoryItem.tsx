@@ -1,45 +1,24 @@
 "use client";
-import * as React from "react";
-import {useModalContext} from "../../../Modals/ModalProvider.tsx";
+import React, {useState} from "react";
+import {StackableArtifact} from "../../../../../packages/shared-types/player/inventory";
+import InventoryItemModal from "../../../Modals/Inventory/InventoryItemModal.tsx";
 
 export interface InventoryItemProps {
-    count: number;
-    onConfirm: () => void;
-    definition: string;
-    name: string;
+    item: StackableArtifact;
+    onConfirm: (targetPage?: string) => void;
 }
 
-const InventoryItem: React.FC<InventoryItemProps & {Icon: React.FC<{color?: string; className?: string}>}> = ({count, onConfirm, definition, name, Icon}) => {
-    const {openModal, closeModal} = useModalContext();
-    const [remaining, setRemaining] = React.useState(count);
+const InventoryItem: React.FC<InventoryItemProps & {Icon: React.FC<{color?: string; className?: string}>}> = ({item, onConfirm, Icon}) => {
+    const {name, count} = item;
+    const [showModal, setShowModal] = useState(false);
 
-    // Met à jour remaining si la prop count change
-    React.useEffect(() => {
-        setRemaining(count);
-    }, [count]);
-
-    const isDisabled = remaining === 0;
+    const isDisabled = count === 0;
     const itemColor = isDisabled ? "#374151" : "var(--bluePrimary)";
     const countColor = isDisabled ? "#374151" : "#ffffff";
 
     const handleClick = () => {
         if (isDisabled) return;
-        openModal({
-            title: `Utiliser l'artefact ${name}`,
-            type: "confirmation",
-            content: {
-                message: definition,
-                cancelButton: {label: "Annuler", onClick: () => closeModal()},
-                okButton: {
-                    label: "Utiliser",
-                    onClick: () => {
-                        onConfirm();
-                        closeModal();
-                        setRemaining(prev => prev - 1);
-                    },
-                },
-            },
-        });
+        setShowModal(true);
     };
 
     return (
@@ -59,8 +38,10 @@ const InventoryItem: React.FC<InventoryItemProps & {Icon: React.FC<{color?: stri
                 {isDisabled ? "Aucun" : "Voir"}
             </button>
             <span className="absolute top-0 right-0 self-start p-1.5 text-sm text-center whitespace-nowrap" style={{color: countColor}}>
-                x{remaining}
+                x{count}
             </span>
+
+            {showModal && <InventoryItemModal artifact={item} onConfirm={page => onConfirm(page)} onCancel={() => setShowModal(false)} />}
         </article>
     );
 };

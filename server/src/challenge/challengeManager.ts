@@ -41,8 +41,7 @@ export class ChallengeSession {
 
         // Initialize player state
         this.player.reset();
-        this.player.visitedArticles = 1;
-        this.player.foundArticles = 0;
+        this.player.articlesVisited.push(this.startArticle);
         this.startTimestamp = new Date();
     }
 
@@ -129,12 +128,10 @@ export class ChallengeSession {
     public handleEvent(pageName: string): void {
         logger.info(`Player ${this.player.name} visited page "${pageName}" in a challenge.`);
         if (pageName === this.targetArticle) {
-            this.player.history.addStep("foundPage", {page_name: pageName});
-            this.player.foundArticles++;
+            this.player.foundPage(pageName);
             this.finish();
         } else {
-            this.player.history.addStep("visitedPage", {page_name: pageName});
-            this.player.visitedArticles++;
+            this.player.visitPage(pageName);
         }
     }
 
@@ -145,7 +142,7 @@ export class ChallengeSession {
         this.finishTimestamp = new Date();
         // Calculate score based on visited articles and time taken
         const timeTakenInSeconds = Math.floor((this.finishTimestamp.getTime() - this.startTimestamp.getTime()) / 1000);
-        let score = 1000 - this.player.visitedArticles * 5 - timeTakenInSeconds / 2;
+        let score = 1000 - this.player.articlesVisited.length * 5 - timeTakenInSeconds / 2;
 
         if (score < 0) {
             score = 0;
@@ -157,7 +154,7 @@ export class ChallengeSession {
         this.player.ws.send(
             JSON.stringify({
                 kind: "challenge_ended",
-                visited: this.player.visitedArticles,
+                visited: this.player.articlesVisited.length,
                 score,
             }),
         );
@@ -181,14 +178,13 @@ export class ChallengeSession {
                             startArticle: this.startArticle,
                             startTimestamp: this.startTimestamp,
                             finishTimestamp: this.finishTimestamp,
-                            articlesCount: this.player.visitedArticles,
+                            articlesCount: this.player.articlesVisited.length,
                             articles: history,
                             score: score,
                         },
                     },
                 },
             );
-
             logger.info(`Score enregistré pour ${this.player.name}: ${score}`);
         } catch (err: any) {
             logger.error(`Erreur lors de l'enregistrement du score: ${err.message}`);

@@ -1,7 +1,11 @@
+"use client";
+
 import React, {createContext, useContext, useEffect, useState} from "react";
 import {useWebSocket} from "./WebSocketContext.tsx";
 import {GameSettingsType} from "../components/Sections/WaitingRoom/GameSettings/GameSettings.tsx";
 import {ResultProps} from "../pages/Result/Result.tsx";
+import {usePopup} from "./PopupContext.tsx";
+import {artifactDefinitions} from "../../packages/shared-types/player/inventory";
 import {useNavigate} from "react-router-dom";
 
 interface Article {
@@ -23,6 +27,9 @@ export interface GameContextType {
     // articles
     startArticle: string;
     articles: Article[];
+    currentTitle: string;
+    changeCurrentTitle: (title: string) => boolean;
+    setPageChangeDelay: (delay: number) => void;
 
     // game state
     isGameOver: boolean;
@@ -44,6 +51,7 @@ const GameContext = createContext<GameContextType | undefined>(undefined);
 
 export const GameProvider: React.FC<{children: React.ReactNode}> = ({children}) => {
     const ws = useWebSocket()!;
+    const {showPopup} = usePopup();
     const navigate = useNavigate();
 
     // connexion/session
@@ -61,6 +69,10 @@ export const GameProvider: React.FC<{children: React.ReactNode}> = ({children}) 
     // articles
     const [articles, setArticles] = useState<Article[]>([]);
     const [startArticle, setStart] = useState("");
+
+    // article navigation
+    const [currentTitle, setCurrentTitle] = useState<string>(startArticle);
+    const [remainingDelay, setPageChangeDelay] = useState<number>(0);
 
     // scoreboard
     const [scoreboard, setScoreboard] = useState<ResultProps[]>([]);
@@ -83,14 +95,15 @@ export const GameProvider: React.FC<{children: React.ReactNode}> = ({children}) 
                 case "game_started":
                     setLoading(false);
                     setStart(data.startArticle);
+                    setCurrentTitle(data.startArticle);
                     setArticles(data.articles.map((n: string) => ({name: n, found: false})));
                     break;
-                case "game_update":
-                    if (data.event.type === "foundPage") {
-                        const p = data.event.data.page_name;
-                        setArticles(prev => prev.map(a => (a.name === p ? {...a, found: true} : a)));
-                    }
+                case "game_update": {
+                    const objectivesVisited: string[] = data.event.obj_visited;
+                    const objectivesToVisit: string[] = data.event.obj_to_visit;
+                    setArticles(() => objectivesToVisit.map(name => ({name, found: false})).concat(objectivesVisited.map(name => ({name, found: true}))));
                     break;
+                }
                 case "game_over":
                     setIsGameOver(true);
                     setLoading(false);
@@ -107,6 +120,24 @@ export const GameProvider: React.FC<{children: React.ReactNode}> = ({children}) 
         return () => ws.offMessage(handler);
     }, [ws]);
 
+    useEffect(() => {
+        if (remainingDelay <= 0) return;
+        const timerId = setInterval(() => {
+            setPageChangeDelay(prev => Math.max(0, prev - 1));
+        }, 1000);
+        return () => clearInterval(timerId);
+    }, [remainingDelay]);
+
+    const changeCurrentTitle = (title: string) => {
+        if (remainingDelay <= 0) {
+            setCurrentTitle(title);
+            return true;
+        } else {
+            showPopup("error", `${artifactDefinitions.Escargot.definition} (${remainingDelay}s restant)`);
+        }
+        return false;
+    };
+
     const createGame = (payload: any) => ws.send({kind: "create_game_session", ...payload});
     const joinGame = (payload: any) => ws.send({kind: "join_game_session", ...payload});
     const sendMessage = (content: string, sender: string) => ws.send({kind: "send_message", content, sender});
@@ -115,7 +146,7 @@ export const GameProvider: React.FC<{children: React.ReactNode}> = ({children}) 
     const checkRoomExists = async (code: number) => {
         await ws.waitForConnection();
         return new Promise<boolean>(resolve => {
-            const handler = (data: any) => {
+            const handler = (data: {kind: string; exists: boolean}) => {
                 if (data.kind === "room_check_result") {
                     resolve(data.exists);
                 }
@@ -128,7 +159,7 @@ export const GameProvider: React.FC<{children: React.ReactNode}> = ({children}) 
 
     const checkUsernameTaken = async (name: string, code: number) => {
         return new Promise<boolean>(resolve => {
-            const handler = (data: any) => {
+            const handler = (data: {kind: string; taken: boolean}) => {
                 if (data.kind === "username_check_result") resolve(data.taken);
             };
             ws.onMessage(handler);
@@ -140,7 +171,7 @@ export const GameProvider: React.FC<{children: React.ReactNode}> = ({children}) 
     const checkGameHasStarted = async (code: number) => {
         await ws.waitForConnection();
         return new Promise<boolean>(resolve => {
-            const handler = (data: any) => {
+            const handler = (data: {kind: string; started: boolean}) => {
                 if (data.kind === "game_started_check_result") resolve(data.started);
             };
             ws.onMessage(handler);
@@ -162,6 +193,9 @@ export const GameProvider: React.FC<{children: React.ReactNode}> = ({children}) 
                 setIsGameOver,
                 startArticle,
                 articles,
+                currentTitle,
+                changeCurrentTitle,
+                setPageChangeDelay,
                 scoreboard,
                 createGame,
                 joinGame,

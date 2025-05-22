@@ -18,10 +18,8 @@ export default function useModal() {
 
     const closeModal = () => {
         setIsOpen(false);
-        setTimeout(() => {
-            if (modalOptions?.onClose) modalOptions.onClose();
-            setModalOptions(null);
-        }, 300);
+        if (modalOptions?.onClose) modalOptions.onClose();
+        setModalOptions(null);
     };
 
     const updateModal = (options: Partial<ModalOptions>) => {

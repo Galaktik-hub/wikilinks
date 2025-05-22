@@ -16,7 +16,6 @@ import {useGameContext} from "../../context/GameContext.tsx";
 const Game: React.FC = () => {
     const gameContext = useGameContext();
     const [isGameOver, setIsGameOver] = useState(false);
-    const startArticle = gameContext.startArticle || "Paris";
 
     const isMobile = useMediaQuery({maxWidth: 767});
     const isDesktop = useMediaQuery({minWidth: 1200});
@@ -46,12 +45,12 @@ const Game: React.FC = () => {
                         <ObjectivesPanel />
                     </>
                 )}
-                <WikiPagePanel startArticle={startArticle} />
+                <WikiPagePanel />
                 {(isMobile || isIntermediate) && <ExitButton isHost={false} />}
             </div>
             {isDesktop && (
                 <div className="max-w-[769px]:hidden absolute flex bottom-0 left-1/2 -translate-x-1/2 justify-center items-center mb-2.5">
-                    <InventoryPanel gpsCount={5} retourCount={1} mineCount={3} />
+                    <InventoryPanel />
                 </div>
             )}
             {!isDesktop && (

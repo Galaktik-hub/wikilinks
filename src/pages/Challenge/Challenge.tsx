@@ -48,6 +48,7 @@ const Challenge: React.FC = () => {
                 const coords = await getLocation();
                 const article = await getClosestArticleFromLocation(coords);
                 challengeContext.setStartArticle(article);
+                challengeContext.setCurrentTitle(article);
                 challengeContext.getTodayChallenge();
                 challengeContext.getTodayLeaderboard();
                 const hasPlayed = await hasPlayedToday();
