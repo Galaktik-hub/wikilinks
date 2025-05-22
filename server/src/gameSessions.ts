@@ -35,6 +35,8 @@ export class GameSession {
     public members: Map<string, Player>;
     public bots: Map<string, Bot>;
 
+    public visitedPages: Map<string, {hasArtifact: boolean; luckPercentage?: number; unluckPercentage?: number }>;
+
     constructor(id: number, timeLimit: number, numberOfArticles: number, maxPlayers: number, type: GameType, leader: Player) {
         this.id = id;
         this.timeLimit = timeLimit;
@@ -50,6 +52,7 @@ export class GameSession {
         this.leader = leader;
         this.members = new Map();
         this.members.set(leader.name, leader);
+        this.visitedPages = new Map();
 
         this.bots = new Map();
         BOTS.forEach(BotClass => {
@@ -271,6 +274,12 @@ export class GameSession {
                 } else {
                     player.visitPage(data.page_name);
                 }
+                const { hasArtifact, luckPercentage, unluckPercentage } = this.determineArtifactPresence(data.page_name);
+                if (hasArtifact) {
+                    logger.info(`Page "${data.page_name}" contains an artifact with a ${luckPercentage}% chance of success and a ${unluckPercentage}% chance of failure.`);
+                }else {
+                    logger.info(`Page "${data.page_name}" does not contain an artifact.`);
+                }
                 if (this.trappedArticles.includes(data.page_name)) {
                     player.playArtifactMine(data.page_name);
                 }
@@ -396,6 +405,25 @@ export class GameSession {
             });
         });
         return inventory;
+    }
+
+    public determineArtifactPresence(pageName: string): { hasArtifact: boolean; luckPercentage?: number; unluckPercentage?: number } {
+        if (this.visitedPages.has(pageName)) {
+            const pageInfo = this.visitedPages.get(pageName)!;
+            return { hasArtifact: pageInfo.hasArtifact, luckPercentage: pageInfo.luckPercentage, unluckPercentage: pageInfo.unluckPercentage };
+        }
+
+        const hasArtifact = this.determineArtifactFoundPage();
+        if (hasArtifact) {
+            const { luckPercentage, unluckPercentage } = this.calculatePercentagesLuck();
+            const pageInfo = {hasArtifact: true, luckPercentage, unluckPercentage };
+            this.visitedPages.set(pageName, pageInfo);
+            return { hasArtifact: true, luckPercentage, unluckPercentage };
+        }
+
+        const pageInfo = { hasArtifact: false };
+        this.visitedPages.set(pageName, pageInfo);
+        return { hasArtifact: false };
     }
 
     /**
