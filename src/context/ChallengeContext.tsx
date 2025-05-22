@@ -54,7 +54,7 @@ export const ChallengeProvider: React.FC<{children: React.ReactNode}> = ({childr
 
     // article navigation
     const [currentTitle, setCurrentTitle] = useState<string>("");
-  
+
     // leaderboard
     const [leaderboard, setLeaderboard] = useState<ResultProps[]>([]);
 
