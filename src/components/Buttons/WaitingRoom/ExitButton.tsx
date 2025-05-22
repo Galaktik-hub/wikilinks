@@ -48,7 +48,7 @@ const ExitButton: React.FC<DeleteButtonProps> = (props: DeleteButtonProps) => {
         }
         playerContext.exit();
         navigate("/");
-    }
+    };
 
     return (
         <MainButton color="220, 38, 38" className="bg-red-600" ariaLabel={isHost ? "Supprimer" : "Quitter"} onClick={handleClick}>
