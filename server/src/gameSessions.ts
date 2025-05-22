@@ -459,4 +459,12 @@ export class GameSessionManager {
         });
         return publicSessions;
     }
+
+    public static getNumberActivePlayers(): number {
+        let count = 0;
+        this.sessions.forEach(session => {
+            count += session.members.size;
+        });
+        return count;
+    }
 }
