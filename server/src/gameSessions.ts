@@ -274,7 +274,8 @@ export class GameSession {
                 } else {
                     player.visitPage(data.page_name);
                 }
-                const {hasArtifact, luckPercentage, unluckPercentage} = this.determineArtifactPresence(data.page_name);
+                const popularity = WikipediaServices.getPagePopularity(data.page_name);
+                const {hasArtifact, luckPercentage, unluckPercentage} = this.determineArtifactPresence(data.page_name, popularity);
                 if (hasArtifact) {
                     logger.info(
                         `Page "${data.page_name}" contains an artifact with a ${luckPercentage}% chance of success and a ${unluckPercentage}% chance of failure.`,
@@ -413,7 +414,7 @@ export class GameSession {
      * If the page has been visited before, it returns the previous result.
      * If the page is found for the first time, it randomly determines if it has an artifact.
      */
-    public determineArtifactPresence(pageName: string): {hasArtifact: boolean; luckPercentage?: number; unluckPercentage?: number} {
+    public determineArtifactPresence(pageName: string, popularity: number): {hasArtifact: boolean; luckPercentage?: number; unluckPercentage?: number} {
         if (this.visitedPages.has(pageName)) {
             const pageInfo = this.visitedPages.get(pageName)!;
             return {hasArtifact: pageInfo.hasArtifact, luckPercentage: pageInfo.luckPercentage, unluckPercentage: pageInfo.unluckPercentage};
@@ -421,7 +422,7 @@ export class GameSession {
 
         const hasArtifact = this.determineArtifactFoundPage();
         if (hasArtifact) {
-            const {luckPercentage, unluckPercentage} = this.calculatePercentagesLuck();
+            const {luckPercentage, unluckPercentage} = this.calculatePercentagesLuck(popularity);
             const pageInfo = {hasArtifact: true, luckPercentage, unluckPercentage};
             this.visitedPages.set(pageName, pageInfo);
             return {hasArtifact: true, luckPercentage, unluckPercentage};
@@ -429,7 +430,7 @@ export class GameSession {
 
         const pageInfo = {hasArtifact: false};
         this.visitedPages.set(pageName, pageInfo);
-        return {hasArtifact: false};
+        return pageInfo;
     }
 
     /**
@@ -440,11 +441,21 @@ export class GameSession {
     }
 
     /**
-     * Calculate the percentages of luck and bad luck for an artifact.
+     * Calculate the percentages of luck and bad luck for an artifact based on popularity.
      */
-    private calculatePercentagesLuck(): {luckPercentage: number; unluckPercentage: number} {
-        const luckPercentage = Math.round(Math.random() * 100);
-        const unluckPercentage = 100 - luckPercentage;
+    private calculatePercentagesLuck(popularity: number): {luckPercentage: number; unluckPercentage: number} {
+        const POPULARITY_THRESHOLD = 3000;
+        let luckPercentage, unluckPercentage;
+
+        if (popularity > POPULARITY_THRESHOLD) {
+            logger.info("Page is popular, luck percentage is higher");
+            unluckPercentage = Math.round(Math.random() * 50 + 50);
+            luckPercentage = 100 - unluckPercentage;
+        } else {
+            luckPercentage = Math.round(Math.random() * 100);
+            unluckPercentage = 100 - luckPercentage;
+        }
+
         return {luckPercentage, unluckPercentage};
     }
 }

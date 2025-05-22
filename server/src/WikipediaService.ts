@@ -5,6 +5,7 @@ export class WikipediaServices {
     private static POPULAR_THRESHOLD = 75000;
     // Number of random sample dates to pick within the last 6 months.
     private static RANDOM_SAMPLE_COUNT = 200;
+    private static pagePopularity: Map<string, number> = new Map();
 
     /**
      * Generates a random date between two Date objects.
@@ -68,6 +69,7 @@ export class WikipediaServices {
             }),
         );
 
+        this.pagePopularity = aggregated;
         // Filter popular
         const popular = Array.from(aggregated.entries())
             .filter(([, total]) => total >= (popularThreshold ?? this.POPULAR_THRESHOLD))
@@ -84,6 +86,10 @@ export class WikipediaServices {
             [popular[i], popular[j]] = [popular[j], popular[i]];
         }
         return popular.slice(0, numberOfArticles);
+    }
+
+    public static getPagePopularity(pageName: string): number {
+        return this.pagePopularity.get(pageName) || 0;
     }
 
     /**
