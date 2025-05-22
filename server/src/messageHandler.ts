@@ -1,4 +1,6 @@
 import {WebSocket} from "ws";
+import * as fs from "fs";
+import * as path from "path";
 import {GameSessionManager, GameType} from "./gameSessions";
 import {Player} from "./player/player";
 import logger from "./logger";
@@ -50,6 +52,34 @@ function getSessionOrError(ws: WebSocket, context: ClientContext): ReturnType<ty
     return session;
 }
 
+/**
+ * Increases the number of games played by 1.
+ */
+function increaseNumberOfGamePlayed() {
+    const gamesFile = path.join(__dirname + "/games.txt");
+    fs.readFile(gamesFile, "utf8", (err, data: string) => {
+        if (err) {
+            logger.error(err);
+            return;
+        }
+        const count = parseInt(data.trim(), 10);
+        fs.writeFile(gamesFile, (count + 1).toString(), err => {
+            if (err) {
+                logger.error(err);
+            }
+        });
+    });
+}
+
+/**
+ * Gets the number of games played from the file.
+ */
+function getNumberOfGamePlayed(): number {
+    const gamesFile = path.join(__dirname + "/games.txt");
+    const data = fs.readFileSync(gamesFile, "utf8");
+    return parseInt(data.trim(), 10);
+}
+
 export async function handleMessage(ws: WebSocket, message: any, context: ClientContext) {
     switch (message.kind) {
         case "create_game_session": {
@@ -69,6 +99,7 @@ export async function handleMessage(ws: WebSocket, message: any, context: Client
                 numberOfArticles: message.numberOfArticles,
                 maxPlayers: message.maxPlayers,
                 type: message.type,
+                difficulty: message.difficulty,
                 leader,
                 ws,
             });
@@ -77,6 +108,9 @@ export async function handleMessage(ws: WebSocket, message: any, context: Client
             context.currentUser = leader;
 
             logger.info(`Session ${session.id} created by "${leader.name}"`);
+
+            increaseNumberOfGamePlayed();
+
             session.refreshPlayers();
             ws.send(
                 JSON.stringify({
@@ -200,11 +234,12 @@ export async function handleMessage(ws: WebSocket, message: any, context: Client
                 );
                 return;
             }
-            const {timeLimit, numberOfArticles, maxPlayers, type} = message;
+            const {timeLimit, numberOfArticles, maxPlayers, type, difficulty} = message;
             if (timeLimit != null) session.timeLimit = timeLimit;
             if (numberOfArticles != null) session.numberOfArticles = numberOfArticles;
             if (maxPlayers != null) session.maxPlayers = maxPlayers;
             if (type != null) session.type = type;
+            if (difficulty != null) session.difficulty = difficulty;
 
             session.members.forEach(member => {
                 if (member.ws.readyState === member.ws.OPEN) {
@@ -216,6 +251,7 @@ export async function handleMessage(ws: WebSocket, message: any, context: Client
                                 numberOfArticles,
                                 maxPlayers,
                                 type,
+                                difficulty,
                             },
                         }),
                     );
@@ -387,6 +423,7 @@ export async function handleMessage(ws: WebSocket, message: any, context: Client
                 return;
             }
             const session = ChallengeSessionManager.getSession(currentChallengeSessionId);
+            increaseNumberOfGamePlayed();
             if (!session) {
                 ws.send(
                     JSON.stringify({
@@ -441,7 +478,7 @@ export async function handleMessage(ws: WebSocket, message: any, context: Client
             }
             break;
         }
-        case "get_all_sessions": {
+        case "get_home_info": {
             const allSessions = GameSessionManager.getAllPublicSessions();
             logger.info(`Number of sessions : ${allSessions.size}`);
             const sessionsArray: SessionSummary[] = [];
@@ -460,10 +497,15 @@ export async function handleMessage(ws: WebSocket, message: any, context: Client
             });
             ws.send(
                 JSON.stringify({
-                    kind: "all_sessions",
+                    kind: "home_info",
                     sessions: sessionsArray,
                     challengeArticle: article.targetArticle,
                     challengeCount: challengeCount,
+                    bannerInfo: {
+                        activeGames: GameSessionManager.getAllSessions().size + ChallengeSessionManager.getAllSessions().size,
+                        activePlayers: GameSessionManager.getNumberActivePlayers() + ChallengeSessionManager.getAllSessions().size,
+                        gamesPlayed: getNumberOfGamePlayed(),
+                    },
                 }),
             );
             break;
