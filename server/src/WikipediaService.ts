@@ -4,7 +4,7 @@ import axios from "axios";
 export class WikipediaServices {
     private static POPULAR_THRESHOLDS = [150000, 90000, 50000, 10000, 0];
     // Number of random sample dates to pick within the last 6 months.
-    private static RANDOM_SAMPLE_COUNT = 200;
+    private static RANDOM_SAMPLE_COUNT = 290;
 
     /**
      * Generates a random date between two Date objects.
