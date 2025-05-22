@@ -4,7 +4,7 @@ import {Player} from "./player/player";
 import {WikipediaServices} from "./WikipediaService";
 import {Bot, JoinLeaveBot, BOTS} from "./bots";
 import logger from "./logger";
-import {HistoryStep} from "./player/history/playerHistoryProps";
+import {HistoryStep} from "../../packages/shared-types/player/history";
 
 export type GameType = "public" | "private";
 

@@ -1,5 +1,5 @@
 import * as React from "react";
-import {TimelineStep} from "../Sections/Game/CollapsiblePanel/PlayerProgressPanel.tsx";
+import {HistoryStep} from "../../../packages/shared-types/player/history";
 
 export interface InputField {
     id: string;
@@ -41,7 +41,7 @@ export interface ModalConfirmationProps {
 export interface ModalTimelineProps {
     message?: string;
     username: string;
-    timelineSteps: TimelineStep[];
+    timelineSteps: HistoryStep[];
     cancelButton: ButtonField;
 }
 

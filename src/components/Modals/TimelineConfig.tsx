@@ -1,6 +1,6 @@
-import * as React from "react";
+import {ReactNode} from "react";
 import {IconBook, IconFlag, IconPackage, IconWorld, IconAlertOctagon} from "@tabler/icons-react";
-import {HistoryType} from "../../../server/src/player/history/playerHistoryProps.ts";
+import {HistoryType} from "../../../packages/shared-types/player/history";
 
 // --- Mapping de configuration de la timeline
 export const timelineConfig: Record<
@@ -9,7 +9,7 @@ export const timelineConfig: Record<
         title: string;
         content: string | null;
         color: string;
-        icon: React.ReactNode;
+        icon: ReactNode;
     }
 > = {
     start: {

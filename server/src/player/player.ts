@@ -2,7 +2,7 @@ import {randomUUID} from "node:crypto";
 import {WebSocket} from "ws";
 import {PlayerHistory} from "./history/playerHistory";
 import {Inventory} from "./inventory/inventory";
-import {ArtifactName} from "./inventory/inventoryProps";
+import {ArtifactName} from "../../../packages/shared-types/player/inventory";
 import {WikipediaServices} from "../WikipediaService";
 
 export type PlayerRole = "creator" | "client";

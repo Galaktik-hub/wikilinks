@@ -2,7 +2,7 @@
 import * as React from "react";
 import InventorySVG from "../../../../assets/Game/InventorySVG.tsx";
 import {usePlayersContext} from "../../../../context/PlayersContext.tsx";
-import {ArtifactName, StackableArtifact} from "../../../../../server/src/player/inventory/inventoryProps.ts";
+import {ArtifactName, StackableArtifact} from "../../../../../packages/shared-types/player/inventory";
 import GpsSVG from "../../../../assets/Game/GpsSVG.tsx";
 import InventoryItem from "./InventoryItem.tsx";
 import RetourSVG from "../../../../assets/Game/RetourSVG.tsx";

@@ -1,11 +1,11 @@
 "use client";
 
 import React, {createContext, useContext, useEffect, useState} from "react";
-import {TimelineStep} from "../components/Sections/Game/CollapsiblePanel/PlayerProgressPanel";
 import {useWebSocket} from "./WebSocketContext.tsx";
-import {ArtifactName, Artifact, artifactDefinitions} from "../../server/src/player/inventory/inventoryProps.ts";
 import {useGameContext} from "./GameContext.tsx";
 import {useModalContext} from "../components/Modals/ModalProvider.tsx";
+import {HistoryStep} from "../../packages/shared-types/player/history";
+import {Artifact, artifactDefinitions, ArtifactName} from "../../packages/shared-types/player/inventory";
 
 interface PlayerInfo {
     username: string;
@@ -21,7 +21,7 @@ interface PlayersContextType {
     usedArtifact: (name: ArtifactName, data?: Record<string, string>) => void;
 
     // history
-    histories: Record<string, TimelineStep[]>;
+    histories: Record<string, HistoryStep[]>;
     getHistory: () => void;
 }
 
@@ -33,7 +33,7 @@ export const PlayersProvider: React.FC<{children: React.ReactNode}> = ({children
     const {openModal, closeModal} = useModalContext();
     const [players, setPlayers] = useState<PlayerInfo[]>([]);
     const [inventory, setInventory] = useState<Record<ArtifactName, Artifact>>({} as Record<ArtifactName, Artifact>);
-    const [histories, setHistories] = useState<Record<string, TimelineStep[]>>({});
+    const [histories, setHistories] = useState<Record<string, HistoryStep[]>>({});
 
     useEffect(() => {
         const handler = (data: any) => {
@@ -57,7 +57,7 @@ export const PlayersProvider: React.FC<{children: React.ReactNode}> = ({children
                     break;
                 }
                 case "history": {
-                    const map: Record<string, TimelineStep[]> = {};
+                    const map: Record<string, HistoryStep[]> = {};
                     data.history.forEach((h: any) => (map[h.player] = h.history));
                     setHistories(map);
                     break;
@@ -66,7 +66,7 @@ export const PlayersProvider: React.FC<{children: React.ReactNode}> = ({children
                     if (data.event) {
                         const {type, data: ev} = data.event;
                         const name = ev.player || ev.playerName;
-                        const step: TimelineStep = {id: Date.now(), type, data: ev};
+                        const step: HistoryStep = {type, data: ev, id: new Date()};
                         setHistories(prev => ({...prev, [name]: [...(prev[name] || []), step]}));
                     }
                     break;

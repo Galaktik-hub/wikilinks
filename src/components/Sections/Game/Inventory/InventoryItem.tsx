@@ -1,6 +1,6 @@
 "use client";
 import React, {useState} from "react";
-import {StackableArtifact} from "../../../../../server/src/player/inventory/inventoryProps.ts";
+import {StackableArtifact} from "../../../../../packages/shared-types/player/inventory";
 import InventoryItemModal from "../../../Modals/Inventory/InventoryItemModal.tsx";
 
 export interface InventoryItemProps {

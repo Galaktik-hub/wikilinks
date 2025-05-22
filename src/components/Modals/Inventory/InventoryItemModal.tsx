@@ -1,7 +1,7 @@
 "use client";
 import {useModalContext} from "../ModalProvider.tsx";
 import {useEffect, useState} from "react";
-import {Artifact} from "../../../../server/src/player/inventory/inventoryProps.ts";
+import {Artifact} from "../../../../packages/shared-types/player/inventory";
 import {useGameContext} from "../../../context/GameContext";
 import {usePopup} from "../../../context/PopupContext";
 

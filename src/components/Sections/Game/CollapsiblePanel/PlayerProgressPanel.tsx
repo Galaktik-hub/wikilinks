@@ -5,18 +5,13 @@ import PlayerProgressItem from "./PlayerProgressItem";
 import CollapsiblePanel from "./CollapsiblePanel";
 import {usePlayersContext} from "../../../../context/PlayersContext.tsx";
 import {useGameContext} from "../../../../context/GameContext.tsx";
-
-export interface TimelineStep {
-    id: number;
-    type: string;
-    data?: Record<string, string>;
-}
+import {HistoryStep} from "../../../../../packages/shared-types/player/history";
 
 export interface PlayerProgress {
     id: string;
     playerName: string;
     percentage: number;
-    history: TimelineStep[];
+    history: HistoryStep[];
 }
 
 const PlayerProgressPanel: React.FC = () => {
@@ -31,7 +26,7 @@ const PlayerProgressPanel: React.FC = () => {
     useEffect(() => {
         const updatedProgress = playersContext.players.map((player: {username: string}) => {
             const history = playersContext.histories[player.username] || [];
-            const found = history.filter((step: TimelineStep) => step.type === "foundPage").length;
+            const found = history.filter((step: HistoryStep) => step.type === "foundPage").length;
             const percentage = Math.round((found / gameContext.articles.length) * 100);
             return {
                 id: player.username,

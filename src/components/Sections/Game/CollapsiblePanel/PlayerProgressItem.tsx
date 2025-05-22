@@ -1,12 +1,12 @@
 "use client";
 import * as React from "react";
 import {useModalContext} from "../../../Modals/ModalProvider.tsx";
-import {TimelineStep} from "./PlayerProgressPanel.tsx";
+import {HistoryStep} from "../../../../../packages/shared-types/player/history";
 
 interface PlayerProgressBarProps {
     playerName: string;
     percentage: number;
-    history: TimelineStep[];
+    history: HistoryStep[];
 }
 
 const PlayerProgressItem: React.FC<PlayerProgressBarProps> = ({playerName, percentage, history}) => {

@@ -1,4 +1,4 @@
-import {HistoryStep, HistoryType} from "./playerHistoryProps";
+import {HistoryStep, HistoryType} from "../../../../packages/shared-types/player/history";
 
 export class PlayerHistory {
     private steps: HistoryStep[] = [];
