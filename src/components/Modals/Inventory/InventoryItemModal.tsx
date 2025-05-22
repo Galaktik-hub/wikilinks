@@ -2,6 +2,8 @@
 import {useModalContext} from "../ModalProvider.tsx";
 import {useEffect, useState} from "react";
 import {Artifact} from "../../../../server/src/player/inventory/inventoryProps.ts";
+import {useGameContext} from "../../../context/GameContext";
+import {usePopup} from "../../../context/PopupContext";
 
 interface InventoryItemModalProps {
     artifact: Artifact;
@@ -11,6 +13,8 @@ interface InventoryItemModalProps {
 
 export default function InventoryItemModal(props: InventoryItemModalProps) {
     const {artifact, onConfirm, onCancel} = props;
+    const gameContext = useGameContext();
+    const {showPopup} = usePopup();
     const {isOpen, openModal, updateModal, closeModal} = useModalContext();
     const [targetPage, setTargetPage] = useState("");
 
@@ -37,9 +41,13 @@ export default function InventoryItemModal(props: InventoryItemModalProps) {
                 submitButton: {
                     label: "Utiliser",
                     onClick: () => {
-                        onConfirm(targetPage);
-                        onClose();
-                        setTargetPage("");
+                        if (gameContext.articles.some(article => article.name === targetPage.replace(/\s+/g, "_"))) {
+                            showPopup("error", "La page cible ne doit pas être une page objectif.");
+                        } else {
+                            onConfirm(targetPage);
+                            onClose();
+                            setTargetPage("");
+                        }
                     },
                     disabled: !targetPage.trim(),
                 },
