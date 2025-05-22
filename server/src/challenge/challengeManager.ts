@@ -143,6 +143,7 @@ export class ChallengeSession {
         // Calculate score based on visited articles and time taken
         const timeTakenInSeconds = Math.floor((this.finishTimestamp.getTime() - this.startTimestamp.getTime()) / 1000);
         let score = 1000 - this.player.articlesVisited.length * 5 - timeTakenInSeconds / 2;
+        Math.round(score);
 
         if (score < 0) {
             score = 0;
@@ -162,13 +163,6 @@ export class ChallengeSession {
         // Record in DB
         try {
             // We get the history of the player only if the page is defined
-            const history: string[] = this.player.history.getHistory().map(step => {
-                if (step.type === "visitedPage" || step.type === "foundPage") {
-                    return step.data.page_name;
-                } else {
-                    return this.startArticle;
-                }
-            });
             await ChallengeModel.updateOne(
                 {_id: this.targetArticleId},
                 {
@@ -179,7 +173,7 @@ export class ChallengeSession {
                             startTimestamp: this.startTimestamp,
                             finishTimestamp: this.finishTimestamp,
                             articlesCount: this.player.articlesVisited.length,
-                            articles: history,
+                            articles: this.player.articlesVisited,
                             score: score,
                         },
                     },

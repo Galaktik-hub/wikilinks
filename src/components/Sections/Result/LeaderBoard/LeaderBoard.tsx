@@ -1,7 +1,9 @@
 "use client";
 import * as React from "react";
 import LeaderboardRow from "./LeaderBoardRow";
-import {ResultProps} from "../../../../pages/Result/Result.tsx";
+import {ResultProps} from "../../../../pages/Challenge/Challenge.tsx";
+import {useModalContext} from "../../../Modals/ModalProvider";
+import {HistoryStep} from "../../../../../packages/shared-types/player/history.ts";
 
 interface LeaderboardProps {
     players: ResultProps[];
@@ -10,6 +12,8 @@ interface LeaderboardProps {
 }
 
 const Leaderboard: React.FC<LeaderboardProps> = ({players, showCourse, currentPlayerName}) => {
+    const {openModal, closeModal} = useModalContext();
+
     // récupérer les 10 premiers
     const topPlayers = players.slice(0, 10);
 
@@ -29,8 +33,24 @@ const Leaderboard: React.FC<LeaderboardProps> = ({players, showCourse, currentPl
         }
     }
 
-    const handleShowCourse = () => {
-        console.log("show course");
+    const handleShowCourse = (playerName: string, history: string[]) => {
+        const historySteps: HistoryStep[] = history.map((entry, idx) => ({
+            type: idx === history.length - 1 ? "foundPage" : "visitedPage",
+            data: {page_name: entry},
+            id: new Date(Date.now() + idx * 1000),
+        }));
+        openModal({
+            title: `Historique de ${playerName}`,
+            type: "timeline",
+            content: {
+                username: playerName,
+                timelineSteps: historySteps,
+                cancelButton: {
+                    label: "Fermer",
+                    onClick: () => closeModal(),
+                },
+            },
+        });
     };
 
     return (
@@ -53,7 +73,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({players, showCourse, currentPl
                         name={item.name}
                         score={item.score}
                         showCourse={showCourse}
-                        onViewCourse={handleShowCourse}
+                        onViewCourse={() => handleShowCourse(item.name, item.history)}
                     />
                 ),
             )}
