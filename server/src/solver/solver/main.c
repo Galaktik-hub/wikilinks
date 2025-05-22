@@ -1,17 +1,16 @@
 #include "graph.h"
-#include "astar.h"
 #include <stdlib.h>
 
 int main(int argc, char *argv[]) {
     // Vérifier le nombre d'arguments
     if (argc != 4) {
-        fprintf(stderr, "Usage: %s <graph_file> <id_planet_departure> <id_planet_arrival>\n", argv[0]);
+        fprintf(stderr, "Usage: %s <graph_file> <id_article_departure> <id_article_arrival>\n", argv[0]);
         return 1;
     }
 
     // Conversion des IDs des planètes en entiers
-    int id_planet_departure = atoi(argv[2]);
-    int id_planet_arrival = atoi(argv[3]);
+    //int id_article_departure = atoi(argv[2]);
+    //int id_article_arrival = atoi(argv[3]);
 
     // Chargement du graphe
     Graphe graphe;
@@ -20,8 +19,8 @@ int main(int argc, char *argv[]) {
         return 1;
     }
 
-    // Exécution de l'algorithme A*
-    astar(&graphe, id_planet_departure, id_planet_arrival);
+    // Exécution de l'algorithme BFS
+    //bfs(&graphe, id_article_departure, id_article_arrival);
 
     // Sauvegarde du graphe (décommenter si nécessaire)
     // if (save_graphe_in_file(&graphe, "../data/graph_output.txt") != 0) {

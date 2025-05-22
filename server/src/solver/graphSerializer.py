@@ -155,7 +155,7 @@ def extract(source, output_file):
             i += 1
             if i % 1000 == 0:
                 print(f"Processed {i} pages", file=sys.stderr)
-                if i > 1000:
+                if i > 2_680_000:
                     break
 
     # Convert to id-based graph and dump
@@ -165,4 +165,4 @@ def extract(source, output_file):
 
 
 if __name__ == "__main__":
-    extract(r"C:\Users\Utilisateur\Downloads\frwiki-20250501-pages-articles-multistream.xml.bz2", "graph.txt")
+    extract(r"C:\Users\Utilisateur\Downloads\frwiki-20250501-pages-articles-multistream.xml.bz2", "solver/graph.txt")
