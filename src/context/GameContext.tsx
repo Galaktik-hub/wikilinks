@@ -62,7 +62,7 @@ export const GameProvider: React.FC<{children: React.ReactNode}> = ({children}) 
     const [loadingGame, setLoading] = useState(false);
 
     // settings
-    const [settings, setSettings] = useState<GameSettingsType>({timeLimit: 10, numberOfArticles: 4, maxPlayers: 10, type: "private"});
+    const [settings, setSettings] = useState<GameSettingsType>({timeLimit: 10, numberOfArticles: 4, maxPlayers: 10, type: "private", difficulty: 2});
 
     // game state
     const [isGameOver, setIsGameOver] = useState(false);
@@ -186,7 +186,7 @@ export const GameProvider: React.FC<{children: React.ReactNode}> = ({children}) 
         setUsername(null);
         setRoomCode(-1);
         setLoading(false);
-        setSettings({timeLimit: 10, numberOfArticles: 4, maxPlayers: 10, type: "private"});
+        setSettings({timeLimit: 10, numberOfArticles: 4, maxPlayers: 10, type: "private", difficulty: 2});
         setIsGameOver(false);
         setArticles([]);
         setStart("");

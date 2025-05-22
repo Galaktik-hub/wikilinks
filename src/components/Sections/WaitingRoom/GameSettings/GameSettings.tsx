@@ -9,6 +9,7 @@ export type GameSettingsType = {
     numberOfArticles: number;
     maxPlayers: number;
     type: "public" | "private";
+    difficulty: number; // 1: easy, 2: medium, 3: hard
 };
 
 interface GameSettingsProps {

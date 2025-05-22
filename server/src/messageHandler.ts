@@ -69,6 +69,7 @@ export async function handleMessage(ws: WebSocket, message: any, context: Client
                 numberOfArticles: message.numberOfArticles,
                 maxPlayers: message.maxPlayers,
                 type: message.type,
+                difficulty: message.difficulty,
                 leader,
                 ws,
             });
@@ -200,11 +201,12 @@ export async function handleMessage(ws: WebSocket, message: any, context: Client
                 );
                 return;
             }
-            const {timeLimit, numberOfArticles, maxPlayers, type} = message;
+            const {timeLimit, numberOfArticles, maxPlayers, type, difficulty} = message;
             if (timeLimit != null) session.timeLimit = timeLimit;
             if (numberOfArticles != null) session.numberOfArticles = numberOfArticles;
             if (maxPlayers != null) session.maxPlayers = maxPlayers;
             if (type != null) session.type = type;
+            if (difficulty != null) session.difficulty = difficulty;
 
             session.members.forEach(member => {
                 if (member.ws.readyState === member.ws.OPEN) {
@@ -216,6 +218,7 @@ export async function handleMessage(ws: WebSocket, message: any, context: Client
                                 numberOfArticles,
                                 maxPlayers,
                                 type,
+                                difficulty,
                             },
                         }),
                     );

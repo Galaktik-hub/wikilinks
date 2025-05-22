@@ -30,17 +30,19 @@ export class GameSession {
     public trappedArticles: string[];
     public hasStarted: boolean;
     public scoreboard: Map<number, string[]>;
+    public difficulty: number;
 
     public leader: Player;
     public members: Map<string, Player>;
     public bots: Map<string, Bot>;
 
-    constructor(id: number, timeLimit: number, numberOfArticles: number, maxPlayers: number, type: GameType, leader: Player) {
+    constructor(id: number, timeLimit: number, numberOfArticles: number, maxPlayers: number, type: GameType, difficulty: number, leader: Player) {
         this.id = id;
         this.timeLimit = timeLimit;
         this.numberOfArticles = numberOfArticles;
         this.maxPlayers = maxPlayers;
         this.type = type;
+        this.difficulty = difficulty;
         this.articles = [];
         this.startArticle = "";
         this.trappedArticles = [];
@@ -410,6 +412,7 @@ export class GameSessionManager {
         numberOfArticles: number;
         maxPlayers: number;
         type: GameType;
+        difficulty: number;
         leader: Player;
         ws: WebSocket;
     }): GameSession {
@@ -418,7 +421,7 @@ export class GameSessionManager {
             id = randomInt(100000, 1000000);
         } while (this.sessions.has(id));
 
-        const session = new GameSession(id, params.timeLimit, params.numberOfArticles, params.maxPlayers, params.type, params.leader);
+        const session = new GameSession(id, params.timeLimit, params.numberOfArticles, params.maxPlayers, params.type, params.difficulty, params.leader);
         this.sessions.set(id, session);
         return session;
     }

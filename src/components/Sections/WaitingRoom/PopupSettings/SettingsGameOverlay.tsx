@@ -10,6 +10,7 @@ import PlanetSVG from "../../../../assets/WaitingRoom/PlanetSVG.tsx";
 import CloseSVG from "../../../../assets/WaitingRoom/CloseSVG.tsx";
 import {GameSettingsType} from "../GameSettings/GameSettings.tsx";
 import {useGameContext} from "../../../../context/GameContext.tsx";
+import DifficultySVG from "../../../../assets/WaitingRoom/DifficultySVG";
 
 interface SettingsGameOverlayProps {
     gameSettings: GameSettingsType;
@@ -41,6 +42,12 @@ const SettingsGameOverlay: React.FC<SettingsGameOverlayProps> = ({gameSettings, 
         {label: "10", value: 10},
         {label: "20", value: 20},
         {label: "30", value: 30},
+    ];
+
+    const difficultyOptions = [
+        {label: "Facile", value: 1},
+        {label: "Moyenne", value: 2},
+        {label: "Difficile", value: 3},
     ];
 
     const togglePublicGame = () => {
@@ -85,6 +92,17 @@ const SettingsGameOverlay: React.FC<SettingsGameOverlayProps> = ({gameSettings, 
                             selectedValue={gameSettings.maxPlayers}
                             onChange={value => {
                                 const next = {...gameSettings, maxPlayers: Number(value)};
+                                setGameSettings(next);
+                                gameContext.updateSettings(next);
+                            }}
+                        />
+                    </SettingsOption>
+                    <SettingsOption icon={<DifficultySVG />} label="Difficulté">
+                        <OptionSelector
+                            options={difficultyOptions}
+                            selectedValue={gameSettings.difficulty}
+                            onChange={value => {
+                                const next = {...gameSettings, difficulty: Number(value)};
                                 setGameSettings(next);
                                 gameContext.updateSettings(next);
                             }}
