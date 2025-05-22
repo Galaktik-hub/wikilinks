@@ -25,7 +25,7 @@ const Game: React.FC = () => {
     const desktopLeft = (
         <>
             <ObjectivesPanel />
-            <ExitButton isHost={false} />
+            <ExitButton isHost={true} />
         </>
     );
 
@@ -48,7 +48,7 @@ const Game: React.FC = () => {
             <div className="flex flex-col w-full h-full gap overflow-hidden items-center justify-center p-4 relative gap-5">
                 {(isMobile || isIntermediate) && <ObjectivesPanel />}
                 <WikiPagePanel />
-                {(isMobile || isIntermediate) && <ExitButton isHost={false} />}
+                {(isMobile || isIntermediate) && <ExitButton isHost={true} />}
             </div>
         </Layout>
     );

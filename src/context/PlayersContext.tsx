@@ -23,6 +23,7 @@ interface PlayersContextType {
     // history
     histories: Record<string, HistoryStep[]>;
     getHistory: () => void;
+    exit: () => void;
 }
 
 export const PlayersContext = createContext<PlayersContextType | undefined>(undefined);
@@ -210,7 +211,15 @@ export const PlayersProvider: React.FC<{children: React.ReactNode}> = ({children
         });
     };
 
-    return <PlayersContext.Provider value={{players, inventory, foundArtifact, usedArtifact, histories, getHistory}}>{children}</PlayersContext.Provider>;
+    const exit = () => {
+        setPlayers([]);
+        setInventory({} as Record<ArtifactName, Artifact>);
+        setHistories({});
+        gameCtx.resetGame();
+        ws.resetMessages();
+    }
+
+    return <PlayersContext.Provider value={{players, inventory, foundArtifact, usedArtifact, histories, getHistory, exit}}>{children}</PlayersContext.Provider>;
 };
 
 export const usePlayersContext = (): PlayersContextType => {
