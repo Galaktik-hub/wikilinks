@@ -48,6 +48,7 @@ const SettingsGameOverlay: React.FC<SettingsGameOverlayProps> = ({gameSettings, 
         {label: "Facile", value: 1},
         {label: "Moyenne", value: 2},
         {label: "Difficile", value: 3},
+        {label: "Impossible", value: 4},
     ];
 
     const togglePublicGame = () => {
