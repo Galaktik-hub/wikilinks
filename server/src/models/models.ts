@@ -7,6 +7,7 @@ interface Player {
     finishTimestamp?: Date;
     articlesCount: number;
     articles: string[];
+    score: number;
 }
 
 export interface ChallengeDocument extends Document {
@@ -23,6 +24,7 @@ export const PlayerSchema = new Schema<Player>(
         finishTimestamp: {type: Date},
         articlesCount: {type: Number, default: 0},
         articles: {type: [String], default: []},
+        score: {type: Number, default: 0},
     },
     {_id: false},
 );

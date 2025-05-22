@@ -30,6 +30,9 @@ import androidx.work.WorkManager;
 
 import org.json.JSONObject;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.ZoneOffset;
 import java.util.Calendar;
 import java.util.Locale;
 import java.util.Map;
@@ -317,6 +320,38 @@ public class MainActivity extends AppCompatActivity {
                     .putString("username", username)
                     .apply();
             String js = "window.onUsernameSaved();";
+            webView.post(() -> webView.evaluateJavascript(js, null));
+        }
+
+        /**
+         * To get the time window between today 8:00 UTC and tomorrow 8:00 UTC
+         */
+        private String getWindowDateKey() {
+            LocalDate todayUtc = null;
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                LocalTime nowUtc = LocalTime.now(ZoneOffset.UTC);
+                todayUtc = LocalDate.now(ZoneOffset.UTC);
+                if (nowUtc.isBefore(LocalTime.of(8, 0))) {
+                    todayUtc = todayUtc.minusDays(1);
+                }
+            }
+            return todayUtc == null ? "2025-01-01" : todayUtc.toString();
+        }
+
+        @JavascriptInterface
+        public void setTodayChallengePlayed() {
+            String key = "challenge-" + getWindowDateKey();
+            SharedPreferences prefs = MainActivity.this.getPreferences(Context.MODE_PRIVATE);
+            prefs.edit()
+                    .putBoolean(key, true)
+                    .apply();
+        }
+
+        @JavascriptInterface
+        public void isTodayChallengePlayed() {
+            String key = "challenge-" + getWindowDateKey();
+            SharedPreferences prefs = MainActivity.this.getPreferences(Context.MODE_PRIVATE);
+            String js = "window.onTodayChallengePlayed(" + prefs.getBoolean(key, false) + ");";
             webView.post(() -> webView.evaluateJavascript(js, null));
         }
     }

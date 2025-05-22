@@ -1,5 +1,6 @@
 import React, {createContext, useContext, useEffect, useState} from "react";
 import {useWebSocket} from "./WebSocketContext.tsx";
+import {ResultProps} from "../pages/Challenge/Challenge";
 
 interface Article {
     name: string;
@@ -24,10 +25,14 @@ export interface ChallengeContextType {
     isGameOver: boolean;
     setIsGameOver: (value: boolean) => void;
 
+    // leaderboard
+    leaderboard: ResultProps[];
+
     // actions
     createGame: (payload: {username: string; startArticle: string}) => void;
     startGame: () => void;
     getTodayChallenge: () => void;
+    getTodayLeaderboard: () => void;
 }
 
 const ChallengeContext = createContext<ChallengeContextType | undefined>(undefined);
@@ -49,6 +54,9 @@ export const ChallengeProvider: React.FC<{children: React.ReactNode}> = ({childr
 
     // article navigation
     const [currentTitle, setCurrentTitle] = useState<string>("");
+  
+    // leaderboard
+    const [leaderboard, setLeaderboard] = useState<ResultProps[]>([]);
 
     useEffect(() => {
         const handler = (data: any) => {
@@ -67,6 +75,9 @@ export const ChallengeProvider: React.FC<{children: React.ReactNode}> = ({childr
                 case "today_challenge":
                     setTargetArticle(data.targetArticle);
                     break;
+                case "today_leaderboard":
+                    setLeaderboard(data.leaderboard);
+                    break;
             }
         };
         ws.onMessage(handler);
@@ -83,6 +94,10 @@ export const ChallengeProvider: React.FC<{children: React.ReactNode}> = ({childr
         ws.send({kind: "get_today_challenge"});
     };
 
+    const getTodayLeaderboard = () => {
+        ws.send({kind: "get_today_leaderboard"});
+    };
+
     return (
         <ChallengeContext.Provider
             value={{
@@ -97,9 +112,11 @@ export const ChallengeProvider: React.FC<{children: React.ReactNode}> = ({childr
                 articles,
                 currentTitle,
                 setCurrentTitle,
+                leaderboard,
                 createGame,
                 startGame,
                 getTodayChallenge,
+                getTodayLeaderboard,
             }}>
             {children}
         </ChallengeContext.Provider>

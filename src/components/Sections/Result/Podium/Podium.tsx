@@ -1,5 +1,5 @@
 import React from "react";
-import {ResultProps} from "../../../../pages/Result/Result.tsx";
+import {ResultProps} from "../../../../pages/Challenge/Challenge.tsx";
 
 interface PodiumProps {
     players: ResultProps[];
