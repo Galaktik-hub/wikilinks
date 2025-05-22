@@ -19,7 +19,14 @@ const ObjectivesPanel: React.FC = () => {
     const [objectives, setObjectives] = React.useState<Objective[]>([]);
 
     const fetchObjectives = () => {
-        if (gameContext.articles && gameContext.articles.length > 0) {
+        if (challengeContext.sessionId !== "") {
+            const targetObjective: Objective = {
+                id: "target-objective",
+                text: `Atteindre l'article ${challengeContext.targetArticle.replace(/_+/g, " ")}`,
+                isReached: false,
+            };
+            setObjectives([targetObjective]);
+        } else if (gameContext.articles && gameContext.articles.length > 0) {
             const updatedObjectives: Objective[] = [];
             gameContext.articles.forEach((article: {name: string; found: boolean}, index: number) => {
                 updatedObjectives.push({
@@ -29,13 +36,6 @@ const ObjectivesPanel: React.FC = () => {
                 });
             });
             setObjectives(updatedObjectives);
-        } else if (challengeContext.targetArticle) {
-            const targetObjective: Objective = {
-                id: "target-objective",
-                text: `Atteindre l'article ${challengeContext.targetArticle.replace(/_+/g, " ")}`,
-                isReached: false,
-            };
-            setObjectives([targetObjective]);
         }
     };
 

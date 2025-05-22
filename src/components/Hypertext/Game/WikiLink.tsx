@@ -1,7 +1,6 @@
 import React from "react";
 import {useWebSocket} from "../../../context/WebSocketContext.tsx";
 import {useGameContext} from "../../../context/GameContext.tsx";
-import {isAndroid} from "../../../functions/androidCheck";
 import {useChallengeContext} from "../../../context/ChallengeContext";
 
 interface WikiLinkProps extends React.AnchorHTMLAttributes<HTMLAnchorElement> {
@@ -15,19 +14,19 @@ const WikiLink: React.FC<WikiLinkProps> = ({title, children, ...props}) => {
 
     const handleClick = (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
         e.preventDefault();
-        if (isAndroid()) {
+        if (challengeContext.sessionId !== "") {
             challengeContext.setCurrentTitle(title);
         } else {
-            if (gameContext.changeCurrentTitle(title)) {
-                socketContext.send({
-                    kind: "game_event",
-                    event: {
-                        type: "visitedPage",
-                        page_name: title,
-                    },
-                });
-            }
+            gameContext.changeCurrentTitle(title);
         }
+
+        socketContext.send({
+            kind: "game_event",
+            event: {
+                type: "visitedPage",
+                page_name: title,
+            },
+        });
     };
 
     return (

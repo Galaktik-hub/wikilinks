@@ -48,18 +48,21 @@ export const ChallengeProvider: React.FC<{children: React.ReactNode}> = ({childr
     const [targetArticle, setTargetArticle] = useState("");
 
     // article navigation
-    const [currentTitle, setCurrentTitle] = useState<string>(startArticle);
+    const [currentTitle, setCurrentTitle] = useState<string>("");
 
     useEffect(() => {
         const handler = (data: any) => {
             switch (data.kind) {
                 case "challenge_session_created":
                     setSessionId(data.sessionId);
+                    setIsGameOver(false);
                     break;
                 case "challenge_ended":
                     setIsGameOver(true);
                     setArticles([]);
                     setStartArticle("");
+                    setCurrentTitle("");
+                    setSessionId("");
                     break;
                 case "today_challenge":
                     setTargetArticle(data.targetArticle);
