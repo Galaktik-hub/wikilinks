@@ -14,8 +14,8 @@ const InventoryPanel: React.FC = () => {
     const retourItem = playersContext.inventory.Retour as StackableArtifact;
     const mineItem = playersContext.inventory.Mine as StackableArtifact;
 
-    const handleConfirm = (name: ArtifactName) => {
-        playersContext.usedArtifact(name);
+    const handleConfirm = (name: ArtifactName, data?: Record<string, string>) => {
+        playersContext.usedArtifact(name, data);
     };
 
     return (
@@ -26,7 +26,7 @@ const InventoryPanel: React.FC = () => {
             <div className="bg-bgSecondary rounded-lg flex justify-center items-center gap-5 p-2.5 shadow-[0px_0px_15px_rgba(0,0,0,0.5)]">
                 <InventoryItem item={gpsItem} onConfirm={() => handleConfirm("GPS")} Icon={GpsSVG} />
                 <InventoryItem item={retourItem} onConfirm={() => handleConfirm("Retour")} Icon={RetourSVG} />
-                <InventoryItem item={mineItem} onConfirm={() => handleConfirm("Mine")} Icon={MineSVG} />
+                <InventoryItem item={mineItem} onConfirm={page => handleConfirm("Mine", {targetPage: page as string})} Icon={MineSVG} />
             </div>
         </div>
     );

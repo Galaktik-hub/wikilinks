@@ -18,7 +18,7 @@ interface PlayersContextType {
     // inventory
     inventory: Record<ArtifactName, Artifact>;
     foundArtifact: (name: ArtifactName) => void;
-    usedArtifact: (name: ArtifactName) => void;
+    usedArtifact: (name: ArtifactName, data?: Record<string, string>) => void;
 
     // history
     histories: Record<string, TimelineStep[]>;
@@ -84,9 +84,9 @@ export const PlayersProvider: React.FC<{children: React.ReactNode}> = ({children
     const initInventory = () => ws.send({kind: "init_inventory"});
     const getHistory = () => ws.send({kind: "get_history"});
     const foundArtifact = (name: ArtifactName) => ws.send({kind: "game_event", event: {type: "foundArtifact", artefact: name}});
-    const usedArtifact = (name: ArtifactName) => {
+    const usedArtifact = (name: ArtifactName, data?: Record<string, string>) => {
         playArtifact(name);
-        ws.send({kind: "game_event", event: {type: "usedArtifact", artefact: name}});
+        ws.send({kind: "game_event", event: {type: "usedArtifact", artefact: name, data: data}});
     };
 
     // The player plays or activates an artefact
@@ -101,7 +101,7 @@ export const PlayersProvider: React.FC<{children: React.ReactNode}> = ({children
                 playArtifactRetour(username);
                 break;
             case "Mine":
-                // TODO: Send the target article to the server
+                // Back side
                 break;
             case "Teleporteur":
                 // Back side

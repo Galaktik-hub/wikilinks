@@ -403,7 +403,7 @@ export async function handleMessage(ws: WebSocket, message: any, context: Client
                     JSON.stringify({
                         kind: "challenge_ended",
                     }),
-                )
+                );
             }
             ws.send(
                 JSON.stringify({

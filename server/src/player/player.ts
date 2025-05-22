@@ -108,7 +108,7 @@ export class Player {
                     break;
                 }
                 case "Mine":
-                    this.useArtifactMine();
+                    // Back side - manage in gameSession to set trappedArticles
                     break;
                 case "Teleporteur":
                     // Implemented solver first
@@ -136,11 +136,6 @@ export class Player {
         const last = this.objectivesVisited.pop();
         this.objectivesToVisit.push(last);
         this.history.removeLastObjectiveStep();
-    }
-
-    useArtifactMine() {
-        // TODO: Set the target article in the gameSession (find a way to do it
-        return null;
     }
 
     playArtifactMine(page: string) {

@@ -279,9 +279,17 @@ export class GameSession {
             case "foundArtifact":
                 player.foundArtifact(data.artefact);
                 break;
-            case "usedArtifact":
-                await player.useArtifact(data.artefact);
+            case "usedArtifact": {
+                const success = await player.useArtifact(data.artefact);
+
+                if (success && data.artefact === "Mine") {
+                    const targetPage = data.data.targetPage;
+                    if (typeof targetPage === "string" && !this.articles.includes(targetPage)) {
+                        this.trappedArticles.push(targetPage.replace(/\s+/g, "_"));
+                    }
+                }
                 break;
+            }
             default:
                 logger.error(`Unknown event type: ${data.type}`);
         }
