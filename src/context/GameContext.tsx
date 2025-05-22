@@ -186,12 +186,13 @@ export const GameProvider: React.FC<{children: React.ReactNode}> = ({children}) 
         setUsername(null);
         setRoomCode(-1);
         setLoading(false);
+        setSettings({timeLimit: 10, numberOfArticles: 4, maxPlayers: 10, type: "private"});
         setIsGameOver(false);
         setArticles([]);
         setStart("");
         setCurrentTitle("");
-        setScoreboard([])
-    }
+        setScoreboard([]);
+    };
 
     return (
         <GameContext.Provider

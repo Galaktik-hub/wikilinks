@@ -33,6 +33,7 @@ export interface ChallengeContextType {
     startGame: () => void;
     getTodayChallenge: () => void;
     getTodayLeaderboard: () => void;
+    resetChallenge: () => void;
 }
 
 const ChallengeContext = createContext<ChallengeContextType | undefined>(undefined);
@@ -98,6 +99,17 @@ export const ChallengeProvider: React.FC<{children: React.ReactNode}> = ({childr
         ws.send({kind: "get_today_leaderboard"});
     };
 
+    const resetChallenge = () => {
+        setUsername(null);
+        setSessionId("");
+        setIsGameOver(false);
+        setArticles([]);
+        setStartArticle("");
+        setTargetArticle("");
+        setCurrentTitle("");
+        setLeaderboard([]);
+    };
+
     return (
         <ChallengeContext.Provider
             value={{
@@ -117,6 +129,7 @@ export const ChallengeProvider: React.FC<{children: React.ReactNode}> = ({childr
                 startGame,
                 getTodayChallenge,
                 getTodayLeaderboard,
+                resetChallenge,
             }}>
             {children}
         </ChallengeContext.Provider>

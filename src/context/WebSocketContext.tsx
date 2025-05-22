@@ -87,7 +87,7 @@ export const WebSocketProvider: React.FC<{children: React.ReactNode}> = ({childr
 
     const resetMessages = () => {
         setMessages([]);
-    }
+    };
 
     return (
         <WebSocketContext.Provider value={{ws: wsRef.current, isConnected, messages, send, onMessage, offMessage, waitForConnection, resetMessages}}>
