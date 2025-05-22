@@ -91,8 +91,7 @@ const Challenge: React.FC = () => {
             type: "confirmation",
             content: {
                 message: helpMessage,
-                cancelButton: {label: "Retour", onClick: closeModal},
-                okButton: {label: "Ok", onClick: closeModal},
+                okButton: {label: "Fermer", onClick: closeModal},
             },
         });
 
