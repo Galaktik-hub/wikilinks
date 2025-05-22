@@ -16,7 +16,7 @@ const DailyChallengeSection = () => {
     useEffect(() => {
         if (socketContext.messages.length > 0) {
             const lastMessage = socketContext.messages[socketContext.messages.length - 1];
-            if (lastMessage.kind === "all_sessions") {
+            if (lastMessage.kind === "home_info") {
                 setChallengeCount(lastMessage.challengeCount);
                 setArticleName(lastMessage.challengeArticle);
             }

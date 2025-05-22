@@ -1,12 +1,49 @@
-import React from "react";
+import React, {useEffect} from "react";
 import BannerItem from "./BannerItem";
 import CupSVG from "../../assets/Banner/CupSVG.tsx";
 import StarSVG from "../../assets/Banner/StarSVG.tsx";
 import DiceSVG from "../../assets/Banner/DiceSVG.tsx";
 import {CircularBorder} from "./CircularBorder";
 import {DecorativeLines} from "./DecorativeLines";
+import {useWebSocket} from "../../context/WebSocketContext";
 
 const Banner: React.FC = () => {
+    const ws = useWebSocket();
+    const [activeGames, setActiveGames] = React.useState<string>("0");
+    const [activePlayers, setActivePlayers] = React.useState<string>("0");
+    const [gamesPlayed, setGamesPlayed] = React.useState<string>("0");
+
+    const formatNumber = (value: number): string => {
+        const abs = Math.abs(value);
+        if (abs >= 1e6) {
+            return (value / 1e6).toPrecision(3) + "M";
+        }
+        if (abs >= 1e3) {
+            return (value / 1e3).toPrecision(3) + "k";
+        }
+        return value.toString();
+    };
+
+    const handleBannerData = (info: {
+        activeGames: number;
+        activePlayers: number;
+        gamesPlayed: number;
+    }) => {
+        setActiveGames(formatNumber(info.activeGames));
+        setActivePlayers(formatNumber(info.activePlayers));
+        setGamesPlayed(formatNumber(info.gamesPlayed));
+    };
+
+    useEffect(() => {
+        const handler = (data: any) => {
+            if (data.kind === "home_info") {
+                handleBannerData(data.bannerInfo);
+            }
+        };
+        ws.onMessage(handler);
+        return () => ws.offMessage(handler);
+    }, [ws]);
+
     return (
         <div className="w-full bg-background text-center overflow-hidden relative py-8 mb-6">
             {/* Background grid and image */}
@@ -38,9 +75,9 @@ const Banner: React.FC = () => {
                 </div>
 
                 <div className="flex justify-evenly items-center md:justify-center md:gap-16 md:flex-1">
-                    <BannerItem icon={<CupSVG />} number="1500+" text="Joueurs actifs" />
-                    <BannerItem icon={<StarSVG />} number="1.5K" text="Parties jouées" />
-                    <BannerItem icon={<DiceSVG />} number="200+" text="Parties actives" />
+                    <BannerItem icon={<CupSVG />} number={activePlayers} text="Joueurs actifs" />
+                    <BannerItem icon={<StarSVG />} number={gamesPlayed} text="Parties jouées" />
+                    <BannerItem icon={<DiceSVG />} number={activeGames} text="Parties actives" />
                 </div>
             </div>
         </div>
