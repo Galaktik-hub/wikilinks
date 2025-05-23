@@ -11,7 +11,7 @@ interface InventoryItemModalProps {
     onCancel: () => void;
 }
 
-export default function InventoryItemModal(props: InventoryItemModalProps) {
+export default function InventoryItemModal(props: InventoryItemModalProps): React.ReactElement | null {
     const {artifact, onConfirm, onCancel} = props;
     const gameContext = useGameContext();
     const {showPopup} = usePopup();
