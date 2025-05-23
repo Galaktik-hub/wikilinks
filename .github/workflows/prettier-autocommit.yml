@@ -37,15 +37,19 @@ jobs:
         run: npm run prettier:write
 
       # 5) Commit & push on the branch
-      - name: Commit & push formatted code
+      - name: Commit & push formatted code (only if not modifying workflows)
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add .
           if ! git diff --cached --quiet; then
-            git commit -m "chore: auto-format with prettier"
-            BRANCH=${GITHUB_REF#refs/heads/}
-            git push origin HEAD:$BRANCH
+            if git diff --cached --name-only | grep -q "^\.github/workflows/"; then
+              echo "Workflow files changed, skipping commit to avoid permission error."
+            else
+              BRANCH=${GITHUB_REF#refs/heads/}
+              git commit -m "chore: auto-format with prettier"
+              git push origin HEAD:$BRANCH
+            fi
           else
             echo "No formatting changes to commit"
           fi
