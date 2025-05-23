@@ -47,7 +47,7 @@ jobs:
     # 8. Zip server build
     - name: Zip server
       run: |
-        cd server/dist
+        cd server/build
         zip -r ../../wikilinks-server-${{ github.run_number }}.zip .
 
     # 9. Upload frontend artifact
