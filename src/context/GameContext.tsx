@@ -46,6 +46,9 @@ export interface GameContextType {
     checkUsernameTaken: (name: string, code: number) => Promise<boolean>;
     checkGameHasStarted: (code: number) => Promise<boolean>;
     resetGame: () => void;
+
+    artifactInfo: {hasArtifact: boolean; luckPercentage: number | null};
+    setArtifactInfo: React.Dispatch<React.SetStateAction<{hasArtifact: boolean; luckPercentage: number | null}>>;
 }
 
 const GameContext = createContext<GameContextType | undefined>(undefined);
@@ -78,6 +81,9 @@ export const GameProvider: React.FC<{children: React.ReactNode}> = ({children}) 
     // scoreboard
     const [scoreboard, setScoreboard] = useState<ResultProps[]>([]);
 
+    // artifact info
+    const [artifactInfo, setArtifactInfo] = useState<{hasArtifact: boolean; luckPercentage: number | null}>({hasArtifact: false, luckPercentage: null});
+
     useEffect(() => {
         const handler = (data: any) => {
             switch (data.kind) {
@@ -103,6 +109,11 @@ export const GameProvider: React.FC<{children: React.ReactNode}> = ({children}) 
                     const objectivesVisited: string[] = data.event.obj_visited;
                     const objectivesToVisit: string[] = data.event.obj_to_visit;
                     setArticles(() => objectivesToVisit.map(name => ({name, found: false})).concat(objectivesVisited.map(name => ({name, found: true}))));
+
+                    setArtifactInfo({
+                        hasArtifact: data.event.hasArtifact,
+                        luckPercentage: data.event.luckPercentage,
+                    });
                     break;
                 }
                 case "game_over":
@@ -218,6 +229,8 @@ export const GameProvider: React.FC<{children: React.ReactNode}> = ({children}) 
                 checkUsernameTaken,
                 checkGameHasStarted,
                 resetGame,
+                artifactInfo,
+                setArtifactInfo,
             }}>
             {children}
         </GameContext.Provider>

@@ -2,13 +2,20 @@
 import React from "react";
 import ArticleDisplay from "./ArticleDisplay.tsx";
 import {preventCtrlF} from "../../../functions/preventCtrlF.ts";
+import {useGameContext} from "../../../context/GameContext.tsx";
 
 const WikiPagePanel = () => {
     preventCtrlF();
 
-    const [showNotification, setShowNotification] = React.useState(true);
+    const {artifactInfo} = useGameContext();
+    const {hasArtifact, luckPercentage} = artifactInfo;
+    const [showNotification, setShowNotification] = React.useState(hasArtifact);
 
-    const chancePercentage = 60;
+    React.useEffect(() => {
+        setShowNotification(hasArtifact);
+    }, [hasArtifact]);
+
+    const chancePercentage = luckPercentage !== null ? luckPercentage : 60;
 
     return (
         <div className="card-container flex flex-col justify-center xl-custom:mb-32 mb-12">

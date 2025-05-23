@@ -268,6 +268,8 @@ export class GameSession {
      */
     public async handleGameEvent(playerName: string, data: any): Promise<void> {
         const player = this.members.get(playerName);
+        let pageInfo: {hasArtifact: boolean; luckPercentage?: number; unluckPercentage?: number} = {hasArtifact: false};
+
         switch (data.type) {
             case "visitedPage": {
                 const article = this.articles.find(article => article === data.page_name);
@@ -310,22 +312,28 @@ export class GameSession {
                 logger.error(`Unknown event type: ${data.type}`);
         }
         this.updateScoreboard();
+        const targetMember = this.members.get(playerName);
+        if (targetMember && targetMember.ws.readyState === WebSocket.OPEN) {
+            targetMember.ws.send(
+                JSON.stringify({
+                    kind: "game_update",
+                    event: {
+                        type: data.type,
+                        data: {
+                            player: player.name,
+                            ...data,
+                        },
+                        obj_visited: targetMember.objectivesVisited,
+                        obj_to_visit: targetMember.objectivesToVisit,
+                        hasArtifact: pageInfo.hasArtifact,
+                        luckPercentage: pageInfo.luckPercentage,
+                    },
+                }),
+            );
+        }
+
         this.members.forEach(member => {
             if (member.ws.readyState === WebSocket.OPEN) {
-                member.ws.send(
-                    JSON.stringify({
-                        kind: "game_update",
-                        event: {
-                            type: data.type,
-                            data: {
-                                player: player.name,
-                                ...data,
-                            },
-                            obj_visited: member.objectivesVisited,
-                            obj_to_visit: member.objectivesToVisit,
-                        },
-                    }),
-                );
                 member.ws.send(
                     JSON.stringify({
                         kind: "inventory",
