@@ -5,7 +5,6 @@ export class WikipediaServices {
     private static POPULAR_THRESHOLDS = [150000, 90000, 50000, 10000, 0];
     // Number of random sample dates to pick within the last 6 months.
     private static RANDOM_SAMPLE_COUNT = 290;
-    private static pagePopularity: Map<string, number> = new Map();
 
     /**
      * Generates a random date between two Date objects.
@@ -28,9 +27,12 @@ export class WikipediaServices {
      *
      * @param numberOfArticles The number of articles to return.
      * @param difficulty The difficulty level.
-     * @returns A promise resolving to an array of article titles.
+     * @returns A promise resolving to an array of article titles and the average of all popularity pages encountered.
      */
-    public static async fetchRandomPopularWikipediaPages(numberOfArticles: number, difficulty?: number): Promise<string[]> {
+    public static async fetchRandomPopularWikipediaPages(
+        numberOfArticles: number,
+        difficulty?: number,
+    ): Promise<{articles: string[]; averagePopularity: number}> {
         const today = new Date();
         // Exclude today's date because API may not be up to date
         const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
@@ -68,8 +70,11 @@ export class WikipediaServices {
                 }
             }),
         );
+        // Average popularity
+        const allPopularities = Array.from(aggregated.values());
+        const totalPop = allPopularities.reduce((sum, v) => sum + v, 0);
+        const averagePopularity = allPopularities.length ? Math.round(totalPop / allPopularities.length) : 0;
 
-        this.pagePopularity = aggregated;
         // Filter popular
         const popular = Array.from(aggregated.entries())
             .filter(([, total]) => total >= this.POPULAR_THRESHOLDS[difficulty - 1])
@@ -77,7 +82,7 @@ export class WikipediaServices {
 
         if (!popular.length) {
             logger.warn("No article exceeded the popularity threshold.");
-            return [];
+            return {articles: [], averagePopularity};
         }
 
         // Shuffle and slice
@@ -85,11 +90,38 @@ export class WikipediaServices {
             const j = Math.floor(Math.random() * (i + 1));
             [popular[i], popular[j]] = [popular[j], popular[i]];
         }
-        return popular.slice(0, numberOfArticles);
+        return {articles: popular.slice(0, numberOfArticles), averagePopularity};
     }
 
-    public static getPagePopularity(pageName: string): number {
-        return this.pagePopularity.get(pageName) || 0;
+    /**
+     * Retrieves the popularity (total number of views) of an article over the last N days.
+     *
+     * @param pageName The title of the Wikipedia page.
+     * @returns The total number of views or 0 if there is an error.
+     */
+    public static async fetchPagePopularity(pageName: string): Promise<number> {
+        try {
+            const today = new Date();
+            // Exclude today's date because API may not be up to date
+            const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
+            const sixMonthsAgo = new Date(yesterday);
+            sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+            const format = (d: Date) => `${d.getUTCFullYear()}${String(d.getUTCMonth() + 1).padStart(2, "0")}${String(d.getUTCDate()).padStart(2, "0")}`;
+
+            const url = `https://wikimedia.org/api/rest_v1/metrics/pageviews/per-article/fr.wikipedia/all-access/user/${pageName}/daily/${format(sixMonthsAgo)}/${format(yesterday)}`;
+
+            const resp = await axios.get(url, {timeout: 7000});
+            const items: {date: string; views: number}[] = resp.data?.items || [];
+
+            return items.reduce((sum, it) => sum + (it.views || 0), 0);
+        } catch (err) {
+            if (axios.isAxiosError(err)) {
+                logger.error(`Error fetching popularity for ${pageName}: ${err.response?.status} ${err.message}`);
+            } else {
+                logger.error(`Unknown error fetching popularity for ${pageName}: ${err}`);
+            }
+            return 0;
+        }
     }
 
     /**
