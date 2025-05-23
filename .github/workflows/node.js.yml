@@ -1,5 +1,8 @@
 name: CI / Format, Build & Publish
 
+permissions:
+  contents: write
+
 on:
   push:
     branches: [ "main" ]
@@ -13,7 +16,8 @@ jobs:
       # 1. Full checkout
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
+        with: 
+          token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
           persist-credentials: true
 
