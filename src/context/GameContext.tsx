@@ -3,10 +3,10 @@
 import React, {createContext, useContext, useEffect, useState} from "react";
 import {useWebSocket} from "./WebSocketContext.tsx";
 import {GameSettingsType} from "../components/Sections/WaitingRoom/GameSettings/GameSettings.tsx";
-import {ResultProps} from "../pages/Result/Result.tsx";
 import {usePopup} from "./PopupContext.tsx";
 import {artifactDefinitions} from "../../packages/shared-types/player/inventory";
 import {useNavigate} from "react-router-dom";
+import {ResultProps} from "../pages/Challenge/Challenge";
 
 interface Article {
     name: string;
