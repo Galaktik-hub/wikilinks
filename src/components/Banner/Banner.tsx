@@ -24,11 +24,7 @@ const Banner: React.FC = () => {
         return value.toString();
     };
 
-    const handleBannerData = (info: {
-        activeGames: number;
-        activePlayers: number;
-        gamesPlayed: number;
-    }) => {
+    const handleBannerData = (info: {activeGames: number; activePlayers: number; gamesPlayed: number}) => {
         setActiveGames(formatNumber(info.activeGames));
         setActivePlayers(formatNumber(info.activePlayers));
         setGamesPlayed(formatNumber(info.gamesPlayed));

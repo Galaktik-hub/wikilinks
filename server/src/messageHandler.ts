@@ -1,6 +1,6 @@
 import {WebSocket} from "ws";
-import * as fs from 'fs';
-import * as path from 'path';
+import * as fs from "fs";
+import * as path from "path";
 import {GameSessionManager, GameType} from "./gameSessions";
 import {Player} from "./player/player";
 import logger from "./logger";
@@ -63,7 +63,7 @@ function increaseNumberOfGamePlayed() {
             return;
         }
         const count = parseInt(data.trim(), 10);
-        fs.writeFile(gamesFile, (count + 1).toString(), (err) => {
+        fs.writeFile(gamesFile, (count + 1).toString(), err => {
             if (err) {
                 logger.error(err);
             }
@@ -505,7 +505,7 @@ export async function handleMessage(ws: WebSocket, message: any, context: Client
                         activeGames: GameSessionManager.getAllSessions().size + ChallengeSessionManager.getAllSessions().size,
                         activePlayers: GameSessionManager.getNumberActivePlayers() + ChallengeSessionManager.getAllSessions().size,
                         gamesPlayed: getNumberOfGamePlayed(),
-                    }
+                    },
                 }),
             );
             break;

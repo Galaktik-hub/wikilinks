@@ -36,6 +36,9 @@ export class GameSession {
     public members: Map<string, Player>;
     public bots: Map<string, Bot>;
 
+    public averagePopularity: number;
+    public visitedPages: Map<string, {hasArtifact: boolean; luckPercentage?: number; unluckPercentage?: number}>;
+
     constructor(id: number, timeLimit: number, numberOfArticles: number, maxPlayers: number, type: GameType, difficulty: number, leader: Player) {
         this.id = id;
         this.timeLimit = timeLimit;
@@ -52,6 +55,8 @@ export class GameSession {
         this.leader = leader;
         this.members = new Map();
         this.members.set(leader.name, leader);
+        this.averagePopularity = 0;
+        this.visitedPages = new Map();
 
         this.bots = new Map();
         BOTS.forEach(BotClass => {
@@ -168,7 +173,8 @@ export class GameSession {
      */
     public async initializeArticles(): Promise<void> {
         const totalCount = this.numberOfArticles + 1;
-        const articles = await WikipediaServices.fetchRandomPopularWikipediaPages(totalCount, this.difficulty);
+        const {articles, averagePopularity} = await WikipediaServices.fetchRandomPopularWikipediaPages(totalCount, this.difficulty);
+        this.averagePopularity = averagePopularity;
         if (articles.length > 0) {
             this.articles = articles.map(item => item.replace(/\s+/g, "_"));
             this.startArticle = this.articles.pop()!;
@@ -273,6 +279,14 @@ export class GameSession {
                 } else {
                     player.visitPage(data.page_name);
                 }
+                const pageInfo = await this.determineArtifactPresence(data.page_name);
+                if (pageInfo.hasArtifact) {
+                    logger.info(
+                        `Page "${data.page_name}" contains an artifact with a ${pageInfo.luckPercentage}% chance of success and a ${pageInfo.unluckPercentage}% chance of failure.`,
+                    );
+                } else {
+                    logger.info(`Page "${data.page_name}" does not contain an artifact.`);
+                }
                 if (this.trappedArticles.includes(data.page_name)) {
                     player.playArtifactMine(data.page_name);
                 }
@@ -369,6 +383,7 @@ export class GameSession {
         this.articles = [];
         this.startArticle = "";
         this.trappedArticles = [];
+        this.averagePopularity = 0;
     }
 
     /**
@@ -398,6 +413,55 @@ export class GameSession {
             });
         });
         return inventory;
+    }
+    /**
+     * Determines whether a page has an artifact.
+     * If the page has been visited before, it returns the previous result.
+     * If the page is found for the first time, it randomly determines if it has an artifact.
+     */
+    public async determineArtifactPresence(pageName: string): Promise<{hasArtifact: boolean; luckPercentage?: number; unluckPercentage?: number}> {
+        if (this.visitedPages.has(pageName)) {
+            const pageInfo = this.visitedPages.get(pageName)!;
+            return {hasArtifact: pageInfo.hasArtifact, luckPercentage: pageInfo.luckPercentage, unluckPercentage: pageInfo.unluckPercentage};
+        }
+
+        const hasArtifact = this.determineArtifactFoundPage();
+        if (hasArtifact) {
+            const popularity = await WikipediaServices.fetchPagePopularity(pageName);
+            const {luckPercentage, unluckPercentage} = this.calculatePercentagesLuck(popularity);
+            const pageInfo = {hasArtifact: true, luckPercentage, unluckPercentage};
+            this.visitedPages.set(pageName, pageInfo);
+            return pageInfo;
+        }
+
+        const pageInfo = {hasArtifact: false};
+        this.visitedPages.set(pageName, pageInfo);
+        return pageInfo;
+    }
+
+    /**
+     * Determines whether a page found for the first time contains an artifact.
+     */
+    private determineArtifactFoundPage(): boolean {
+        return Math.random() > 0.5;
+    }
+
+    /**
+     * Calculate the percentages of luck and bad luck for an artifact based on popularity.
+     */
+    private calculatePercentagesLuck(popularity: number): {luckPercentage: number; unluckPercentage: number} {
+        let luckPercentage: number, unluckPercentage: number;
+
+        if (popularity > this.averagePopularity) {
+            unluckPercentage = Math.round(Math.random() * 50 + 50);
+            luckPercentage = 100 - unluckPercentage;
+            logger.info(`Page is popular, luck percentage is lower. (popularity=${popularity})`);
+        } else {
+            luckPercentage = Math.round(Math.random() * 100);
+            unluckPercentage = 100 - luckPercentage;
+        }
+
+        return {luckPercentage, unluckPercentage};
     }
 }
 

@@ -161,7 +161,7 @@ export class Player {
     }
 
     async useArtifactDesorienteur() {
-        const randomArticle = await WikipediaServices.fetchRandomPopularWikipediaPages(1, 5);
+        const {articles: randomArticle} = await WikipediaServices.fetchRandomPopularWikipediaPages(1, 5);
         this.ws.send(
             JSON.stringify({
                 kind: "game_artifact",
