@@ -30,7 +30,7 @@ jobs:
         run: npm ci
 
       # 4. Prettier (write) → modifie directement votre code
-      - name: Prettier: write
+      - name: Prettier write
         run: npm run prettier:write
 
       # 5. Build full (frontend + server)
