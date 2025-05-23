@@ -52,10 +52,14 @@ jobs:
         # ajustez le chemin si nécessaire
 
       # 8. Publier les artefacts
-      - name: Upload build artifacts
+      - name: Upload frontend artifact
         uses: actions/upload-artifact@v3
         with:
-          name: wikilinks-build-outputs
-          path:
-            - wikilinks-frontend-${{ github.run_number }}.zip
-            - wikilinks-server-${{ github.run_number }}.zip
+          name: wikilinks-frontend
+          path: wikilinks-frontend-${{ github.run_number }}.zip
+
+      - name: Upload server artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: wikilinks-server
+          path: wikilinks-server-${{ github.run_number }}.zip
