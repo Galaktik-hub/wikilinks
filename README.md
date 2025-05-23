@@ -1,4 +1,4 @@
-[![CI / Build & Publish](https://github.com/Galaktik-hub/wikilinks/actions/workflows/build-publish.yml/badge.svg?event=push)](https://github.com/Galaktik-hub/wikilinks/actions/workflows/build-publish.yml)
+[![CI / Build & Publish](https://github.com/Galaktik-hub/wikilinks/actions/workflows/build-publish.yml/badge.svg)](https://github.com/Galaktik-hub/wikilinks/actions/workflows/build-publish.yml)
 
 # WikiLinks Development Guide
 
