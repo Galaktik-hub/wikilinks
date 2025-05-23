@@ -1,15 +1,9 @@
 "use client";
 
-import * as React from "react";
 import ArticleDisplay from "./ArticleDisplay.tsx";
-import {WikiNavigationProvider} from "../../../context/WikiNavigationContext.tsx";
 import {preventCtrlF} from "../../../functions/preventCtrlF.ts";
 
-interface ObjectivesPanelProps {
-    startArticle: string;
-}
-
-const ObjectivesPanel: React.FC<ObjectivesPanelProps> = props => {
+const WikiPagePanel = () => {
     preventCtrlF();
 
     const [showNotification, setShowNotification] = React.useState(true);
@@ -32,11 +26,11 @@ const ObjectivesPanel: React.FC<ObjectivesPanelProps> = props => {
                 )}
             </div>
 
-            <WikiNavigationProvider className="flex flex-col items-center gap-2 self-center mt-2 w-full text-base text-white" startArticle={props.startArticle}>
+            <div className="flex flex-col items-center gap-2 self-center mt-2 w-full text-base text-white">
                 <ArticleDisplay className="w-full" />
-            </WikiNavigationProvider>
+            </div>
         </div>
     );
 };
 
-export default ObjectivesPanel;
+export default WikiPagePanel;

@@ -15,8 +15,8 @@ import {useGameContext} from "../../context/GameContext.tsx";
 
 const Game: React.FC = () => {
     const gameContext = useGameContext();
-    const [isGameEnded, setIsGameEnded] = useState(false);
-    const startArticle = gameContext.startArticle || "Paris";
+    const [isGameOver, setIsGameOver] = useState(false);
+    const isHost = gameContext.leaderName === gameContext.username;
 
     const isMobile = useMediaQuery({maxWidth: 767});
     const isDesktop = useMediaQuery({minWidth: 1200});
@@ -26,18 +26,18 @@ const Game: React.FC = () => {
         <>
             <PlayerProgressPanel />
             <ObjectivesPanel />
-            <ExitButton isHost={false} />
+            <ExitButton isHost={isHost} />
         </>
     );
 
     useEffect(() => {
-        setIsGameEnded(gameContext.isGameOver);
+        setIsGameOver(gameContext.isGameOver);
     }, [gameContext.isGameOver]);
 
     return (
         <Layout header={<Header />} leftColumn={isDesktop ? desktopLeft : null} rightColumn={isDesktop ? <TextLoungePanel /> : null}>
             {/* Écran de fin de partie */}
-            {isGameEnded && <GameEndScreen isVisible={isGameEnded} />}
+            {isGameOver && <GameEndScreen isVisible={isGameOver} endPageToRedirect="result" />}
 
             <div className="flex flex-col w-full h-full gap overflow-hidden items-center justify-center p-4 relative gap-5">
                 {(isMobile || isIntermediate) && (
@@ -46,12 +46,12 @@ const Game: React.FC = () => {
                         <ObjectivesPanel />
                     </>
                 )}
-                <WikiPagePanel startArticle={startArticle} />
-                {(isMobile || isIntermediate) && <ExitButton isHost={false} />}
+                <WikiPagePanel />
+                {(isMobile || isIntermediate) && <ExitButton isHost={isHost} />}
             </div>
             {isDesktop && (
                 <div className="max-w-[769px]:hidden absolute flex bottom-0 left-1/2 -translate-x-1/2 justify-center items-center mb-2.5">
-                    <InventoryPanel gpsCount={5} retourCount={1} mineCount={3} />
+                    <InventoryPanel />
                 </div>
             )}
             {!isDesktop && (

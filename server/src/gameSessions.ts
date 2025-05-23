@@ -4,7 +4,7 @@ import {Player} from "./player/player";
 import {WikipediaServices} from "./WikipediaService";
 import {Bot, JoinLeaveBot, BOTS} from "./bots";
 import logger from "./logger";
-import {HistoryStep} from "./player/history/playerHistoryProps";
+import {HistoryStep} from "../../packages/shared-types/player/history";
 
 export type GameType = "public" | "private";
 
@@ -27,21 +27,25 @@ export class GameSession {
     public type: GameType;
     public articles: string[];
     public startArticle: string;
+    public trappedArticles: string[];
     public hasStarted: boolean;
     public scoreboard: Map<number, string[]>;
+    public difficulty: number;
 
     public leader: Player;
     public members: Map<string, Player>;
     public bots: Map<string, Bot>;
 
-    constructor(id: number, timeLimit: number, numberOfArticles: number, maxPlayers: number, type: GameType, leader: Player) {
+    constructor(id: number, timeLimit: number, numberOfArticles: number, maxPlayers: number, type: GameType, difficulty: number, leader: Player) {
         this.id = id;
         this.timeLimit = timeLimit;
         this.numberOfArticles = numberOfArticles;
         this.maxPlayers = maxPlayers;
         this.type = type;
+        this.difficulty = difficulty;
         this.articles = [];
         this.startArticle = "";
+        this.trappedArticles = [];
         this.hasStarted = false;
         this.scoreboard = new Map();
 
@@ -71,8 +75,7 @@ export class GameSession {
      * Adds a player into the session if the capacity is not reached.
      * The player is added with the role "client".
      */
-    public addPlayer(playerName: string): boolean {
-        const player = this.members.get(playerName);
+    public addPlayer(player: Player): boolean {
         if (this.members.size >= this.maxPlayers) return false;
         this.members.set(player.name, player);
         this.bots.forEach(bot => {
@@ -154,9 +157,7 @@ export class GameSession {
         this.hasStarted = true;
         this.members.forEach(member => {
             if (member.ws.readyState === member.ws.OPEN) {
-                // Reset player variables (If they already played a previous game)
-                member.reset();
-                member.ws.send(JSON.stringify({kind: "game_started", startArticle: this.startArticle, articles: this.articles}));
+                member.startGame(this.startArticle, this.articles);
             }
         });
     }
@@ -167,7 +168,7 @@ export class GameSession {
      */
     public async initializeArticles(): Promise<void> {
         const totalCount = this.numberOfArticles + 1;
-        const articles = await WikipediaServices.fetchRandomPopularWikipediaPages(totalCount);
+        const articles = await WikipediaServices.fetchRandomPopularWikipediaPages(totalCount, this.difficulty);
         if (articles.length > 0) {
             this.articles = articles.map(item => item.replace(/\s+/g, "_"));
             this.startArticle = this.articles.pop()!;
@@ -209,13 +210,13 @@ export class GameSession {
 
         const players = Array.from(this.members.values());
         players.sort((a, b) => {
-            const aFound = a.foundArticles;
-            const bFound = b.foundArticles;
+            const aFound = a.objectivesVisited.length;
+            const bFound = b.objectivesVisited.length;
             if (bFound !== aFound) {
                 return bFound - aFound; // more found articles first
             }
-            const aVisited = a.visitedArticles;
-            const bVisited = b.visitedArticles;
+            const aVisited = a.articlesVisited.length;
+            const bVisited = b.articlesVisited.length;
             return aVisited - bVisited;
         });
 
@@ -226,8 +227,8 @@ export class GameSession {
         let group: string[] = [];
 
         players.forEach((player, index) => {
-            const found = player.foundArticles;
-            const visited = player.visitedArticles;
+            const found = player.objectivesVisited.length;
+            const visited = player.articlesVisited.length;
 
             logger.info(`Player ${player.name} found ${found} articles and visited ${visited} pages`);
 
@@ -251,7 +252,7 @@ export class GameSession {
 
         logger.info(`Scoreboard: ${JSON.stringify(Array.from(this.scoreboard.entries()))}`);
 
-        if (players[0]?.foundArticles === this.numberOfArticles) {
+        if (players[0]?.objectivesVisited.length === this.numberOfArticles) {
             this.endGame();
         }
     }
@@ -259,28 +260,38 @@ export class GameSession {
     /**
      * Handles game events (e.g., player actions) and dispatches them to everyone.
      */
-    public handleGameEvent(playerName: string, data: any): void {
+    public async handleGameEvent(playerName: string, data: any): Promise<void> {
         const player = this.members.get(playerName);
         switch (data.type) {
             case "visitedPage": {
                 const article = this.articles.find(article => article === data.page_name);
                 logger.info(`Article: "${data.page_name}"`);
                 if (article) {
-                    player.history.addStep("foundPage", {page_name: data.page_name});
-                    player.foundArticles++;
-                    data.type = "foundPage";
+                    if (player.foundPage(article)) {
+                        data.type = "foundPage";
+                    }
                 } else {
-                    player.history.addStep("visitedPage", {page_name: data.page_name});
-                    player.visitedArticles++;
+                    player.visitPage(data.page_name);
+                }
+                if (this.trappedArticles.includes(data.page_name)) {
+                    player.playArtifactMine(data.page_name);
                 }
                 break;
             }
             case "foundArtifact":
-                player.history.addStep("foundArtifact", {artefact: data.artefact});
+                player.foundArtifact(data.artefact);
                 break;
-            case "usedArtifact":
-                player.history.addStep("usedArtifact", {artefact: data.artefact});
+            case "usedArtifact": {
+                const success = await player.useArtifact(data.artefact);
+
+                if (success && data.artefact === "Mine") {
+                    const targetPage = data.data.targetPage;
+                    if (typeof targetPage === "string" && !this.articles.includes(targetPage)) {
+                        this.trappedArticles.push(targetPage.replace(/\s+/g, "_"));
+                    }
+                }
                 break;
+            }
             default:
                 logger.error(`Unknown event type: ${data.type}`);
         }
@@ -296,7 +307,15 @@ export class GameSession {
                                 player: player.name,
                                 ...data,
                             },
+                            obj_visited: member.objectivesVisited,
+                            obj_to_visit: member.objectivesToVisit,
                         },
+                    }),
+                );
+                member.ws.send(
+                    JSON.stringify({
+                        kind: "inventory",
+                        inventory: this.getInventory(),
                     }),
                 );
             }
@@ -328,7 +347,7 @@ export class GameSession {
             names.forEach(name => {
                 const player = this.members.get(name);
                 if (player) {
-                    const score = player.foundArticles * 100 - player.visitedArticles * 5;
+                    const score = player.objectivesVisited.length * 1000 - player.articlesVisited.length * 5;
                     results.push({rank, name: player.name, score});
                 }
             });
@@ -349,6 +368,36 @@ export class GameSession {
         this.hasStarted = false;
         this.articles = [];
         this.startArticle = "";
+        this.trappedArticles = [];
+    }
+
+    /**
+     * Returns the initialise inventory of all players in the session.
+     */
+    public initInventory(): any[] {
+        const inventory = [];
+        this.members.forEach(member => {
+            member.inventory.initInventory();
+            inventory.push({
+                player: member.name,
+                inventory: member.inventory.getInventory(),
+            });
+        });
+        return inventory;
+    }
+
+    /**
+     * Returns the inventory of all players in the session.
+     */
+    public getInventory(): any[] {
+        const inventory = [];
+        this.members.forEach(member => {
+            inventory.push({
+                player: member.name,
+                inventory: member.inventory.getInventory(),
+            });
+        });
+        return inventory;
     }
 }
 
@@ -363,6 +412,7 @@ export class GameSessionManager {
         numberOfArticles: number;
         maxPlayers: number;
         type: GameType;
+        difficulty: number;
         leader: Player;
         ws: WebSocket;
     }): GameSession {
@@ -371,7 +421,7 @@ export class GameSessionManager {
             id = randomInt(100000, 1000000);
         } while (this.sessions.has(id));
 
-        const session = new GameSession(id, params.timeLimit, params.numberOfArticles, params.maxPlayers, params.type, params.leader);
+        const session = new GameSession(id, params.timeLimit, params.numberOfArticles, params.maxPlayers, params.type, params.difficulty, params.leader);
         this.sessions.set(id, session);
         return session;
     }
@@ -408,5 +458,13 @@ export class GameSessionManager {
             }
         });
         return publicSessions;
+    }
+
+    public static getNumberActivePlayers(): number {
+        let count = 0;
+        this.sessions.forEach(session => {
+            count += session.members.size;
+        });
+        return count;
     }
 }

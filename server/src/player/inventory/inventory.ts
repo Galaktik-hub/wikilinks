@@ -1,10 +1,18 @@
-import {Artifact, artifactDefinitions, ArtifactName, ImmediateArtifact, StackableArtifact} from "./inventoryProps";
+import {Artifact, artifactDefinitions, ArtifactName, ImmediateArtifact, StackableArtifact} from "../../../../packages/shared-types/player/inventory";
 
 export class Inventory {
     private artifacts: Record<ArtifactName, Artifact>;
 
     constructor() {
         this.artifacts = {} as Record<ArtifactName, Artifact>;
+        this.initInventory();
+    }
+
+    getInventory(): Record<ArtifactName, Artifact> {
+        return this.artifacts;
+    }
+
+    initInventory() {
         for (const name in artifactDefinitions) {
             const artifactName = name as ArtifactName;
             const def = artifactDefinitions[artifactName];
@@ -13,6 +21,7 @@ export class Inventory {
                     name: artifactName,
                     definition: def.definition,
                     positive: def.positive,
+                    target: def.target,
                     immediate: true,
                     possessed: false,
                 };
@@ -21,8 +30,9 @@ export class Inventory {
                     name: artifactName,
                     definition: def.definition,
                     positive: def.positive,
+                    target: def.target,
                     immediate: false,
-                    count: 0,
+                    count: 0, // Test value, by default use 0
                 };
             }
         }

@@ -1,5 +1,5 @@
 import * as React from "react";
-import {TimelineStep} from "../Sections/Game/CollapsiblePanel/PlayerProgressPanel.tsx";
+import {HistoryStep} from "../../../packages/shared-types/player/history";
 
 export interface InputField {
     id: string;
@@ -10,6 +10,7 @@ export interface InputField {
     type?: string;
     maxLength?: number;
     autoFocus?: boolean;
+    autoComplete: "on" | "off";
 }
 
 // Interface pour les boutons
@@ -22,22 +23,26 @@ export interface ButtonField {
 
 // Interface pour le ModalForm (formulaire)
 export interface ModalFormProps {
+    message?: string;
     inputFields: InputField[];
+    cancelButton?: ButtonField;
     submitButton: ButtonField;
     isValid: boolean; // Indique si tous les inputs sont valides
 }
 
 // Interface pour le ModalConfirmation (confirmation avec deux boutons)
 export interface ModalConfirmationProps {
-    message: string;
-    cancelButton: ButtonField;
+    message?: string;
+    cancelButton?: ButtonField;
     okButton: ButtonField;
 }
 
 // Interface pour le contenu de type timeline
 export interface ModalTimelineProps {
+    message?: string;
     username: string;
-    timelineSteps: TimelineStep[];
+    timelineSteps: HistoryStep[];
+    cancelButton: ButtonField;
 }
 
 // Interface générique pour ModalProps
@@ -45,7 +50,6 @@ export interface ModalProps {
     isOpen: boolean;
     onClose: () => void;
     title: string;
-    description?: string;
     type: "form" | "confirmation" | "timeline"; // Indique quel type de modal afficher
     content: ModalFormProps | ModalConfirmationProps | ModalTimelineProps; // Dynamique en fonction du type
 }

@@ -2,23 +2,26 @@ import React, {useState, useEffect, useCallback, useMemo} from "react";
 import {generateTOC, TOCItem} from "../../../utils/Game/TOCutils.ts";
 import TOC from "./TOC.tsx";
 import parse, {domToReact, HTMLReactParserOptions, Element, DOMNode} from "html-react-parser";
-import {useWikiNavigation} from "../../../context/WikiNavigationContext.tsx";
 import WikiLink from "../../Hypertext/Game/WikiLink";
 import {cleanHTMLContent} from "../../../utils/Game/ArticleCleaningUtils.ts";
 import {useNavigate} from "react-router-dom";
+import {useGameContext} from "../../../context/GameContext.tsx";
+import {useChallengeContext} from "../../../context/ChallengeContext";
 
 interface ArticleDisplayProps {
     className?: string;
 }
 
 const ArticleDisplay: React.FC<ArticleDisplayProps> = ({className}) => {
-    const {currentTitle} = useWikiNavigation();
+    const gameContext = useGameContext();
+    const challengeContext = useChallengeContext();
     const [content, setContent] = useState("");
     const [tocItems, setTocItems] = useState<TOCItem[]>([]);
     const [mainImage, setMainImage] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
-    const sectionsToRemove = ["Voir aussi", "Notes et références"];
+    const sectionsToRemove = ["Voir aussi", "Notes et références", "Références"];
     const navigate = useNavigate();
+    const currentTitle = challengeContext.sessionId !== "" ? challengeContext.currentTitle : gameContext.currentTitle;
 
     const fetchArticle = useCallback(async () => {
         try {

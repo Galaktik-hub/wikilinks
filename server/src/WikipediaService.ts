@@ -1,9 +1,10 @@
 import logger from "./logger";
+import axios from "axios";
 
 export class WikipediaServices {
-    private static POPULAR_THRESHOLD = 75000;
+    private static POPULAR_THRESHOLDS = [150000, 90000, 50000, 10000, 0];
     // Number of random sample dates to pick within the last 6 months.
-    private static RANDOM_SAMPLE_COUNT = 200;
+    private static RANDOM_SAMPLE_COUNT = 290;
 
     /**
      * Generates a random date between two Date objects.
@@ -21,82 +22,87 @@ export class WikipediaServices {
 
     /**
      * Retrieves a specified number of popular French Wikipedia articles by randomly sampling dates
-     * between today and 6 months ago. Aggregates pageviews over the sampled days and filters out
+     * between yesterday and 6 months ago. Aggregates pageviews over the sampled days and filters out
      * special pages (those with a colon in the title) as well as articles that do not pass a popularity threshold.
      *
      * @param numberOfArticles The number of articles to return.
+     * @param difficulty The difficulty level.
      * @returns A promise resolving to an array of article titles.
      */
-    public static async fetchRandomPopularWikipediaPages(numberOfArticles: number): Promise<string[]> {
-        try {
-            // Calculate date range: from 6 months ago to today.
-            const today = new Date();
-            const sixMonthsAgo = new Date(today.getTime());
-            sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
+    public static async fetchRandomPopularWikipediaPages(numberOfArticles: number, difficulty?: number): Promise<string[]> {
+        const today = new Date();
+        // Exclude today's date because API may not be up to date
+        const yesterday = new Date(today.getTime() - 24 * 60 * 60 * 1000);
+        const sixMonthsAgo = new Date(yesterday);
+        sixMonthsAgo.setMonth(sixMonthsAgo.getMonth() - 6);
 
-            // Build a list of random dates (we pick RANDOM_SAMPLE_COUNT dates).
-            const randomDates: {year: number; month: string; day: string}[] = [];
-            for (let i = 0; i < WikipediaServices.RANDOM_SAMPLE_COUNT; i++) {
-                const randomDate = WikipediaServices.getRandomDate(sixMonthsAgo, today);
-                // Using the day of the random date; alternatively, you could round the date if needed.
-                const year = randomDate.getFullYear();
-                const month = String(randomDate.getMonth() + 1).padStart(2, "0");
-                const day = String(randomDate.getDate()).padStart(2, "0");
-                randomDates.push({year, month, day});
-            }
+        // Build random date list between sixMonthsAgo and yesterday
+        const randomDates = Array.from({length: this.RANDOM_SAMPLE_COUNT}, () => {
+            const d = this.getRandomDate(sixMonthsAgo, yesterday);
+            return {
+                year: d.getFullYear(),
+                month: String(d.getMonth() + 1).padStart(2, "0"),
+                day: String(d.getDate()).padStart(2, "0"),
+            };
+        });
 
-            // A Map is used to sum up the view counts for each article.
-            const aggregatedArticles = new Map<string, number>();
+        const aggregated = new Map<string, number>();
 
-            // Using Promise.all to fetch each date in parallel.
-            await Promise.all(
-                randomDates.map(async ({year, month, day}) => {
-                    try {
-                        const articlesForDate = await WikipediaServices.fetchArticlesForDate(year, month, day);
-                        for (const item of articlesForDate) {
-                            if (item.article === "Main_Page" || item.article.includes(":")) continue;
-
-                            const currentViews = aggregatedArticles.get(item.article) || 0;
-                            aggregatedArticles.set(item.article, currentViews + item.views);
-                        }
-                    } catch (error) {
-                        logger.error(`Error processing date ${year}-${month}-${day}: ${error}`);
+        await Promise.all(
+            randomDates.map(async ({year, month, day}) => {
+                try {
+                    const articles = await this.fetchArticlesForDate(year, month, day);
+                    for (const {article, views} of articles) {
+                        if (article === "Main_Page" || article.includes(":")) continue;
+                        aggregated.set(article, (aggregated.get(article) || 0) + views);
                     }
-                }),
-            );
+                } catch (err) {
+                    if (axios.isAxiosError(err)) {
+                        const status = err.response?.status;
+                        const code = err.code;
+                        logger.error(`Error fetching ${year}-${month}-${day}: status=${status}, code=${code}, message=${err.message}`);
+                    } else {
+                        logger.error(`Unknown error for ${year}-${month}-${day}: ${err}`);
+                    }
+                }
+            }),
+        );
 
-            // Convert the Map to an array and filter to keep only those articles surpassing the threshold.
-            const popularArticles = Array.from(aggregatedArticles.entries())
-                .filter(([_, totalViews]) => totalViews >= WikipediaServices.POPULAR_THRESHOLD)
-                .map(([article]) => article);
+        // Filter popular
+        const popular = Array.from(aggregated.entries())
+            .filter(([, total]) => total >= this.POPULAR_THRESHOLDS[difficulty - 1])
+            .map(([a]) => a);
 
-            if (popularArticles.length === 0) {
-                logger.warn("No article exceeded the popularity threshold.");
-                return [];
-            }
-
-            // Shuffle the articles
-            for (let i = popularArticles.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [popularArticles[i], popularArticles[j]] = [popularArticles[j], popularArticles[i]];
-            }
-
-            // Return the requested number of articles
-            return popularArticles.slice(0, numberOfArticles);
-        } catch (error) {
-            logger.error(`Error fetching popular Wikipedia pages: ${error}`);
+        if (!popular.length) {
+            logger.warn("No article exceeded the popularity threshold.");
             return [];
         }
+
+        // Shuffle and slice
+        for (let i = popular.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [popular[i], popular[j]] = [popular[j], popular[i]];
+        }
+        return popular.slice(0, numberOfArticles);
     }
 
-    // Helper function to fetch articles for a given date.
-    public static fetchArticlesForDate = async (year: number, month: string, day: string) => {
+    /**
+     * Helper: fetch articles for a given date via axios and show error code
+     */
+    private static async fetchArticlesForDate(year: number, month: string, day: string): Promise<{article: string; views: number}[]> {
         const url = `https://wikimedia.org/api/rest_v1/metrics/pageviews/top/fr.wikipedia/all-access/${year}/${month}/${day}`;
-        const response = await fetch(url);
-        if (!response.ok) {
-            logger.error(`Error fetching data for ${year}-${month}-${day}: ${response.statusText}`);
+        try {
+            const resp = await axios.get(url, {timeout: 7000});
+            return resp.data?.items?.[0]?.articles;
+        } catch (err) {
+            if (axios.isAxiosError(err)) {
+                const status = err.response?.status;
+                const code = err.code;
+                logger.error(`Error fetching data for ${year}-${month}-${day}: status=${status}, code=${code}, message=${err.message}`);
+            } else {
+                logger.error(`Error fetching data for ${year}-${month}-${day}: ${err}`);
+            }
+            throw err;
         }
-        const data = await response.json();
-        return data?.items?.[0]?.articles || [];
-    };
+    }
 }

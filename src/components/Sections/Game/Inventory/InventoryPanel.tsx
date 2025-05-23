@@ -1,27 +1,35 @@
 "use client";
 import * as React from "react";
-import GpsItem from "./GpsItem.tsx";
-import RetourItem from "./RetourItem.tsx";
-import MineItem from "./MineItem.tsx";
 import InventorySVG from "../../../../assets/Game/InventorySVG.tsx";
+import {usePlayersContext} from "../../../../context/PlayersContext.tsx";
+import {ArtifactName, StackableArtifact} from "../../../../../packages/shared-types/player/inventory";
+import GpsSVG from "../../../../assets/Game/GpsSVG.tsx";
+import InventoryItem from "./InventoryItem.tsx";
+import RetourSVG from "../../../../assets/Game/RetourSVG.tsx";
+import MineSVG from "../../../../assets/Game/MineSVG.tsx";
 
-interface InventoryPanelProps {
-    gpsCount: number;
-    retourCount: number;
-    mineCount: number;
-}
+const InventoryPanel: React.FC = () => {
+    const playersContext = usePlayersContext();
+    const gpsItem = playersContext.inventory.GPS as StackableArtifact;
+    const retourItem = playersContext.inventory.Retour as StackableArtifact;
+    const mineItem = playersContext.inventory.Mine as StackableArtifact;
 
-const InventoryPanel: React.FC<InventoryPanelProps> = props => (
-    <div className="flex justify-center items-center">
-        <div className="hidden md:block bg-bgSecondary p-2.5 rounded-bl-2xl rounded-tl-2xl shadow-[0px_0px_15px_rgba(0,0,0,0.5)]">
-            <InventorySVG className="w-[50px] h-[50px]" />
+    const handleConfirm = (name: ArtifactName, data?: Record<string, string>) => {
+        playersContext.usedArtifact(name, data);
+    };
+
+    return (
+        <div className="flex justify-center items-center">
+            <div className="hidden md:block bg-bgSecondary p-2.5 rounded-bl-2xl rounded-tl-2xl shadow-[0px_0px_15px_rgba(0,0,0,0.5)]">
+                <InventorySVG className="w-[50px] h-[50px]" />
+            </div>
+            <div className="bg-bgSecondary rounded-lg flex justify-center items-center gap-5 p-2.5 shadow-[0px_0px_15px_rgba(0,0,0,0.5)]">
+                <InventoryItem item={gpsItem} onConfirm={() => handleConfirm("GPS")} Icon={GpsSVG} />
+                <InventoryItem item={retourItem} onConfirm={() => handleConfirm("Retour")} Icon={RetourSVG} />
+                <InventoryItem item={mineItem} onConfirm={page => handleConfirm("Mine", {targetPage: page as string})} Icon={MineSVG} />
+            </div>
         </div>
-        <div className="bg-bgSecondary rounded-lg flex justify-center items-center gap-5 p-2.5 shadow-[0px_0px_15px_rgba(0,0,0,0.5)]">
-            <GpsItem count={props.gpsCount} onConfirm={() => console.log("gps")} definition={""} name={""} {...props} />
-            <RetourItem count={props.retourCount} onConfirm={() => console.log("retour")} definition={""} name={""} {...props} />
-            <MineItem count={props.mineCount} onConfirm={() => console.log("mine")} definition={""} name={""} {...props} />
-        </div>
-    </div>
-);
+    );
+};
 
 export default InventoryPanel;

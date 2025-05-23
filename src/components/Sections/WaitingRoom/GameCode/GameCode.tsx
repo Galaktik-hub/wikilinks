@@ -37,9 +37,8 @@ export const GameCode: React.FC<GameCodeProps> = ({code}) => {
                         <QRCodeCanvas value={gameLink} size={200} fgColor="#000000" bgColor="#ffffff" />
                     </div>
                 ),
-                cancelButton: {label: "Annuler", onClick: () => closeModal()},
                 okButton: {
-                    label: "OK",
+                    label: "Fermer",
                     onClick: () => {
                         closeModal();
                     },

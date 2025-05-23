@@ -1,17 +1,33 @@
-import React from "react";
+import {useEffect, useState} from "react";
 import {Timer} from "./Timer";
 import {PlayButton} from "./PlayButton";
 import {PlayerCount} from "./PlayerCount";
 import AndroidSVG from "../../../../assets/Home/AndroidSVG.tsx";
 import TrophySVG from "../../../../assets/Home/TrophySVG.tsx";
+import {useNavigate} from "react-router-dom";
+import {isAndroid} from "../../../../functions/androidCheck.ts";
+import {useWebSocket} from "../../../../context/WebSocketContext";
 
-interface DailyChallengeSectionProps {
-    title: string;
-    playerCount: number;
-}
+const DailyChallengeSection = () => {
+    const socketContext = useWebSocket();
+    const [challengeCount, setChallengeCount] = useState<number>(0);
+    const [articleName, setArticleName] = useState<string>("");
 
-const DailyChallengeSection: React.FC<DailyChallengeSectionProps> = ({title, playerCount}) => {
-    const isAndroid = () => window.AndroidApp !== undefined;
+    useEffect(() => {
+        if (socketContext.messages.length > 0) {
+            const lastMessage = socketContext.messages[socketContext.messages.length - 1];
+            if (lastMessage.kind === "home_info") {
+                setChallengeCount(lastMessage.challengeCount);
+                setArticleName(lastMessage.challengeArticle);
+            }
+        }
+    }, [socketContext.messages]);
+
+    const navigate = useNavigate();
+
+    const handleClick = () => {
+        navigate("/challenge");
+    };
 
     if (isAndroid()) {
         // Display the daily challenge for mobile only if it's on Android
@@ -21,13 +37,9 @@ const DailyChallengeSection: React.FC<DailyChallengeSectionProps> = ({title, pla
                     <h2 className="text-xl md:text-2xl font-bold">Défi du jour</h2>
                     <Timer />
                 </div>
-                <h2 className="text-2xl md:text-3xl text-center my-4">{title}</h2>
-                <PlayerCount count={playerCount} />
-                <PlayButton
-                    onClick={() => {
-                        console.log("Daily challenge clicked");
-                    }}
-                />
+                <h2 className="text-2xl md:text-3xl text-center my-4">{articleName.replace(/_/g, " ")}</h2>
+                <PlayerCount count={challengeCount} />
+                <PlayButton onClick={handleClick} />
             </div>
         );
     } else {
@@ -42,7 +54,7 @@ const DailyChallengeSection: React.FC<DailyChallengeSectionProps> = ({title, pla
                             Affrontez les joueurs du monde entier à travers des défis quotidiens basés sur votre position !
                         </p>
                         <div className="mt-3">
-                            <PlayerCount count={playerCount} />
+                            <PlayerCount count={challengeCount} />
                         </div>
                     </div>
 

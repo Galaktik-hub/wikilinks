@@ -28,7 +28,6 @@ interface Game {
 }
 
 export const PublicGamesList: React.FC = () => {
-    // const socket2 = useContext(SocketContext);
     const socketContext = useWebSocket();
     const gameContext = useGameContext();
     const navigate = useNavigate();
@@ -51,7 +50,7 @@ export const PublicGamesList: React.FC = () => {
         if (socketContext.isConnected) {
             setLoading(true);
             setError(null);
-            socketContext.send({kind: "get_all_sessions"});
+            socketContext.send({kind: "get_home_info"});
 
             setTimeout(() => {
                 setLoading(false);
@@ -76,7 +75,7 @@ export const PublicGamesList: React.FC = () => {
                     continue; // Message déjà traité, passer au suivant
                 }
 
-                if (message.kind === "all_sessions" && Array.isArray(message.sessions)) {
+                if (message.kind === "home_info" && Array.isArray(message.sessions)) {
                     setLoading(false);
                     console.log(`Reçu ${message.sessions.length} sessions`);
 

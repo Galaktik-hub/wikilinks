@@ -1,18 +1,18 @@
 "use client";
 import * as React from "react";
 import {useModalContext} from "../../../Modals/ModalProvider.tsx";
-import {TimelineStep} from "./PlayerProgressPanel.tsx";
+import {HistoryStep} from "../../../../../packages/shared-types/player/history";
 
 interface PlayerProgressBarProps {
     playerName: string;
     percentage: number;
-    history: TimelineStep[];
+    history: HistoryStep[];
 }
 
 const PlayerProgressItem: React.FC<PlayerProgressBarProps> = ({playerName, percentage, history}) => {
     const normalizedPercentage = Math.min(Math.max(percentage, 0), 100);
     const progressWidth = `${normalizedPercentage}%`;
-    const {openModal} = useModalContext();
+    const {openModal, closeModal} = useModalContext();
 
     const handleClick = () => {
         openModal({
@@ -21,6 +21,7 @@ const PlayerProgressItem: React.FC<PlayerProgressBarProps> = ({playerName, perce
             content: {
                 username: playerName,
                 timelineSteps: history,
+                cancelButton: {label: "Fermer", onClick: () => closeModal()},
             },
         });
     };
