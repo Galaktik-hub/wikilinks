@@ -1,5 +1,5 @@
 "use client";
-
+import React from "react";
 import ArticleDisplay from "./ArticleDisplay.tsx";
 import {preventCtrlF} from "../../../functions/preventCtrlF.ts";
 
