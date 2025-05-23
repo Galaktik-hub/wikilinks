@@ -53,13 +53,13 @@ jobs:
 
       # 8. Publier les artefacts
       - name: Upload frontend artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: wikilinks-frontend
           path: wikilinks-frontend-${{ github.run_number }}.zip
 
       - name: Upload server artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: wikilinks-server
           path: wikilinks-server-${{ github.run_number }}.zip
