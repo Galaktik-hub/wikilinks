@@ -1,4 +1,4 @@
-name: CI / Build & Publish
+name: CI / Format, Build & Publish
 
 on:
   push:
@@ -9,55 +9,68 @@ on:
 jobs:
   build-and-publish:
     runs-on: ubuntu-latest
-
     steps:
-    # 1. Checkout repo
-    - uses: actions/checkout@v4
+      # 1. Full checkout
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: true
 
-    # 2. Setup Node.js
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: 20.x
-        cache: 'npm'
+      # 2. Run Prettier and direct commit on main
+      - name: Run Prettier (write)
+        run: npm run prettier:write
 
-    # 3. Install root dependencies (frontend)
-    - name: Install frontend deps
-      run: npm install
+      - name: Commit & push formatted code
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .
+          git diff --quiet || git commit -m "chore: apply prettier formatting"
+          git push origin main
 
-    # 4. Install backend dependencies
-    - name: Install backend deps
-      working-directory: server
-      run: npm install
+      # 3. Setup Node.js & cache
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+          cache: 'npm'
 
-    # 5. Prettier
-    - name: Run Prettier
-      run: npm run prettier:write
+      # 4. Install frontend deps
+      - name: Install frontend dependencies
+        run: npm install
 
-    # 6. Build full (frontend + backend)
-    - name: Build full project
-      run: npm run build:full
+      # 5. Install backend deps (server)
+      - name: Install backend dependencies
+        working-directory: server
+        run: npm install
 
-    # 7. Zip frontend build
-    - name: Zip frontend
-      run: |
-        cd dist
-        zip -r ../wikilinks-frontend-${{ github.run_number }}.zip .
+      # 6. Build full (frontend + backend)
+      - name: Build full project
+        run: npm run build:full
 
-    # 8. Zip server build
-    - name: Zip server
-      run: |
-        cd server/build
-        zip -r ../../wikilinks-server-${{ github.run_number }}.zip .
+      # 7. Zip frontend build
+      - name: Zip frontend build
+        run: |
+          cd dist
+          zip -r ../wikilinks-frontend-${{ github.run_number }}.zip .
 
-    # 9. Upload frontend artifact
-    - uses: actions/upload-artifact@v4
-      with:
-        name: wikilinks-frontend
-        path: wikilinks-frontend-${{ github.run_number }}.zip
+      # 8. Zip server build
+      - name: Zip server build
+        run: |
+          cd server/dist
+          zip -r ../../wikilinks-server-${{ github.run_number }}.zip .
 
-    # 10. Upload server artifact
-    - uses: actions/upload-artifact@v4
-      with:
-        name: wikilinks-server
-        path: wikilinks-server-${{ github.run_number }}.zip
+      # 9. Upload frontend artifact
+      - name: Upload frontend artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: wikilinks-frontend
+          path: wikilinks-frontend-${{ github.run_number }}.zip
+
+      # 10. Upload server artifact
+      - name: Upload server artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: wikilinks-server
+          path: wikilinks-server-${{ github.run_number }}.zip
