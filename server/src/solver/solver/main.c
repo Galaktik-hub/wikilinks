@@ -1,0 +1,34 @@
+#include "graph.h"
+#include <stdlib.h>
+
+int main(int argc, char *argv[]) {
+    // Vérifier le nombre d'arguments
+    if (argc != 4) {
+        fprintf(stderr, "Usage: %s <graph_file> <id_article_departure> <id_article_arrival>\n", argv[0]);
+        return 1;
+    }
+
+    // Conversion des IDs des planètes en entiers
+    //int id_article_departure = atoi(argv[2]);
+    //int id_article_arrival = atoi(argv[3]);
+
+    // Chargement du graphe
+    Graphe graphe;
+    if (lire_fichier_et_creer_graphe(argv[1], &graphe) != 0) {
+        fprintf(stderr, "Erreur : impossible de lire ou de créer le graphe depuis le fichier %s.\n", argv[1]);
+        return 1;
+    }
+
+    // Exécution de l'algorithme BFS
+    //bfs(&graphe, id_article_departure, id_article_arrival);
+
+    // Sauvegarde du graphe (décommenter si nécessaire)
+    // if (save_graphe_in_file(&graphe, "../data/graph_output.txt") != 0) {
+    //     fprintf(stderr, "Erreur : impossible de sauvegarder le graphe dans le fichier spécifié.\n");
+    // }
+
+    // Libération des ressources
+    liberer_graphe(&graphe);
+
+    return 0;
+}
