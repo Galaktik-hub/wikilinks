@@ -57,7 +57,7 @@ void print_path(Graphe* graphe, int *parent, int start, int end) {
         printf("No path found from %d to %d\n", start, end);
     } else {
         // Rebuild the path between the start and end
-        printf("Path found from %d to %d : \n", start, end);
+        printf("Path found from %d to %d : \n", graphe->sommets[start].id_article, graphe->sommets[end].id_article);
         for (int i = top - 1; i >= 0; i--) {
             printf("%d", graphe->sommets[stack[i]].id_article);
             if (i > 0) printf(" -> ");

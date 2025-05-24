@@ -20,7 +20,7 @@ int main(int argc, char* argv[]) {
         // Reading a text file then creating the binary file for faster access
         printf("Starting to parse text file into a graph... %s\n", file);
 
-        if (lire_fichier_et_creer_graphe(file, &graphe, &id_dep, &id_arr)) {
+        if (lire_fichier_et_creer_graphe(file, &graphe)) {
             fprintf(stderr, "Error reading txt file %s\n", file);
             return 1;
         }
