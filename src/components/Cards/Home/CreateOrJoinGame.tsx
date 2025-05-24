@@ -47,6 +47,7 @@ export const CreateOrJoinGame: React.FC = () => {
             numberOfArticles: 4,
             maxPlayers: 10,
             type: "private",
+            difficulty: 2,
             leaderName: username,
         });
 
