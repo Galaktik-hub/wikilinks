@@ -6,6 +6,7 @@ import {ModalProvider} from "./components/Modals/ModalProvider.tsx";
 import {PopupProvider} from "./context/PopupContext";
 import {WebSocketProvider} from "./context/WebSocketContext.tsx";
 import {BrowserRouter as Router} from "react-router-dom";
+import {AudioProvider} from "./context/AudioContext";
 
 function App() {
     return (
@@ -13,9 +14,11 @@ function App() {
             <MantineProvider>
                 <PopupProvider>
                     <ModalProvider>
-                        <WebSocketProvider>
-                            <AppRoutes />
-                        </WebSocketProvider>
+                        <AudioProvider>
+                            <WebSocketProvider>
+                                <AppRoutes />
+                            </WebSocketProvider>
+                        </AudioProvider>
                     </ModalProvider>
                 </PopupProvider>
             </MantineProvider>

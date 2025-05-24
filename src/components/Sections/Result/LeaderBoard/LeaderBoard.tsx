@@ -74,6 +74,7 @@ const Leaderboard: React.FC<LeaderboardProps> = ({players, showCourse, currentPl
                         score={item.score}
                         showCourse={showCourse}
                         onViewCourse={() => handleShowCourse(item.name, item.history)}
+                        history={[]}
                     />
                 ),
             )}

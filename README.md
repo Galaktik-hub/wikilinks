@@ -1,3 +1,5 @@
+[![CI / Build & Publish](https://github.com/Galaktik-hub/wikilinks/actions/workflows/build-publish.yml/badge.svg)](https://github.com/Galaktik-hub/wikilinks/actions/workflows/build-publish.yml)
+
 # WikiLinks Development Guide
 
 This guide provides step-by-step instructions on setting up and developing the WikiLinks project. Follow these steps to get your development environment ready and running.

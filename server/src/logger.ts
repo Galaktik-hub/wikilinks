@@ -1,6 +1,5 @@
 import {createLogger, format, transports, addColors} from "winston";
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-import DailyRotateFile = require("winston-daily-rotate-file");
+import * as DailyRotateFile from "winston-daily-rotate-file";
 import * as fs from "node:fs";
 import * as path from "node:path";
 

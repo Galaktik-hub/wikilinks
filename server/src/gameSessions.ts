@@ -5,6 +5,7 @@ import {WikipediaServices} from "./WikipediaService";
 import {Bot, JoinLeaveBot, BOTS} from "./bots";
 import logger from "./logger";
 import {HistoryStep} from "../../packages/shared-types/player/history";
+import {Artifact, ArtifactName} from "../../packages/shared-types/player/inventory";
 
 export type GameType = "public" | "private";
 
@@ -401,8 +402,8 @@ export class GameSession {
     /**
      * Returns the initialise inventory of all players in the session.
      */
-    public initInventory(): any[] {
-        const inventory = [];
+    public initInventory(): {player: string, inventory: Record<ArtifactName, Artifact>}[] {
+        const inventory: {player: string, inventory: Record<ArtifactName, Artifact>}[] = [];
         this.members.forEach(member => {
             member.inventory.initInventory();
             inventory.push({
@@ -416,8 +417,8 @@ export class GameSession {
     /**
      * Returns the inventory of all players in the session.
      */
-    public getInventory(): any[] {
-        const inventory = [];
+    public getInventory(): {player: string, inventory: Record<ArtifactName, Artifact>}[] {
+        const inventory: {player: string, inventory: Record<ArtifactName, Artifact>}[] = [];
         this.members.forEach(member => {
             inventory.push({
                 player: member.name,

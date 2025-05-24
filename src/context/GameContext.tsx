@@ -3,10 +3,11 @@
 import React, {createContext, useContext, useEffect, useState} from "react";
 import {useWebSocket} from "./WebSocketContext.tsx";
 import {GameSettingsType} from "../components/Sections/WaitingRoom/GameSettings/GameSettings.tsx";
-import {ResultProps} from "../pages/Result/Result.tsx";
 import {usePopup} from "./PopupContext.tsx";
 import {artifactDefinitions} from "../../packages/shared-types/player/inventory";
 import {useNavigate} from "react-router-dom";
+import {useAudio} from "./AudioContext";
+import {ResultProps} from "../pages/Challenge/Challenge";
 
 interface Article {
     name: string;
@@ -63,6 +64,7 @@ export const GameProvider: React.FC<{children: React.ReactNode}> = ({children}) 
     const ws = useWebSocket()!;
     const {showPopup} = usePopup();
     const navigate = useNavigate();
+    const {playMusic, stopMusic, playEffect} = useAudio();
 
     // connexion/session
     const [leaderName, setLeader] = useState<string | null>(null);
@@ -110,6 +112,7 @@ export const GameProvider: React.FC<{children: React.ReactNode}> = ({children}) 
                     setStart(data.startArticle);
                     setCurrentTitle(data.startArticle);
                     setArticles(data.articles.map((n: string) => ({name: n, found: false})));
+                    playMusic();
                     break;
                 case "game_update": {
                     const objectivesVisited: string[] = data.event.obj_visited;
@@ -129,9 +132,18 @@ export const GameProvider: React.FC<{children: React.ReactNode}> = ({children}) 
                     setIsGameOver(true);
                     setLoading(false);
                     setScoreboard(data.scoreboard);
+                    stopMusic();
+                    // Jouer le son de victoire ou défaite selon le résultat
+                    const playerResult = data.scoreboard.find((player: any) => player.name === username);
+                    if (playerResult && playerResult.won) {
+                        playEffect("victory");
+                    } else {
+                        playEffect("defeat");
+                    }
                     setArticles([]);
                     setStart("");
                     break;
+                }
                 case "room_closed":
                     navigate("/");
                     break;
@@ -148,6 +160,13 @@ export const GameProvider: React.FC<{children: React.ReactNode}> = ({children}) 
         }, 1000);
         return () => clearInterval(timerId);
     }, [remainingDelay]);
+
+    // Arrêter la musique quand le composant est démonté (nettoyage)
+    useEffect(() => {
+        return () => {
+            stopMusic();
+        };
+    }, [stopMusic]);
 
     const changeCurrentTitle = (title: string) => {
         if (remainingDelay <= 0) {
@@ -214,6 +233,7 @@ export const GameProvider: React.FC<{children: React.ReactNode}> = ({children}) 
         setStart("");
         setCurrentTitle("");
         setScoreboard([]);
+        stopMusic();
     };
 
     return (
