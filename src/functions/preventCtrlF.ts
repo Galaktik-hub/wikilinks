@@ -6,7 +6,6 @@ export function preventCtrlF(): void {
 
         if ((isCtrlPressed && isFKeyPressed) || isF3Pressed) {
             event.preventDefault();
-            alert("La fonction de recherche est désactivée pendant le jeu.");
         }
     });
 }

@@ -48,6 +48,10 @@ export interface GameContextType {
     // scoreboard
     scoreboard: ResultProps[];
 
+    // time info
+    remainingSeconds: number;
+    setRemainingSeconds: (seconds: number) => void;
+
     // actions
     createGame: (payload: {timeLimit: number; numberOfArticles: number; maxPlayers: number; type: string; difficulty: number; leaderName: string}) => void;
     joinGame: (payload: {sessionId: number; playerName: string}) => void;
@@ -89,6 +93,9 @@ export const GameProvider: React.FC<{children: React.ReactNode}> = ({children}) 
     // scoreboard
     const [scoreboard, setScoreboard] = useState<ResultProps[]>([]);
 
+    // time info
+    const [remainingSeconds, setRemainingSeconds] = useState<number>(600);
+
     // artifact info
     const [artifactInfo, setArtifactInfo] = useState<ArtifactInfo>({hasArtifact: false, luckPercentage: null});
 
@@ -103,6 +110,7 @@ export const GameProvider: React.FC<{children: React.ReactNode}> = ({children}) 
                     break;
                 case "settings_modified":
                     if (data.settings as GameSettingsType) setSettings(data.settings);
+                    setRemainingSeconds(data.settings.timeLimit*60);
                     break;
                 case "game_launched":
                     setLoading(true);
@@ -255,6 +263,8 @@ export const GameProvider: React.FC<{children: React.ReactNode}> = ({children}) 
                 artifactInfo,
                 setArtifactInfo,
                 scoreboard,
+                remainingSeconds,
+                setRemainingSeconds,
                 createGame,
                 joinGame,
                 sendMessage,

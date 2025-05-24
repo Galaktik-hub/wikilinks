@@ -108,7 +108,7 @@ const Modal: React.FC<ModalProps> = ({isOpen, onClose, title, type, content}) =>
                                 const stepContent =
                                     config.content && step.data ? formatContent(config.content, (content as ModalTimelineProps).username, step.data) : null;
                                 return (
-                                    <Timeline.Item key={step.id.getTime()} bullet={config.icon} color={config.color} title={config.title}>
+                                    <Timeline.Item key={step.id.toString()} bullet={config.icon} color={config.color} title={config.title}>
                                         {stepContent && (
                                             <Text c="dimmed" size="sm">
                                                 {stepContent}
