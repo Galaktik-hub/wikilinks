@@ -165,4 +165,4 @@ def extract(source, output_file):
 
 
 if __name__ == "__main__":
-    extract(r"C:\Users\Utilisateur\Downloads\frwiki-20250501-pages-articles-multistream.xml.bz2", "solver/graph.txt")
+    extract(r"C:\Users\Utilisateur\Downloads\frwiki-20250501-pages-articles-multistream.xml.bz2", "graph.txt")

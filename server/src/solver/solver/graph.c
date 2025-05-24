@@ -1,14 +1,17 @@
 #include "graph.h"
+#include <stdio.h>
+#include <time.h>
+#include <string.h>
 
-// Initialise le graphe avec un nombre défini de sommets et d'arêtes
 int initialiser_graphe(Graphe* graphe, int nombre_sommets, int nombre_aretes) {
     graphe->nombre_sommets = nombre_sommets;
     graphe->nombre_aretes = nombre_aretes;
-    graphe->sommets = (Sommet*)malloc(sizeof(Sommet) * (nombre_sommets + 1)); // id 0 non utilisé
-    graphe->aretes = (Arete*)malloc(sizeof(Arete) * nombre_aretes);
+    graphe->sommets = malloc(sizeof(Sommet) * (nombre_sommets + 1)); // id 0 non utilisé
+    graphe->aretes  = malloc(sizeof(Arete)  * nombre_aretes);
+    graphe->map_id  = NULL; // init hash
 
     if (!graphe->sommets || !graphe->aretes) {
-        fprintf(stderr, "Erreur d'allocation mémoire pour le graphe.\n");
+        fprintf(stderr, "Error while allocating memory for the graph.\n");
         return 1;
     }
 
@@ -27,34 +30,38 @@ int initialiser_graphe(Graphe* graphe, int nombre_sommets, int nombre_aretes) {
     return 0;
 }
 
-// Libère la mémoire utilisée par le graphe
+// Free the memory used by the graph
 void liberer_graphe(Graphe* graphe) {
+    MapEntry *current, *tmp;
+    HASH_ITER(hh, graphe->map_id, current, tmp) {
+        HASH_DEL(graphe->map_id, current);
+        free(current);
+    }
+
     free(graphe->sommets);
-    graphe->sommets = NULL;
     free(graphe->aretes);
-    graphe->aretes = NULL;
 }
 
-// Lecture du fichier et création dynamique du graphe
+// Reads the file and creates the graph structure
 int lire_fichier_et_creer_graphe(const char* chemin_fichier, Graphe* graphe) {
     FILE* fichier = fopen(chemin_fichier, "r");
     if (!fichier) {
-        perror("Erreur d'ouverture du fichier");
+        perror("Error opening file");
         return 1;
     }
 
     char ligne[BUFFER_SIZE];
 
-    // Lire la première ligne pour récupérer les informations
+    // Reading the first line to get the number of vertices and edges
     if (!fgets(ligne, sizeof(ligne), fichier)) {
-        fprintf(stderr, "Erreur : fichier vide ou format incorrect.\n");
+        fprintf(stderr, "Error: file not correctly formatted.\n");
         fclose(fichier);
         return 1;
     }
 
-    int nombre_aretes, nombre_sommets;
-    if (sscanf(ligne, "%d %d", &nombre_aretes, &nombre_sommets) != 2) {
-        fprintf(stderr, "Erreur : format de la première ligne incorrect.\n");
+    int nombre_sommets, nombre_aretes;
+    if (sscanf(ligne, "%d %d", &nombre_sommets, &nombre_aretes) != 2) {
+        fprintf(stderr, "Error: file not correctly formatted.\n");
         fclose(fichier);
         return 1;
     }
@@ -62,31 +69,39 @@ int lire_fichier_et_creer_graphe(const char* chemin_fichier, Graphe* graphe) {
     if (initialiser_graphe(graphe, nombre_sommets, nombre_aretes) != 0)
         return 1;
 
-    int lecture_arretes = 0;
-    int index_arete = 0;
-	int index_sommet = 0;
+    int lecture_aretes = 0;
+    int idx_sommet = 0;
+    int idx_arete = 0;
 
     while (fgets(ligne, sizeof(ligne), fichier)) {
         if (ligne[0] == '-') {
-            lecture_arretes = 1;
+            lecture_aretes = 1;
             continue;
         }
 
-        if (!lecture_arretes) {
-            int id_article, id_graphe, debut_in_array, nombre_aretes_sommet;
-            if (sscanf(ligne, "%d %d %d %d", &id_article, &id_graphe, &debut_in_array, &nombre_aretes_sommet) == 3) {
-				graphe->sommets[index_sommet].id_graphe = id_graphe;
-                graphe->sommets[index_sommet].id_article = id_article;
-                graphe->sommets[index_sommet].debut_in_array = debut_in_array;
-                graphe->sommets[index_sommet].nombre_aretes = nombre_aretes_sommet;
+        if (!lecture_aretes) {
+            int id_article, id_graphe, debut, nb;
+            if (sscanf(ligne, "%d %d %d %d", &id_article, &id_graphe, &debut, &nb) == 4) {
+                Sommet* s = &graphe->sommets[idx_sommet];
+                s->id_article     = id_article;
+                s->id_graphe      = id_graphe;
+                s->debut_in_array = debut;
+                s->nombre_aretes  = nb;
+
+                // Insert hash entry
+                MapEntry* e = malloc(sizeof(MapEntry));
+                e->id_article = id_article;
+                e->id_graphe  = id_graphe;
+                HASH_ADD_INT(graphe->map_id, id_article, e);
+
+                idx_sommet++;
             }
-			index_sommet++;
         } else {
-            int id_article_depart, id_article_arrival;
-            if (sscanf(ligne, "%d %d", &id_article_depart, &id_article_arrival) == 2) {
-                graphe->aretes[index_arete].id_article_depart = id_article_depart;
-                graphe->aretes[index_arete].id_article_arrival = id_article_arrival;
-                index_arete++;
+            int from, to;
+            if (sscanf(ligne, "%d %d", &from, &to) == 2) {
+                graphe->aretes[idx_arete].id_article_depart = from;
+                graphe->aretes[idx_arete].id_article_arrival= to;
+                idx_arete++;
             }
         }
     }
@@ -96,49 +111,81 @@ int lire_fichier_et_creer_graphe(const char* chemin_fichier, Graphe* graphe) {
     return 0;
 }
 
-// Affiche le graphe
+int find_id_graphe(const Graphe* graphe, int id_article) {
+    MapEntry* e;
+    HASH_FIND_INT(graphe->map_id, &id_article, e);
+    return e ? e->id_graphe : -1;
+}
+
 void afficher_graphe(const Graphe* graphe) {
-    printf("Graphe : %d sommets, %d arêtes\n", graphe->nombre_sommets, graphe->nombre_aretes);
-
-    for (int i = 0; i < graphe->nombre_sommets + 1; i++) {
-        const Sommet* sommet = &graphe->sommets[i];
-        printf("Sommet %d : %d arêtes, début à l'index %d\n",
-               sommet->id_article,
-               sommet->nombre_aretes,
-               sommet->debut_in_array);
+    printf("Graphe : %d sommets, %d arêtes\n",
+           graphe->nombre_sommets, graphe->nombre_aretes);
+    for (int i = 0; i < graphe->nombre_sommets; i++) {
+        Sommet* s = &graphe->sommets[i];
+        printf("Sommet id_article=%d, id_graphe=%d, %d arêtes, debut=%d\n",
+               s->id_article, s->id_graphe,
+               s->nombre_aretes, s->debut_in_array);
     }
-
     for (int i = 0; i < graphe->nombre_aretes; i++) {
-        const Arete* arete = &graphe->aretes[i];
-        printf("Arête %d : départ %d, arrivée %d\n",
-               i, arete->id_article_depart, arete->id_article_arrival);
+        Arete* a = &graphe->aretes[i];
+        printf("Arete %d: %d -> %d\n",
+               i, a->id_article_depart, a->id_article_arrival);
     }
 }
 
-// Sauvegarde le graphe dans un fichier
-void save_graphe_in_file(const Graphe* graphe, const char* chemin_fichier) {
-    FILE* fichier = fopen(chemin_fichier, "w");
-    if (!fichier) {
-        perror("Erreur lors de l'ouverture du fichier pour l'écriture");
+void save_graphe_binaire(const Graphe* g, const char* path) {
+    FILE* f = fopen(path, "wb");
+    if (!f) {
+        perror("Error opening binary file for writing");
         return;
     }
 
-    fprintf(fichier, "Graphe : %d sommets, %d arêtes\n", graphe->nombre_sommets, graphe->nombre_aretes);
+    // Header info
+    fwrite(&g->nombre_sommets, sizeof(int), 1, f);
+    fwrite(&g->nombre_aretes,  sizeof(int), 1, f);
 
-    for (int i = 0; i < graphe->nombre_sommets; i++) {
-        const Sommet* sommet = &graphe->sommets[i];
-        fprintf(fichier, "Sommet %d : %d arêtes, début à l'index %d\n",
-                sommet->id_article,
-                sommet->nombre_aretes,
-                sommet->debut_in_array);
+    // Graph info
+    fwrite(g->sommets, sizeof(Sommet), g->nombre_sommets+1, f);
+    fwrite(g->aretes, sizeof(Arete), g->nombre_aretes, f);
+
+    // Hash table info
+    unsigned int map_size = HASH_COUNT(g->map_id);
+    fwrite(&map_size, sizeof(unsigned int), 1, f);
+    MapEntry* entry;
+    for (entry = g->map_id; entry; entry = entry->hh.next) {
+        fwrite(&entry->id_article, sizeof(int), 1, f);
+        fwrite(&entry->id_graphe,  sizeof(int), 1, f);
     }
 
-    for (int i = 0; i < graphe->nombre_aretes; i++) {
-        const Arete* arete = &graphe->aretes[i];
-        fprintf(fichier, "Arête %d : départ %d, arrivée %d\n",
-                i, arete->id_article_depart, arete->id_article_arrival);
+    fclose(f);
+}
+
+// Load a binary graph from a file with its corresponding hash table
+int load_graphe_binaire(const char* path, Graphe* g) {
+    FILE* f = fopen(path, "rb");
+    if (!f) {
+        perror("Error opening binary file");
+        return 1;
     }
 
-    fclose(fichier);
-    printf("Graphe enregistré dans le fichier : %s\n", chemin_fichier);
+    int nbS, nbA;
+    if (fread(&nbS, sizeof(int), 1, f)!=1 || fread(&nbA, sizeof(int), 1, f)!=1) {
+        fprintf(stderr, "Error getting header info\n"); fclose(f); return 1;
+    }
+    initialiser_graphe(g, nbS, nbA);
+
+    fread(g->sommets, sizeof(Sommet), nbS+1, f);
+    fread(g->aretes,  sizeof(Arete),  nbA,   f);
+
+    unsigned int map_size;
+    fread(&map_size, sizeof(unsigned int), 1, f);
+    for (unsigned int i = 0; i < map_size; i++) {
+        MapEntry* e = malloc(sizeof(MapEntry));
+        fread(&e->id_article, sizeof(int), 1, f);
+        fread(&e->id_graphe,  sizeof(int), 1, f);
+        HASH_ADD_INT(g->map_id, id_article, e);
+    }
+
+    fclose(f);
+    return 0;
 }
