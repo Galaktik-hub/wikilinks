@@ -1,6 +1,7 @@
 import React, {createContext, useContext, useEffect, useState} from "react";
 import {useWebSocket} from "./WebSocketContext.tsx";
 import {ResultProps} from "../pages/Challenge/Challenge";
+import {useAudio} from "./AudioContext";
 
 interface Article {
     name: string;
@@ -40,6 +41,7 @@ const ChallengeContext = createContext<ChallengeContextType | undefined>(undefin
 
 export const ChallengeProvider: React.FC<{children: React.ReactNode}> = ({children}) => {
     const ws = useWebSocket();
+    const {playMusic, stopMusic, playEffect} = useAudio();
 
     // connexion/session
     const [username, setUsername] = useState<string | null>(null);
@@ -65,8 +67,11 @@ export const ChallengeProvider: React.FC<{children: React.ReactNode}> = ({childr
                 case "challenge_session_created":
                     setSessionId(data.sessionId);
                     setIsGameOver(false);
+                    playMusic();
                     break;
                 case "challenge_ended":
+                    stopMusic();
+                    playEffect("victory");
                     setIsGameOver(true);
                     setArticles([]);
                     setStartArticle("");

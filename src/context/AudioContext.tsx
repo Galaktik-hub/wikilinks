@@ -1,4 +1,6 @@
-import React, { createContext, useContext, useRef, useState, useCallback, useEffect } from "react";
+"use client";
+
+import React, {createContext, useContext, useRef, useState, useCallback, useEffect} from "react";
 
 // Types for our context
 interface AudioContextType {
@@ -7,7 +9,7 @@ interface AudioContextType {
     playEffect: (effect: AudioEffect) => void;
     isMusicPlaying: boolean;
     playAudioOnce: (url: string) => void;
-    playAudioOnLoop: (url: string) => { stop: () => void };
+    playAudioOnLoop: (url: string) => {stop: () => void};
 }
 
 export type AudioEffect = "victory" | "defeat" | "artifact";
@@ -22,7 +24,7 @@ const EFFECTS: Record<AudioEffect, string> = {
 
 const AudioContext = createContext<AudioContextType | undefined>(undefined);
 
-export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const AudioProvider: React.FC<{children: React.ReactNode}> = ({children}) => {
     const musicRef = useRef<HTMLAudioElement | null>(null);
     const [isMusicPlaying, setIsMusicPlaying] = useState(false);
 
@@ -68,7 +70,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             stop: () => {
                 audio.pause();
                 audio.currentTime = 0;
-            }
+            },
         };
     }, []);
 
@@ -82,11 +84,7 @@ export const AudioProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         };
     }, []);
 
-    return (
-        <AudioContext.Provider value={{ playMusic, stopMusic, playEffect, isMusicPlaying, playAudioOnce, playAudioOnLoop }}>
-            {children}
-        </AudioContext.Provider>
-    );
+    return <AudioContext.Provider value={{playMusic, stopMusic, playEffect, isMusicPlaying, playAudioOnce, playAudioOnLoop}}>{children}</AudioContext.Provider>;
 };
 
 // Custom hook for easier usage
