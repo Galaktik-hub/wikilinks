@@ -2,7 +2,7 @@ import logger from "./logger";
 import axios from "axios";
 
 export class WikipediaServices {
-    private static POPULAR_THRESHOLDS = [150000, 90000, 50000, 10000, 0];
+    private static POPULAR_THRESHOLDS = [200000, 120000, 70000, 10000, 0];
     // Number of random sample dates to pick within the last 6 months.
     private static RANDOM_SAMPLE_COUNT = 290;
 

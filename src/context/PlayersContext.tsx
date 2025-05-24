@@ -74,7 +74,7 @@ export const PlayersProvider: React.FC<{children: React.ReactNode}> = ({children
                     }
                     break;
                 case "game_artifact":
-                    artifactExecution(data.artefact as ArtifactName, data.data);
+                    if (data.type === "execution") artifactExecution(data.artefact as ArtifactName, data.data);
                     break;
             }
         };

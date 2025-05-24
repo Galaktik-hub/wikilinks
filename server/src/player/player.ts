@@ -68,6 +68,7 @@ export class Player {
             this.ws.send(
                 JSON.stringify({
                     kind: "game_artifact",
+                    type: "execution",
                     artefact: "Dictateur",
                     data: {
                         targetArticle: this.priorityObjective,
@@ -151,6 +152,7 @@ export class Player {
         this.ws.send(
             JSON.stringify({
                 kind: "game_artifact",
+                type: "execution",
                 artefact: "Mine",
                 data: {
                     source: page,
@@ -165,6 +167,7 @@ export class Player {
         this.ws.send(
             JSON.stringify({
                 kind: "game_artifact",
+                type: "execution",
                 artefact: "Desorienteur",
                 data: {
                     randomArticle: randomArticle[0],
@@ -181,6 +184,7 @@ export class Player {
         this.ws.send(
             JSON.stringify({
                 kind: "game_artifact",
+                type: "execution",
                 artefact: "Dictateur",
                 data: {
                     targetArticle: this.priorityObjective,
