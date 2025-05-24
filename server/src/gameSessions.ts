@@ -280,14 +280,24 @@ export class GameSession {
                     }
                 } else {
                     player.visitPage(data.page_name);
-                }
-                const pageInfo = await this.determineArtifactPresence(data.page_name);
-                if (pageInfo.hasArtifact) {
-                    logger.info(
-                        `Page "${data.page_name}" contains an artifact with a ${pageInfo.luckPercentage}% chance of success and a ${pageInfo.unluckPercentage}% chance of failure.`,
-                    );
-                } else {
-                    logger.info(`Page "${data.page_name}" does not contain an artifact.`);
+                    pageInfo = await this.determineArtifactPresence(data.page_name);
+                    if (pageInfo.hasArtifact) {
+                        logger.info(
+                            `Page "${data.page_name}" contains an artifact with a ${pageInfo.luckPercentage}% chance of success and a ${pageInfo.unluckPercentage}% chance of failure.`,
+                        );
+                        player.ws.send(
+                            JSON.stringify({
+                                kind: "game_artifact",
+                                type: "info",
+                                data: {
+                                    hasArtifact: pageInfo.hasArtifact,
+                                    luckPercentage: pageInfo.luckPercentage,
+                                },
+                            }),
+                        );
+                    } else {
+                        logger.info(`Page "${data.page_name}" does not contain an artifact.`);
+                    }
                 }
                 if (this.trappedArticles.includes(data.page_name)) {
                     player.playArtifactMine(data.page_name);
@@ -312,28 +322,22 @@ export class GameSession {
                 logger.error(`Unknown event type: ${data.type}`);
         }
         this.updateScoreboard();
-        const targetMember = this.members.get(playerName);
-        if (targetMember && targetMember.ws.readyState === WebSocket.OPEN) {
-            targetMember.ws.send(
-                JSON.stringify({
-                    kind: "game_update",
-                    event: {
-                        type: data.type,
-                        data: {
-                            player: player.name,
-                            ...data,
-                        },
-                        obj_visited: targetMember.objectivesVisited,
-                        obj_to_visit: targetMember.objectivesToVisit,
-                        hasArtifact: pageInfo.hasArtifact,
-                        luckPercentage: pageInfo.luckPercentage,
-                    },
-                }),
-            );
-        }
-
         this.members.forEach(member => {
             if (member.ws.readyState === WebSocket.OPEN) {
+                member.ws.send(
+                    JSON.stringify({
+                        kind: "game_update",
+                        event: {
+                            type: data.type,
+                            data: {
+                                player: player.name,
+                                ...data,
+                            },
+                            obj_visited: member.objectivesVisited,
+                            obj_to_visit: member.objectivesToVisit,
+                        },
+                    }),
+                );
                 member.ws.send(
                     JSON.stringify({
                         kind: "inventory",

@@ -13,6 +13,11 @@ interface Article {
     found: boolean;
 }
 
+interface ArtifactInfo {
+    hasArtifact: boolean;
+    luckPercentage: number | null;
+}
+
 export interface GameContextType {
     // connection/session
     leaderName: string | null;
@@ -31,6 +36,10 @@ export interface GameContextType {
     changeCurrentTitle: (title: string) => boolean;
     setPageChangeDelay: (delay: number) => void;
 
+    // artifacts in article
+    artifactInfo: ArtifactInfo;
+    setArtifactInfo: (info: ArtifactInfo) => void;
+
     // game state
     isGameOver: boolean;
     setIsGameOver: (value: boolean) => void;
@@ -46,9 +55,6 @@ export interface GameContextType {
     checkUsernameTaken: (name: string, code: number) => Promise<boolean>;
     checkGameHasStarted: (code: number) => Promise<boolean>;
     resetGame: () => void;
-
-    artifactInfo: {hasArtifact: boolean; luckPercentage: number | null};
-    setArtifactInfo: React.Dispatch<React.SetStateAction<{hasArtifact: boolean; luckPercentage: number | null}>>;
 }
 
 const GameContext = createContext<GameContextType | undefined>(undefined);
@@ -82,7 +88,7 @@ export const GameProvider: React.FC<{children: React.ReactNode}> = ({children}) 
     const [scoreboard, setScoreboard] = useState<ResultProps[]>([]);
 
     // artifact info
-    const [artifactInfo, setArtifactInfo] = useState<{hasArtifact: boolean; luckPercentage: number | null}>({hasArtifact: false, luckPercentage: null});
+    const [artifactInfo, setArtifactInfo] = useState<ArtifactInfo>({hasArtifact: false, luckPercentage: null});
 
     useEffect(() => {
         const handler = (data: any) => {
@@ -109,13 +115,16 @@ export const GameProvider: React.FC<{children: React.ReactNode}> = ({children}) 
                     const objectivesVisited: string[] = data.event.obj_visited;
                     const objectivesToVisit: string[] = data.event.obj_to_visit;
                     setArticles(() => objectivesToVisit.map(name => ({name, found: false})).concat(objectivesVisited.map(name => ({name, found: true}))));
-
-                    setArtifactInfo({
-                        hasArtifact: data.event.hasArtifact,
-                        luckPercentage: data.event.luckPercentage,
-                    });
                     break;
                 }
+                case "game_artifact":
+                    if (data.type === "info") {
+                        setArtifactInfo({
+                            hasArtifact: data.data.hasArtifact,
+                            luckPercentage: data.data.luckPercentage,
+                        })
+                    }
+                    break;
                 case "game_over":
                     setIsGameOver(true);
                     setLoading(false);
@@ -143,6 +152,7 @@ export const GameProvider: React.FC<{children: React.ReactNode}> = ({children}) 
     const changeCurrentTitle = (title: string) => {
         if (remainingDelay <= 0) {
             setCurrentTitle(title);
+            setArtifactInfo({hasArtifact: false, luckPercentage: null});
             return true;
         } else {
             showPopup("error", `${artifactDefinitions.Escargot.definition} (${remainingDelay}s restant)`);
@@ -200,6 +210,7 @@ export const GameProvider: React.FC<{children: React.ReactNode}> = ({children}) 
         setSettings({timeLimit: 10, numberOfArticles: 4, maxPlayers: 10, type: "private", difficulty: 2});
         setIsGameOver(false);
         setArticles([]);
+        setArtifactInfo({hasArtifact: false, luckPercentage: null});
         setStart("");
         setCurrentTitle("");
         setScoreboard([]);
@@ -221,6 +232,8 @@ export const GameProvider: React.FC<{children: React.ReactNode}> = ({children}) 
                 currentTitle,
                 changeCurrentTitle,
                 setPageChangeDelay,
+                artifactInfo,
+                setArtifactInfo,
                 scoreboard,
                 createGame,
                 joinGame,
@@ -229,8 +242,6 @@ export const GameProvider: React.FC<{children: React.ReactNode}> = ({children}) 
                 checkUsernameTaken,
                 checkGameHasStarted,
                 resetGame,
-                artifactInfo,
-                setArtifactInfo,
             }}>
             {children}
         </GameContext.Provider>
