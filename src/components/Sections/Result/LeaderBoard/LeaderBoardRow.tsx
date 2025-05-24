@@ -1,5 +1,5 @@
 import * as React from "react";
-import {ResultProps} from "../../../../pages/Result/Result.tsx";
+import {ResultProps} from "../../../../pages/Challenge/Challenge";
 
 interface LeaderboardRowProps extends ResultProps {
     showCourse: boolean;

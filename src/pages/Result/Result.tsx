@@ -8,12 +8,7 @@ import Leaderboard from "../../components/Sections/Result/LeaderBoard/LeaderBoar
 import Header from "../../components/Header/Header.tsx";
 import ReturnToLobbyButton from "../../components/Buttons/Result/ReturnToLobbyButton.tsx";
 import {useGameContext} from "../../context/GameContext.tsx";
-
-export interface ResultProps {
-    rank: number;
-    name: string;
-    score: number;
-}
+import {ResultProps} from "../Challenge/Challenge";
 
 const Result: React.FC = () => {
     const {username, scoreboard} = useGameContext();

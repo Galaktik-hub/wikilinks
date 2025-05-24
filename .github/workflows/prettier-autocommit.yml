@@ -1,0 +1,55 @@
+name: Auto Prettier Commit (non-main branches)
+
+permissions:
+  contents: write
+
+on:
+  push:
+    branches-ignore:
+      - main
+
+jobs:
+  prettier-auto-commit:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1) Checkout repo
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
+          persist-credentials: true
+
+      # 2) Setup Node
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.x
+          cache: 'npm'
+
+      # 3) Install frontend dependencies
+      - name: Install dependencies
+        run: npm install
+
+      # 4) Run Prettier
+      - name: Run Prettier (write)
+        run: npm run prettier:write
+
+      # 5) Commit & push on the branch
+      - name: Commit & push formatted code (only if not modifying workflows)
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .
+          if ! git diff --cached --quiet; then
+            if git diff --cached --name-only | grep -q "^\.github/workflows/"; then
+              echo "Workflow files changed, skipping commit to avoid permission error."
+            else
+              BRANCH=${GITHUB_REF#refs/heads/}
+              git commit -m "chore: auto-format with prettier"
+              git push origin HEAD:$BRANCH
+            fi
+          else
+            echo "No formatting changes to commit"
+          fi

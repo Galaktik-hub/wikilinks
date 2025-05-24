@@ -3,8 +3,16 @@
     "references": [{"path": "./tsconfig.app.json"}, {"path": "./tsconfig.node.json"}],
     "compilerOptions": {
         "typeRoots": [
-            "./src/types" // Custom types declarations
+            "./src/types"
         ]
     },
-    "include": ["src/**/*", "src/types/android-bridge.d.ts"]
+    "include": [
+        "src/**/*.ts",
+        "src/**/*.tsx",
+        "src/types/android-bridge.d.ts",
+        "packages/shared-types/**/*"
+    ],
+    "exclude": [
+        "node_modules",
+    ]
 }

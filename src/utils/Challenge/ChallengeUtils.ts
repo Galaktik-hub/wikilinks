@@ -3,7 +3,7 @@
  */
 export async function setPlayedToday(): Promise<void> {
     return new Promise((_resolve, reject) => {
-        if (window.AndroidApp?.setTodayChallengePlayed()) {
+        if (window.AndroidApp?.setTodayChallengePlayed) {
             window.AndroidApp.setTodayChallengePlayed();
         } else {
             reject(new Error("Bridge Android non disponible"));
