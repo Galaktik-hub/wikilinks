@@ -402,8 +402,8 @@ export class GameSession {
     /**
      * Returns the initialise inventory of all players in the session.
      */
-    public initInventory(): {player: string, inventory: Record<ArtifactName, Artifact>}[] {
-        const inventory: {player: string, inventory: Record<ArtifactName, Artifact>}[] = [];
+    public initInventory(): {player: string; inventory: Record<ArtifactName, Artifact>}[] {
+        const inventory: {player: string; inventory: Record<ArtifactName, Artifact>}[] = [];
         this.members.forEach(member => {
             member.inventory.initInventory();
             inventory.push({
@@ -417,8 +417,8 @@ export class GameSession {
     /**
      * Returns the inventory of all players in the session.
      */
-    public getInventory(): {player: string, inventory: Record<ArtifactName, Artifact>}[] {
-        const inventory: {player: string, inventory: Record<ArtifactName, Artifact>}[] = [];
+    public getInventory(): {player: string; inventory: Record<ArtifactName, Artifact>}[] {
+        const inventory: {player: string; inventory: Record<ArtifactName, Artifact>}[] = [];
         this.members.forEach(member => {
             inventory.push({
                 player: member.name,

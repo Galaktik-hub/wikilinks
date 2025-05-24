@@ -1,14 +1,14 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, {useEffect, useRef, useState} from "react";
 import ChronoSVG from "../../assets/Game/ChronoSVG";
-import { useGameContext } from "../../context/GameContext";
+import {useGameContext} from "../../context/GameContext";
 
 export interface TimerProps {
     handleTimeOver: () => void;
 }
 
-const Timer: React.FC<TimerProps> = ({ handleTimeOver }) => {
+const Timer: React.FC<TimerProps> = ({handleTimeOver}) => {
     const intervalRef = useRef<NodeJS.Timeout>();
-    const { remainingSeconds: contextSeconds, setRemainingSeconds } = useGameContext();
+    const {remainingSeconds: contextSeconds, setRemainingSeconds} = useGameContext();
     const [seconds, setSeconds] = useState<number>(contextSeconds);
 
     useEffect(() => {
@@ -19,7 +19,7 @@ const Timer: React.FC<TimerProps> = ({ handleTimeOver }) => {
         if (seconds <= 0) return;
 
         intervalRef.current = setInterval(() => {
-            setSeconds((prev) => prev - 1);
+            setSeconds(prev => prev - 1);
         }, 1000);
 
         return () => {

@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, {useEffect, useState} from "react";
 import Layout from "../../components/Layout";
 import ObjectivesPanel from "../../components/Sections/Game/CollapsiblePanel/ObjectivePanel.tsx";
 import PlayerProgressPanel from "../../components/Sections/Game/CollapsiblePanel/PlayerProgressPanel.tsx";
@@ -7,13 +7,13 @@ import WikiPagePanel from "../../components/Sections/Game/WikiPagePanel.tsx";
 import InventoryPanel from "../../components/Sections/Game/Inventory/InventoryPanel.tsx";
 import ExitButton from "../../components/Buttons/WaitingRoom/ExitButton.tsx";
 import TextLoungePanel from "../../components/Sections/WaitingRoom/TextLounge/TextLoungePanel.tsx";
-import { useMediaQuery } from "react-responsive";
+import {useMediaQuery} from "react-responsive";
 import InventoryButton from "../../components/Buttons/Game/InventoryButton.tsx";
 import Header from "../../components/Header/Header.tsx";
 import GameEndScreen from "../../components/Sections/Game/EndGame/GameEndScreen.tsx";
-import { useGameContext } from "../../context/GameContext.tsx";
+import {useGameContext} from "../../context/GameContext.tsx";
 import Timer from "../../components/Timer/Timer";
-import { useWebSocket } from "../../context/WebSocketContext";
+import {useWebSocket} from "../../context/WebSocketContext";
 
 const Game: React.FC = () => {
     const gameContext = useGameContext();
@@ -21,8 +21,8 @@ const Game: React.FC = () => {
     const [isGameOver, setIsGameOver] = useState(false);
     const isHost = gameContext.leaderName === gameContext.username;
 
-    const isMobile = useMediaQuery({ maxWidth: 767 });
-    const isDesktop = useMediaQuery({ minWidth: 1200 });
+    const isMobile = useMediaQuery({maxWidth: 767});
+    const isDesktop = useMediaQuery({minWidth: 1200});
     const isIntermediate = !isMobile && !isDesktop;
 
     const desktopLeft = (
@@ -38,7 +38,7 @@ const Game: React.FC = () => {
     }, [gameContext.isGameOver]);
 
     const onTimeOver = () => {
-        socketContext.send({ kind: "time_over" });
+        socketContext.send({kind: "time_over"});
     };
 
     return (
@@ -47,9 +47,7 @@ const Game: React.FC = () => {
                 {/* If there is a time defined inside the gameContext settings, we put the timer*/}
                 {gameContext.settings.timeLimit && gameContext.settings.timeLimit > 0 && (
                     <div className="fixed top-4 left-4 z-50">
-                        <Timer
-                            handleTimeOver={onTimeOver}
-                        />
+                        <Timer handleTimeOver={onTimeOver} />
                     </div>
                 )}
 
@@ -83,7 +81,6 @@ const Game: React.FC = () => {
                 )}
             </Layout>
         </>
-
     );
 };
 
