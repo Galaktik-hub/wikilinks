@@ -40,7 +40,7 @@ export interface GameContextType {
     scoreboard: ResultProps[];
 
     // actions
-    createGame: (payload: {timeLimit: number; numberOfArticles: number; maxPlayers: number; type: string; leaderName: string}) => void;
+    createGame: (payload: {timeLimit: number; numberOfArticles: number; maxPlayers: number; type: string; difficulty: number; leaderName: string}) => void;
     joinGame: (payload: {sessionId: number; playerName: string}) => void;
     sendMessage: (content: string, sender: string) => void;
     checkRoomExists: (code: number) => Promise<boolean>;
