@@ -128,7 +128,7 @@ export const GameProvider: React.FC<{children: React.ReactNode}> = ({children}) 
                         })
                     }
                     break;
-                case "game_over":
+                case "game_over": {
                     setIsGameOver(true);
                     setLoading(false);
                     setScoreboard(data.scoreboard);
