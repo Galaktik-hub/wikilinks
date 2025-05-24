@@ -14,6 +14,11 @@ interface Article {
     found: boolean;
 }
 
+interface ArtifactInfo {
+    hasArtifact: boolean;
+    luckPercentage: number | null;
+}
+
 export interface GameContextType {
     // connection/session
     leaderName: string | null;
@@ -31,6 +36,10 @@ export interface GameContextType {
     currentTitle: string;
     changeCurrentTitle: (title: string) => boolean;
     setPageChangeDelay: (delay: number) => void;
+
+    // artifacts in article
+    artifactInfo: ArtifactInfo;
+    setArtifactInfo: (info: ArtifactInfo) => void;
 
     // game state
     isGameOver: boolean;
@@ -80,6 +89,9 @@ export const GameProvider: React.FC<{children: React.ReactNode}> = ({children}) 
     // scoreboard
     const [scoreboard, setScoreboard] = useState<ResultProps[]>([]);
 
+    // artifact info
+    const [artifactInfo, setArtifactInfo] = useState<ArtifactInfo>({hasArtifact: false, luckPercentage: null});
+
     useEffect(() => {
         const handler = (data: any) => {
             switch (data.kind) {
@@ -108,6 +120,14 @@ export const GameProvider: React.FC<{children: React.ReactNode}> = ({children}) 
                     setArticles(() => objectivesToVisit.map(name => ({name, found: false})).concat(objectivesVisited.map(name => ({name, found: true}))));
                     break;
                 }
+                case "game_artifact":
+                    if (data.type === "info") {
+                        setArtifactInfo({
+                            hasArtifact: data.data.hasArtifact,
+                            luckPercentage: data.data.luckPercentage,
+                        })
+                    }
+                    break;
                 case "game_over": {
                     setIsGameOver(true);
                     setLoading(false);
@@ -151,6 +171,7 @@ export const GameProvider: React.FC<{children: React.ReactNode}> = ({children}) 
     const changeCurrentTitle = (title: string) => {
         if (remainingDelay <= 0) {
             setCurrentTitle(title);
+            setArtifactInfo({hasArtifact: false, luckPercentage: null});
             return true;
         } else {
             showPopup("error", `${artifactDefinitions.Escargot.definition} (${remainingDelay}s restant)`);
@@ -208,6 +229,7 @@ export const GameProvider: React.FC<{children: React.ReactNode}> = ({children}) 
         setSettings({timeLimit: 10, numberOfArticles: 4, maxPlayers: 10, type: "private", difficulty: 2});
         setIsGameOver(false);
         setArticles([]);
+        setArtifactInfo({hasArtifact: false, luckPercentage: null});
         setStart("");
         setCurrentTitle("");
         setScoreboard([]);
@@ -230,6 +252,8 @@ export const GameProvider: React.FC<{children: React.ReactNode}> = ({children}) 
                 currentTitle,
                 changeCurrentTitle,
                 setPageChangeDelay,
+                artifactInfo,
+                setArtifactInfo,
                 scoreboard,
                 createGame,
                 joinGame,

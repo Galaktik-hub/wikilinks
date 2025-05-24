@@ -269,6 +269,8 @@ export class GameSession {
      */
     public async handleGameEvent(playerName: string, data: any): Promise<void> {
         const player = this.members.get(playerName);
+        let pageInfo: {hasArtifact: boolean; luckPercentage?: number; unluckPercentage?: number} = {hasArtifact: false};
+
         switch (data.type) {
             case "visitedPage": {
                 const article = this.articles.find(article => article === data.page_name);
@@ -279,14 +281,24 @@ export class GameSession {
                     }
                 } else {
                     player.visitPage(data.page_name);
-                }
-                const pageInfo = await this.determineArtifactPresence(data.page_name);
-                if (pageInfo.hasArtifact) {
-                    logger.info(
-                        `Page "${data.page_name}" contains an artifact with a ${pageInfo.luckPercentage}% chance of success and a ${pageInfo.unluckPercentage}% chance of failure.`,
-                    );
-                } else {
-                    logger.info(`Page "${data.page_name}" does not contain an artifact.`);
+                    pageInfo = await this.determineArtifactPresence(data.page_name);
+                    if (pageInfo.hasArtifact) {
+                        logger.info(
+                            `Page "${data.page_name}" contains an artifact with a ${pageInfo.luckPercentage}% chance of success and a ${pageInfo.unluckPercentage}% chance of failure.`,
+                        );
+                        player.ws.send(
+                            JSON.stringify({
+                                kind: "game_artifact",
+                                type: "info",
+                                data: {
+                                    hasArtifact: pageInfo.hasArtifact,
+                                    luckPercentage: pageInfo.luckPercentage,
+                                },
+                            }),
+                        );
+                    } else {
+                        logger.info(`Page "${data.page_name}" does not contain an artifact.`);
+                    }
                 }
                 if (this.trappedArticles.includes(data.page_name)) {
                     player.playArtifactMine(data.page_name);
