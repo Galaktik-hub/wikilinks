@@ -165,4 +165,5 @@ def extract(source, output_file):
 
 
 if __name__ == "__main__":
-    extract(r"C:\Users\Utilisateur\Downloads\frwiki-20250501-pages-articles-multistream.xml.bz2", "graph.txt")
+    path = sys.argv[1] if len(sys.argv) > 1 else "graph.bz2"
+    extract(path, "graph.txt")
