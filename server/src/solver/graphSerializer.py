@@ -12,6 +12,8 @@ from xml.dom.pulldom import START_ELEMENT, parse
 
 INFOBOX_STARTERS = ("[[", "]]", "{{", "}}", "|", "<!", "*", "=", "{|")
 
+title_search_pattern = re.compile(r'(?<=[A-Za-z0-9]):(?=[A-Za-z0-9])')
+link_pattern = re.compile(r"\[\[([^]]+)]]|\{\{([^}]+)}}")
 
 class Graph:
     def __init__(self):
@@ -43,11 +45,11 @@ class Graph:
     def convertToIdGraph(self, id_store):
         # convert stored title edges to id edges
         for from_id, titles in self.nodesStr.items():
-            self.nodesId[from_id] = []
+            if from_id not in self.nodesId:
+                self.nodesId[from_id] = []
             for title in titles:
-                norm_title = normalizeTitle(title)
-                if norm_title in id_store.ids:
-                    self.nodesId[from_id].append(id_store.ids[norm_title])
+                if title in id_store.ids:
+                    self.nodesId[from_id].append(id_store.ids[title])
 
     def dumpToFile(self, filepath: str):
         with open(filepath, "w", encoding="utf-8") as f:
@@ -74,12 +76,7 @@ class idStorer:
         self.ids: dict[str, int] = {}
 
     def storeId(self, title: str, page_id: int):
-        norm = normalizeTitle(title)
-        self.ids[norm] = int(page_id)
-
-
-def normalizeTitle(s):
-    return s.strip().replace("_", " ").lower()
+        self.ids[title] = int(page_id)
 
 
 def getText(nodelist):
@@ -103,7 +100,7 @@ def parseWikiText(text):
             break
     text = "\n".join(lines[i:])
     links = set()
-    for m in re.finditer(r"\[\[([^]]+)]]|\{\{([^}]+)}}", text):
+    for m in link_pattern.finditer(text):
         data = m.group(1) if m.group(1) else m.group(2)
         data_elements = data.split("|")
         if m.group(1):
@@ -119,8 +116,6 @@ def extract(source, output_file):
         stream = bz2.open(source, mode='rt', errors='ignore', encoding="UTF-8")
     else:
         stream = open(source, mode='r', errors='ignore')
-
-    title_search_pattern = re.compile(r'(?<=[A-Za-z0-9]):(?=[A-Za-z0-9])')
 
     i = j = 0
     doc = parse(stream)
@@ -148,15 +143,13 @@ def extract(source, output_file):
                 text = getText(node.getElementsByTagName("text")[0].childNodes)
                 links = parseWikiText(text)
                 for link_title in links:
-                    graph.addEdge(page_id, normalizeTitle(link_title))
+                    graph.addEdge(page_id, link_title)
             else:
-                graph.addEdge(page_id, normalizeTitle(redirect))
+                graph.addEdge(page_id, redirect)
 
             i += 1
             if i % 1000 == 0:
                 print(f"Processed {i} pages", file=sys.stderr)
-                if i > 2_680_000:
-                    break
 
     # Convert to id-based graph and dump
     graph.convertToIdGraph(id_store)
@@ -166,4 +159,4 @@ def extract(source, output_file):
 
 if __name__ == "__main__":
     path = sys.argv[1] if len(sys.argv) > 1 else "graph.bz2"
-    extract(path, "graph.txt")
+    extract(r"C:\Users\Utilisateur\Downloads\frwiki-20250501-pages-articles-multistream.xml.bz2", "graph.txt")
