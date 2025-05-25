@@ -3,14 +3,14 @@
 #include "graph.h"
 
 typedef struct {
-    int *items;
-    int front, rear;
-    int capacity;
+    long *items;
+    long front, rear;
+    long capacity;
 } Queue;
 
-Queue* createQueue(int capacity) {
+Queue* createQueue(long capacity) {
     Queue* q = malloc(sizeof(Queue));
-    q->items = malloc(capacity * sizeof(int));
+    q->items = malloc(capacity * sizeof(long));
     q->front = q->rear = 0;
     q->capacity = capacity;
     return q;
@@ -20,7 +20,7 @@ int isEmpty(Queue* q) {
     return q->front == q->rear;
 }
 
-void enqueue(Queue* q, int v) {
+void enqueue(Queue* q, long v) {
     if (q->rear == q->capacity) {
         fprintf(stderr, "Enqueue overflow\n");
         exit(EXIT_FAILURE);
@@ -42,10 +42,10 @@ void freeQueue(Queue* q) {
 }
 
 // Reconstruct the path from start to end using the parent array
-void print_path(Graphe* graphe, int *parent, int start, int end) {
-    int *stack = malloc((end - start + 1) * sizeof(int));
-    int top = 0;
-    int cur = end;
+void print_path(Graphe* graphe, long *parent, long start, long end) {
+    long *stack = malloc((end - start + 1) * sizeof(long));
+    long top = 0;
+    long cur = end;
 
     while (cur != -1) {
         stack[top++] = cur;
@@ -54,12 +54,12 @@ void print_path(Graphe* graphe, int *parent, int start, int end) {
     }
 
     if (cur == -1) {
-        printf("No path found from %d to %d\n", start, end);
+        printf("No path found from %ld to %ld\n", start, end);
     } else {
         // Rebuild the path between the start and end
-        printf("Path found from %d to %d : \n", graphe->sommets[start].id_article, graphe->sommets[end].id_article);
-        for (int i = top - 1; i >= 0; i--) {
-            printf("%d", graphe->sommets[stack[i]].id_article);
+        printf("Path found from %ld to %ld : \n", graphe->sommets[start].id_article, graphe->sommets[end].id_article);
+        for (long i = top - 1; i >= 0; i--) {
+            printf("%ld", graphe->sommets[stack[i]].id_article);
             if (i > 0) printf(" -> ");
         }
         printf("\n");
@@ -69,41 +69,41 @@ void print_path(Graphe* graphe, int *parent, int start, int end) {
 }
 
 // BFS with parent tracking
-void bfs(Graphe* graphe, int start, int end) {
-    int n = graphe->nombre_sommets;
+void bfs(Graphe* graphe, long start, long end) {
+    long n = graphe->nombre_sommets;
 
-    char* visited = calloc(n, sizeof(char));
+    int* visited = malloc(n * sizeof(int));
     if (!visited) {
-        perror("calloc visited");
+        perror("malloc visited");
         exit(EXIT_FAILURE);
     }
 
     // parent[v] will hold the parent of v in the BFS tree
-    int* parent = malloc(n * sizeof(int));
+    long* parent = malloc(n * sizeof(long));
     if (!parent) {
         perror("malloc parent");
         exit(EXIT_FAILURE);
     }
-    for (int i = 0; i < n; i++) parent[i] = -1;
+    for (long i = 0; i < n; i++) parent[i] = -1;
 
     Queue* q = createQueue(n);
     visited[start] = 1;
     enqueue(q, start);
 
     while (!isEmpty(q)) {
-        int u = dequeue(q);
+        long u = dequeue(q);
 
         if (u == end) {
             break;
         }
 
         Sommet* s = &graphe->sommets[u];
-        int begin = s->debut_in_array;
-        int count = s->nombre_aretes;
+        long begin = s->debut_in_array;
+        long count = s->nombre_aretes;
 
-        for (int i = begin; i < begin + count; i++) {
-            int v = graphe->aretes[i].id_article_arrival;
-            if (!visited[v]) {
+        for (long i = begin; i < begin + count; i++) {
+            long v = graphe->aretes[i].id_article_arrival;
+            if (visited[v] != 1) {
                 visited[v] = 1;
                 parent[v] = u;
                 enqueue(q, v);

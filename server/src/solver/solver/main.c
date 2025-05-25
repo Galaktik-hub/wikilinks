@@ -12,8 +12,8 @@ int main(int argc, char* argv[]) {
     // Fetching the arguments
     const char* file = argv[1];
     int mode = atoi(argv[2]);
-    int id_dep = atoi(argv[3]);
-    int id_arr = atoi(argv[4]);
+    long id_dep = atoi(argv[3]);
+    long id_arr = atoi(argv[4]);
 
     Graphe graphe;
     if (mode == 0) {
@@ -25,7 +25,7 @@ int main(int argc, char* argv[]) {
             return 1;
         }
 
-        printf("Graph read: %d nodes, %d vertices\n", graphe.nombre_sommets, graphe.nombre_aretes);
+        printf("Graph read: %ld nodes, %ld vertices\n", graphe.nombre_sommets, graphe.nombre_aretes);
 
         char outbin[256];
         snprintf(outbin,256, "%s.bin", file);
@@ -39,11 +39,11 @@ int main(int argc, char* argv[]) {
             return 1;
         }
 
-        int id_g_dep = find_id_graphe(&graphe, id_dep);
-        int id_g_arr = find_id_graphe(&graphe, id_arr);
+        long id_g_dep = find_id_graphe(&graphe, id_dep);
+        long id_g_arr = find_id_graphe(&graphe, id_arr);
 
         if (id_g_dep < 0 || id_g_arr < 0) {
-            fprintf(stderr, "ID not found in hash table: %d -> %d or %d -> %d\n", id_dep, id_g_dep, id_arr, id_g_arr);
+            fprintf(stderr, "ID not found in hash table: %ld -> %ld or %ld -> %ld\n", id_dep, id_g_dep, id_arr, id_g_arr);
             return 1;
         }
 
