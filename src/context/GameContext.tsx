@@ -110,7 +110,7 @@ export const GameProvider: React.FC<{children: React.ReactNode}> = ({children}) 
                     break;
                 case "settings_modified":
                     if (data.settings as GameSettingsType) setSettings(data.settings);
-                    setRemainingSeconds(data.settings.timeLimit*60);
+                    setRemainingSeconds(data.settings.timeLimit * 60);
                     break;
                 case "game_launched":
                     setLoading(true);
@@ -133,7 +133,7 @@ export const GameProvider: React.FC<{children: React.ReactNode}> = ({children}) 
                         setArtifactInfo({
                             hasArtifact: data.data.hasArtifact,
                             luckPercentage: data.data.luckPercentage,
-                        })
+                        });
                     }
                     break;
                 case "game_over": {

@@ -2,17 +2,8 @@
     "files": [],
     "references": [{"path": "./tsconfig.app.json"}, {"path": "./tsconfig.node.json"}],
     "compilerOptions": {
-        "typeRoots": [
-            "./src/types"
-        ]
+        "typeRoots": ["./src/types"]
     },
-    "include": [
-        "src/**/*.ts",
-        "src/**/*.tsx",
-        "src/types/android-bridge.d.ts",
-        "packages/shared-types/**/*"
-    ],
-    "exclude": [
-        "node_modules",
-    ]
+    "include": ["src/**/*.ts", "src/**/*.tsx", "src/types/android-bridge.d.ts", "packages/shared-types/**/*"],
+    "exclude": ["node_modules"]
 }
