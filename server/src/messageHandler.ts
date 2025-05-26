@@ -436,6 +436,24 @@ export async function handleMessage(ws: WebSocket, message: any, context: Client
             await session.start();
             break;
         }
+        case "time_over": {
+            const session = getSessionOrError(ws, context);
+            if (!session) return;
+
+            // To avoid sending multiple time the end game message
+            if (session.leader.name !== context.currentUser.name) {
+                ws.send(
+                    JSON.stringify({
+                        kind: "error",
+                        message: "Only the leader can end the game",
+                    }),
+                );
+                return;
+            }
+
+            session.endGame();
+            break;
+        }
         case "disconnect": {
             const {currentRoomId, currentChallengeSessionId, currentUser} = context;
             if (currentRoomId && currentUser) {
