@@ -3,6 +3,7 @@ import {ChatInput} from "../../../Chat/ChatInput.tsx";
 import {SendButton} from "../../../Chat/SendButton.tsx";
 import {useWebSocket} from "../../../../context/WebSocketContext.tsx";
 import {useGameContext} from "../../../../context/GameContext.tsx";
+import {useAudio} from "../../../../context/AudioContext";
 
 export const TextLoungePanel: React.FC = () => {
     const socketContext = useWebSocket();
@@ -10,6 +11,7 @@ export const TextLoungePanel: React.FC = () => {
     const [message, setMessage] = React.useState("");
     const [isInputFocused, setIsInputFocused] = React.useState(false);
     const messagesRef = React.useRef<HTMLDivElement[]>([]);
+    const {playEffect} = useAudio();
 
     const handleSendMessage = () => {
         if (message.trim() && gameContext.username) {
@@ -40,6 +42,7 @@ export const TextLoungePanel: React.FC = () => {
     // Scroll to bottom when new messages arrive
     useEffect(() => {
         scrollToBottom();
+        playEffect("message");
     }, [socketContext.messages]);
 
     // Function to add references to the list
