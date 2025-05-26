@@ -3,7 +3,7 @@ import {generateTOC, TOCItem} from "../../../utils/Game/TOCutils.ts";
 import TOC from "./TOC.tsx";
 import parse, {domToReact, HTMLReactParserOptions, Element, DOMNode} from "html-react-parser";
 import WikiLink from "../../Hypertext/Game/WikiLink";
-import {cleanHTMLContent} from "../../../utils/Game/ArticleCleaningUtils.ts";
+import {cleanHTMLContent, insertKeywordButton} from "../../../utils/Game/ArticleCleaningUtils.ts";
 import {useNavigate} from "react-router-dom";
 import {useGameContext} from "../../../context/GameContext.tsx";
 import {useChallengeContext} from "../../../context/ChallengeContext";
@@ -16,6 +16,7 @@ const ArticleDisplay: React.FC<ArticleDisplayProps> = ({className}) => {
     const gameContext = useGameContext();
     const challengeContext = useChallengeContext();
     const [content, setContent] = useState("");
+    const [rawContent, setRawContent] = useState("");
     const [tocItems, setTocItems] = useState<TOCItem[]>([]);
     const [mainImage, setMainImage] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
@@ -59,7 +60,7 @@ const ArticleDisplay: React.FC<ArticleDisplayProps> = ({className}) => {
             } else {
                 finalHTML = cleanHTMLContent(doc.body, sectionsToRemove);
             }
-            setContent(finalHTML);
+            setRawContent(finalHTML);
             setTocItems(generateTOC(finalHTML));
         } catch (err) {
             if (err instanceof Error) setError(err.message);
@@ -76,6 +77,19 @@ const ArticleDisplay: React.FC<ArticleDisplayProps> = ({className}) => {
     useEffect(() => {
         fetchArticle();
     }, [fetchArticle]);
+
+    const insertArtifactWord = useCallback(() => {
+        if (gameContext.artifactInfo.hasArtifact && rawContent.trim()) {
+            const result = insertKeywordButton(rawContent);
+            if (result.html !== content) {
+                setContent(result.html);
+            }
+        }
+    }, [rawContent, gameContext.artifactInfo]);
+
+    useEffect(() => {
+        insertArtifactWord();
+    }, [insertArtifactWord]);
 
     // Transformation des liens internes en composant WikiLink
     const options: HTMLReactParserOptions = useMemo(
@@ -110,15 +124,19 @@ const ArticleDisplay: React.FC<ArticleDisplayProps> = ({className}) => {
         [],
     );
 
+    const displayHTML = gameContext.artifactInfo.hasArtifact
+        ? content
+        : rawContent;
+
     if (error) return <p>Erreur : {error}</p>;
-    if (!content) return <p>Chargement...</p>;
+    if (!displayHTML) return <p>Chargement...</p>;
 
     return (
         <div className={`article-content ${className}`}>
             {mainImage && <img src={mainImage} alt={currentTitle} className="article-image" />}
             <h1 className="text-center text-white my-4">{currentTitle.replace(/_/g, " ")}</h1>
             {tocItems.length > 0 && <TOC items={tocItems} />}
-            <div>{parse(content, options)}</div>
+            <div>{parse(displayHTML, options)}</div>
         </div>
     );
 };

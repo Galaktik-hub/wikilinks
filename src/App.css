@@ -61,6 +61,16 @@
             white-space: nowrap;
         }
     }
+    .artifact-key-word {
+        color: #16a34a;
+        border-bottom: 1px dotted #16a34a;
+        padding: 0;
+        &:hover {
+            color: #d14836;
+            text-decoration: none;
+            border-bottom: 1px solid #d14836;
+        }
+    }
 }
 .article-image {
     display: block;
