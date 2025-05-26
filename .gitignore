@@ -32,3 +32,4 @@ android/app/release/*
 *.exe
 *graph.txt
 *graph.txt.bin
+*games.txt
