@@ -114,6 +114,7 @@ export const GameProvider: React.FC<{children: React.ReactNode}> = ({children}) 
                     break;
                 case "game_launched":
                     setLoading(true);
+                    setIsGameOver(false);
                     break;
                 case "game_started":
                     setLoading(false);

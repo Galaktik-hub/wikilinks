@@ -38,7 +38,7 @@ const Timer: React.FC<TimerProps> = ({handleTimeOver}) => {
                 clearInterval(intervalRef.current);
             }
         }
-    }, [seconds, setRemainingSeconds, handleTimeOver]);
+    }, [seconds, setRemainingSeconds]);
 
     if (seconds <= 0) return null;
 
@@ -47,9 +47,9 @@ const Timer: React.FC<TimerProps> = ({handleTimeOver}) => {
     const formattedTime = `${minutesLeft}:${secondsLeft.toString().padStart(2, "0")}`;
 
     return (
-        <div className="sticky top-0 left-0 m-4 p-3 bg-gray-800 text-white rounded-2xl flex items-center gap-3 border-2 border-blueSecondary ring-2 ring-blueSecondary shadow-lg shadow-blueSecondary/50">
+        <div className="card-container sticky top-0 left-0 m-2 text-white flex items-center justify-between">
             <ChronoSVG />
-            <span className="text-lg tracking-wider">{formattedTime}</span>
+            <span className="text-lg tracking-wider min-w-10">{formattedTime}</span>
         </div>
     );
 };

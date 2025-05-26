@@ -69,9 +69,9 @@ export const cleanHTMLContent = (html: Element, sectionsToRemove?: string[]): st
     });
 
     // Supprimer les classes et styles prédéfinit
-    doc.querySelectorAll('[class], [style]').forEach(el => {
-        el.removeAttribute('class');
-        el.removeAttribute('style');
+    doc.querySelectorAll("[class], [style]").forEach(el => {
+        el.removeAttribute("class");
+        el.removeAttribute("style");
     });
 
     // Englober les tableaux dans des conteneurs personnalisés
@@ -85,7 +85,7 @@ export const cleanHTMLContent = (html: Element, sectionsToRemove?: string[]): st
     return doc.body.innerHTML;
 };
 
-export function insertKeywordButton(html: string): { keyword: string; html: string } {
+export function getArtifactKeyword(html: string): string {
     const parser = new DOMParser();
     const doc = parser.parseFromString(html, "text/html");
 
@@ -116,8 +116,7 @@ export function insertKeywordButton(html: string): { keyword: string; html: stri
             counts.set(w, (counts.get(w) || 0) + 1);
         }
     }
-
-    if (!counts.size) return { keyword: "", html };
+    if (!counts.size) return "";
 
     // 2) Sélection des mots les moins fréquents
     let minCount = Infinity;
@@ -127,56 +126,5 @@ export function insertKeywordButton(html: string): { keyword: string; html: stri
         .map(([w]) => w);
     const keyword = candidates[Math.floor(Math.random() * candidates.length)];
 
-    // 3) Envelopper la première occurrence hors <a> et hors titres
-    function wrapFirst(el: Element): boolean {
-        for (const child of Array.from(el.childNodes)) {
-            if (child.nodeType === Node.TEXT_NODE) {
-                if (isInHeading(child)) continue;
-                const text = child.textContent || "";
-                const idx = text.toLowerCase().indexOf(keyword);
-                if (idx !== -1) {
-                    const before = text.slice(0, idx);
-                    const matchText = text.slice(idx, idx + keyword.length);
-                    const after = text.slice(idx + keyword.length);
-                    const frag = doc.createDocumentFragment();
-                    if (before) frag.appendChild(document.createTextNode(before));
-                    const button = doc.createElement("button");
-                    button.id = "artifact-key-word"
-                    button.className = "blue-title-effect text-[16px]";
-                    button.textContent = matchText;
-                    frag.appendChild(button);
-                    if (after) frag.appendChild(document.createTextNode(after));
-                    child.parentElement?.replaceChild(frag, child);
-                    return true;
-                }
-            } else if (child.nodeType === Node.ELEMENT_NODE) {
-                const elChild = child as Element;
-                if (elChild.tagName === "A" || /^H[1-6]$/.test(elChild.tagName)) {
-                    // on n'explore pas les liens ni les titres
-                    continue;
-                }
-                if (wrapFirst(elChild)) return true;
-            }
-        }
-        return false;
-    }
-
-    wrapFirst(doc.body);
-    return { keyword, html: doc.body.innerHTML };
-}
-
-export function removeKeywordSpan(html: string): string {
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(html, "text/html");
-
-    let btn = doc.getElementById("artifact-key-word");
-    if (!btn) {
-        btn = doc.querySelector("button.blue-title-effect");
-    }
-    if (btn && btn.parentNode) {
-        const textNode = doc.createTextNode(btn.textContent || "");
-        btn.parentNode.replaceChild(textNode, btn);
-    }
-
-    return doc.body.innerHTML;
+    return keyword;
 }

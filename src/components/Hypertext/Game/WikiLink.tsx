@@ -12,14 +12,7 @@ const WikiLink: React.FC<WikiLinkProps> = ({title, children, ...props}) => {
     const gameContext = useGameContext();
     const challengeContext = useChallengeContext();
 
-    const handleClick = (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
-        e.preventDefault();
-        if (challengeContext.sessionId !== "") {
-            challengeContext.setCurrentTitle(title);
-        } else {
-            gameContext.changeCurrentTitle(title);
-        }
-
+    const sendGameEvent = () => {
         socketContext.send({
             kind: "game_event",
             event: {
@@ -27,6 +20,14 @@ const WikiLink: React.FC<WikiLinkProps> = ({title, children, ...props}) => {
                 page_name: title,
             },
         });
+    };
+
+    const handleClick = (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
+        e.preventDefault();
+        if (challengeContext.sessionId !== "") {
+            challengeContext.setCurrentTitle(title);
+            sendGameEvent();
+        } else if (gameContext.changeCurrentTitle(title)) sendGameEvent();
     };
 
     return (

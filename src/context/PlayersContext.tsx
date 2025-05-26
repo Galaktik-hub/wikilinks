@@ -7,7 +7,6 @@ import {useModalContext} from "../components/Modals/ModalProvider.tsx";
 import {HistoryStep} from "../../packages/shared-types/player/history";
 import {Artifact, artifactDefinitions, ArtifactName} from "../../packages/shared-types/player/inventory";
 import {useChallengeContext} from "./ChallengeContext";
-import {selectArtifact} from "../utils/Game/selectArtifact";
 
 interface PlayerInfo {
     username: string;
@@ -183,7 +182,7 @@ export const PlayersProvider: React.FC<{children: React.ReactNode}> = ({children
 
     const artifactExecMine = (username: string) => {
         openModal({
-            title: "Effet d'artefact",
+            title: "Effet d'artefact : Mine",
             type: "confirmation",
             content: {
                 message: "Vous venez de tomber sur un artefact piégé de mines par un adversaire. Vous reculez de 5 articles.",
@@ -200,7 +199,7 @@ export const PlayersProvider: React.FC<{children: React.ReactNode}> = ({children
 
     const artifactExecDictateur = (page_obj: string) => {
         openModal({
-            title: "Effet d'artefact",
+            title: "Effet d'artefact : Dictateur",
             type: "confirmation",
             content: {
                 message: `${artifactDefinitions.Dictateur.definition.replace("{page_obj}", page_obj.replace(/_/g, " "))}`,
@@ -213,85 +212,6 @@ export const PlayersProvider: React.FC<{children: React.ReactNode}> = ({children
             },
         });
     };
-
-    // ---- NOUVELLE PARTIE pour gérer le clic sur #artifact-key-word ----
-    useEffect(() => {
-        const clickHandler = (e: MouseEvent) => {
-            const btn = document.getElementById("artifact-key-word");
-            if (!btn || !btn.contains(e.target as Node)) return;
-
-            // 1) Sélection de l'artefact
-            const chosen = selectArtifact(gameCtx.artifactInfo);
-            if (!chosen) return;
-
-            console.log("Chosen artifact", chosen);
-
-            // 2) Notifier le serveur que l'on a trouvé cet artefact
-            foundArtifact(chosen);
-
-            // 3) Supprimer le bouton du DOM en le remplaçant par son texte
-            const text = btn.textContent || "";
-            btn.replaceWith(document.createTextNode(text));
-
-            // 4) Mettre à jour le contexte pour dire qu'on n'a plus d'artifact en attente
-            gameCtx.setArtifactInfo({ hasArtifact: false, luckPercentage: null });
-
-            // 5) Construire et ouvrir le modal
-            // const def = artifactDefinitions[chosen];
-            // const baseMsg = def.definition.replace("{page_obj}", gameCtx.currentTitle);
-            // const timing = def.immediate ? "Immédiat" : "Jouable plus tard";
-            // const message = `${baseMsg} — ${timing}.`;
-            //
-            // if (def.immediate) {
-            //     openModal({
-            //         title: `Artefact trouvé : ${chosen}`,
-            //         type: "confirmation",
-            //         content: {
-            //             message,
-            //             okButton: {
-            //                 label: "OK",
-            //                 onClick: () => {
-            //                     usedArtifact(chosen)
-            //                     closeModal();
-            //                 },
-            //             },
-            //         },
-            //     });
-            // } else {
-            //     openModal({
-            //         title: `Artefact trouvé : ${chosen}`,
-            //         type: "confirmation",
-            //         content: {
-            //             message,
-            //             cancelButton: {
-            //                 label: "Utiliser plus tard",
-            //                 onClick: () => {
-            //                     closeModal();
-            //                 },
-            //             },
-            //             okButton: {
-            //                 label: "Utiliser maintenant",
-            //                 onClick: () => {
-            //                     usedArtifact(chosen);
-            //                     closeModal();
-            //                 },
-            //             },
-            //         },
-            //     });
-            // }
-        };
-
-        document.addEventListener("click", clickHandler);
-        return () => {
-            document.removeEventListener("click", clickHandler);
-        };
-    }, [
-        gameCtx.artifactInfo,
-        gameCtx.currentTitle,
-        ws,
-        openModal,
-        closeModal,
-    ]);
 
     const exit = () => {
         setPlayers([]);
