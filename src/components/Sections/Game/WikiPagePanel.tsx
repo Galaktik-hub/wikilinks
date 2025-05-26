@@ -15,8 +15,6 @@ const WikiPagePanel = () => {
         setShowNotification(hasArtifact);
     }, [hasArtifact]);
 
-    const chancePercentage = luckPercentage !== null ? luckPercentage : 60;
-
     return (
         <div className="card-container flex flex-col justify-center xl-custom:mb-32 mb-12">
             <div className="flex justify-between items-center w-full">
@@ -27,7 +25,7 @@ const WikiPagePanel = () => {
                         <div className="border border-white text-white rounded-full w-5 h-5 flex items-center justify-center mr-2">!</div>
                         <div className="flex flex-col text-bluePrimary">
                             <p className="m-0 text-sm">Artefact disponible</p>
-                            <p className="m-0 text-sm">Chance : {chancePercentage}%</p>
+                            <p className="m-0 text-sm">Chance : {luckPercentage}%</p>
                         </div>
                     </div>
                 )}

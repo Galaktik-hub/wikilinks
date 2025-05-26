@@ -24,6 +24,8 @@ interface SessionSummary {
     numberOfArticles: number;
 }
 
+const gamesFile = path.join(__dirname, "games.txt");
+
 /**
  * Checks that the client is in an active session and returns the session.
  * Sends an error message via the socket if this is not the case and returns null.
@@ -53,10 +55,24 @@ function getSessionOrError(ws: WebSocket, context: ClientContext): ReturnType<ty
 }
 
 /**
+ * Checks that the file exists, and creates it at ‘0’ if necessary
+ */
+function ensureGamesFile() {
+    if (!fs.existsSync(gamesFile)) {
+        try {
+            fs.writeFileSync(gamesFile, "0", "utf8");
+        } catch (err) {
+            logger.error("Unable to create games.txt :", err);
+            throw err;
+        }
+    }
+}
+
+/**
  * Increases the number of games played by 1.
  */
 function increaseNumberOfGamePlayed() {
-    const gamesFile = path.join(__dirname + "/games.txt");
+    ensureGamesFile();
     fs.readFile(gamesFile, "utf8", (err, data: string) => {
         if (err) {
             logger.error(err);
@@ -75,7 +91,7 @@ function increaseNumberOfGamePlayed() {
  * Gets the number of games played from the file.
  */
 function getNumberOfGamePlayed(): number {
-    const gamesFile = path.join(__dirname + "/games.txt");
+    ensureGamesFile();
     const data = fs.readFileSync(gamesFile, "utf8");
     return parseInt(data.trim(), 10);
 }

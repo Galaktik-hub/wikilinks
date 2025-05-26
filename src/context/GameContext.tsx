@@ -14,7 +14,7 @@ interface Article {
     found: boolean;
 }
 
-interface ArtifactInfo {
+export interface ArtifactInfo {
     hasArtifact: boolean;
     luckPercentage: number | null;
 }
@@ -114,6 +114,7 @@ export const GameProvider: React.FC<{children: React.ReactNode}> = ({children}) 
                     break;
                 case "game_launched":
                     setLoading(true);
+                    setIsGameOver(false);
                     break;
                 case "game_started":
                     setLoading(false);

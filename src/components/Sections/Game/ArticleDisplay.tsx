@@ -3,10 +3,11 @@ import {generateTOC, TOCItem} from "../../../utils/Game/TOCutils.ts";
 import TOC from "./TOC.tsx";
 import parse, {domToReact, HTMLReactParserOptions, Element, DOMNode} from "html-react-parser";
 import WikiLink from "../../Hypertext/Game/WikiLink";
-import {cleanHTMLContent} from "../../../utils/Game/ArticleCleaningUtils.ts";
+import {cleanHTMLContent, getArtifactKeyword} from "../../../utils/Game/ArticleCleaningUtils.ts";
 import {useNavigate} from "react-router-dom";
 import {useGameContext} from "../../../context/GameContext.tsx";
 import {useChallengeContext} from "../../../context/ChallengeContext";
+import ArtifactKeyword from "./ArtifactKeyword";
 
 interface ArticleDisplayProps {
     className?: string;
@@ -19,6 +20,7 @@ const ArticleDisplay: React.FC<ArticleDisplayProps> = ({className}) => {
     const [tocItems, setTocItems] = useState<TOCItem[]>([]);
     const [mainImage, setMainImage] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
+    const [artifactKeyword, setArtifactKeyword] = useState<string | null>(null);
     const sectionsToRemove = ["Voir aussi", "Notes et références", "Références"];
     const navigate = useNavigate();
     const currentTitle = challengeContext.sessionId !== "" ? challengeContext.currentTitle : gameContext.currentTitle;
@@ -53,12 +55,7 @@ const ArticleDisplay: React.FC<ArticleDisplayProps> = ({className}) => {
 
             // Sélection du contenu principal
             const mainContent = doc.querySelector(".mw-parser-output");
-            let finalHTML = "";
-            if (mainContent) {
-                finalHTML = cleanHTMLContent(mainContent, sectionsToRemove);
-            } else {
-                finalHTML = cleanHTMLContent(doc.body, sectionsToRemove);
-            }
+            const finalHTML = mainContent ? cleanHTMLContent(mainContent, sectionsToRemove) : cleanHTMLContent(doc.body, sectionsToRemove);
             setContent(finalHTML);
             setTocItems(generateTOC(finalHTML));
         } catch (err) {
@@ -77,37 +74,48 @@ const ArticleDisplay: React.FC<ArticleDisplayProps> = ({className}) => {
         fetchArticle();
     }, [fetchArticle]);
 
-    // Transformation des liens internes en composant WikiLink
+    const insertArtifactWord = useCallback(() => {
+        if (gameContext.artifactInfo.hasArtifact && content.trim()) {
+            const word = getArtifactKeyword(content);
+            setArtifactKeyword(word);
+        }
+    }, [content, gameContext.artifactInfo, currentTitle]);
+
+    useEffect(() => {
+        insertArtifactWord();
+    }, [insertArtifactWord]);
+
     const options: HTMLReactParserOptions = useMemo(
         () => ({
             replace: domNode => {
+                // Transformation des liens internes en composant WikiLink
                 if (domNode instanceof Element && domNode.name === "a") {
                     const href = domNode.attribs.href;
-                    if (href) {
-                        // Cas des liens internes
-                        if (href.startsWith("/wiki/") || href.includes("wikipedia.org/wiki/")) {
-                            const wikiPrefix = "/wiki/";
-                            let newTitle = "";
-                            if (href.startsWith(wikiPrefix)) {
-                                newTitle = decodeURIComponent(href.substring(wikiPrefix.length));
-                            } else {
-                                const parts = href.split("/wiki/");
-                                if (parts[1]) newTitle = decodeURIComponent(parts[1]);
-                            }
-                            return <WikiLink title={newTitle}>{domToReact(Array.from(domNode.children) as DOMNode[], options)}</WikiLink>;
-                        } else {
-                            // Pour les liens externes, on peut soit renvoyer un span, soit un <a> sans href
-                            return (
-                                <span style={{cursor: "default", textDecoration: "underline"}}>
-                                    {domToReact(Array.from(domNode.children) as DOMNode[], options)}
-                                </span>
-                            );
-                        }
+                    if (href && (href.startsWith("/wiki/") || href.includes("wikipedia.org/wiki/"))) {
+                        const newTitle = decodeURIComponent(href.split("/wiki/")[1] || "");
+                        return <WikiLink title={newTitle}>{domToReact(domNode.children as DOMNode[], options)}</WikiLink>;
+                    }
+                    return <span style={{cursor: "default", textDecoration: "underline"}}>{domToReact(domNode.children as DOMNode[], options)}</span>;
+                }
+                // remplacement du mot artefact en bouton, une seule fois
+                if (domNode.type === "text" && artifactKeyword && gameContext.artifactInfo.hasArtifact) {
+                    const text = domNode.data as string;
+                    const idx = text.indexOf(artifactKeyword);
+                    if (idx !== -1) {
+                        const before = text.slice(0, idx);
+                        const after = text.slice(idx + artifactKeyword.length);
+                        return (
+                            <>
+                                {before}
+                                <ArtifactKeyword key={currentTitle} text={artifactKeyword} />
+                                {after}
+                            </>
+                        );
                     }
                 }
             },
         }),
-        [],
+        [artifactKeyword, gameContext.artifactInfo, currentTitle],
     );
 
     if (error) return <p>Erreur : {error}</p>;

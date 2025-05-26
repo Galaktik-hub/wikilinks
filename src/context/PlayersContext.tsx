@@ -182,7 +182,7 @@ export const PlayersProvider: React.FC<{children: React.ReactNode}> = ({children
 
     const artifactExecMine = (username: string) => {
         openModal({
-            title: "Effet d'artefact",
+            title: "Effet d'artefact : Mine",
             type: "confirmation",
             content: {
                 message: "Vous venez de tomber sur un artefact piégé de mines par un adversaire. Vous reculez de 5 articles.",
@@ -199,7 +199,7 @@ export const PlayersProvider: React.FC<{children: React.ReactNode}> = ({children
 
     const artifactExecDictateur = (page_obj: string) => {
         openModal({
-            title: "Effet d'artefact",
+            title: "Effet d'artefact : Dictateur",
             type: "confirmation",
             content: {
                 message: `${artifactDefinitions.Dictateur.definition.replace("{page_obj}", page_obj.replace(/_/g, " "))}`,
