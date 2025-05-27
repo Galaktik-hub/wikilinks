@@ -12,8 +12,8 @@ int main(int argc, char* argv[]) {
     // Fetching the arguments
     const char* file = argv[1];
     int mode = atoi(argv[2]);
-    long id_dep = atoi(argv[3]);
-    long id_arr = atoi(argv[4]);
+    long id_dep = strtol(argv[3], NULL, 10);
+    long id_arr = strtol(argv[4], NULL, 10);
 
     Graphe graphe;
     if (mode == 0) {

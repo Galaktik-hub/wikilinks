@@ -1,4 +1,5 @@
 import logger from "./logger";
+import {getTitleFromId} from "./utils/wikipediaArticleUtils";
 
 export abstract class Bot {
     constructor(
@@ -39,4 +40,24 @@ export class JoinLeaveBot extends Bot {
     }
 }
 
-export const BOTS = [UpperCaseBot, JoinLeaveBot];
+export class ArtifactHintBot extends Bot {
+    notifyMemberJoin(name: string): void {}
+    notifyMemberLeave(name: string): void {}
+    notifyReceivedMessage(sender: string, content: string): boolean {
+        logger.info(`ArtifactHintBot (${this.name}) received message from "${sender}": "${content}"`);
+        if (content.startsWith("/artifactHint")) {
+            const payload = `${content.replace(/\/artifactHint\s*/gm, "")}`;
+            const {distance, nextId} = JSON.parse(payload);
+            getTitleFromId(nextId).then(title => {
+                const response =
+                    `Indice GPS : vous êtes à ${distance} saut${distance > 1 ? "s" : ""} d'un objectif. ` + `Commencez par consulter l'article ${title}.`;
+                logger.info(`ArtifactHintBot sends a GPS hint: "${response}" to ${this.name}.`);
+                this.sendMessage(response, sender);
+            });
+            return true;
+        }
+        return false;
+    }
+}
+
+export const BOTS = [UpperCaseBot, JoinLeaveBot, ArtifactHintBot];

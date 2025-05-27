@@ -30,7 +30,7 @@ export default function ArtifactKeyword(props: ArtifactKeywordProps) {
 
         const def = artifactDefinitions[chosen];
         const defaultOnClose = () => {
-            usedArtifact(chosen);
+            usedArtifact(chosen, {currentTitle: chosen === "Teleporteur" ? gameCtx.currentTitle : ""});
             closeModal();
         };
 

@@ -22,7 +22,8 @@ export type Artifact = StackableArtifact | ImmediateArtifact;
 
 export const artifactDefinitions: Record<ArtifactName, {definition: string; immediate: boolean; positive: boolean; target: ArtifactTarget}> = {
     GPS: {
-        definition: "Indique la distance en nombre de sauts vers l'article courant et les pages objectifs avec le lien optimal.",
+        definition:
+            "Indique la distance en nombre de sauts vers l'article courant et une page objectif (aléatoire) avec le lien optimal. Donne le nom de la première page du chemin optimal.",
         immediate: false,
         positive: true,
         target: "self",
@@ -41,7 +42,7 @@ export const artifactDefinitions: Record<ArtifactName, {definition: string; imme
         target: "article",
     },
     Teleporteur: {
-        definition: "Vous téléporte vers un article situé à distance 2 d’une page objectif. Effet immédiat.",
+        definition: "Vous téléporte vers un article situé à distance 2 d’une page objectif tirée aléatoirement. Effet immédiat.",
         immediate: true,
         positive: true,
         target: "self",
