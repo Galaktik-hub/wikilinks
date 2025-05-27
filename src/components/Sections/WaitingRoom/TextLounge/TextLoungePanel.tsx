@@ -41,8 +41,12 @@ export const TextLoungePanel: React.FC = () => {
 
     // Scroll to bottom when new messages arrive
     useEffect(() => {
-        scrollToBottom();
-        playEffect("message");
+        if (socketContext.messages.length > 0) {
+            if (socketContext.messages[socketContext.messages.length - 1].kind === "message_received") {
+                playEffect("message");
+                scrollToBottom();
+            }
+        }
     }, [socketContext.messages]);
 
     // Function to add references to the list

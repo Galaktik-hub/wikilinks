@@ -145,13 +145,6 @@ export const GameProvider: React.FC<{children: React.ReactNode}> = ({children}) 
                     setLoading(false);
                     setScoreboard(data.scoreboard);
                     stopMusic();
-                    // Jouer le son de victoire ou défaite selon le résultat
-                    const playerResult = data.scoreboard.find((player: any) => player.name === username);
-                    if (playerResult && playerResult.won) {
-                        playEffect("victory");
-                    } else {
-                        playEffect("defeat");
-                    }
                     setArticles([]);
                     setStart("");
                     break;
