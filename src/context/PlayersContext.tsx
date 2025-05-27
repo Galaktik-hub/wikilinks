@@ -223,7 +223,7 @@ export const PlayersProvider: React.FC<{children: React.ReactNode}> = ({children
         const goBackToHome = () => {
             navigate("/");
             exit();
-        }
+        };
         if (gameCtx.leaderName !== gameCtx.username) {
             openModal({
                 title: "Retour à l'acceuil",
@@ -240,7 +240,7 @@ export const PlayersProvider: React.FC<{children: React.ReactNode}> = ({children
                 },
             });
         } else goBackToHome();
-    }
+    };
 
     const exit = () => {
         setPlayers([]);
