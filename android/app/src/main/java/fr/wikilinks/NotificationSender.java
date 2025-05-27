@@ -1,49 +1,30 @@
 package fr.wikilinks;
 
-import android.Manifest;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.content.Context;
-import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.os.Build;
 
-import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
-import androidx.work.Worker;
-import androidx.work.WorkerParameters;
 
 import java.util.Random;
 
-public class DailyNotificationWorker extends Worker {
-    private static final String CHANNEL_ID = "daily-notification-channel";
-    private static final int NOTIFICATION_ID = 2001;
-
-    public DailyNotificationWorker(@NonNull Context context,
-                                   @NonNull WorkerParameters params) {
-        super(context, params);
+public class NotificationSender {
+    private static final String CHANNEL_ID = "notification";
+    private static final int NOTIF_ID = 1;
+    public static void createNotificationChannel(Context ctx) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence name = "Daily challenge";
+            String desc = "Channel for daily 8 UTC challenge";
+            int importance = NotificationManager.IMPORTANCE_HIGH;
+            NotificationChannel ch = new NotificationChannel(CHANNEL_ID, name, importance);
+            ch.setDescription(desc);
+            NotificationManager nm = ctx.getSystemService(NotificationManager.class);
+            nm.createNotificationChannel(ch);
+        }
     }
 
-    @NonNull
-    @Override
-    public Result doWork() {
-        Context ctx = getApplicationContext();
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU
-                && ctx.checkSelfPermission(Manifest.permission.POST_NOTIFICATIONS)
-                != PackageManager.PERMISSION_GRANTED) {
-            return Result.retry();
-        }
-
-        createNotificationChannel(ctx);
-
-        Intent launchApp = new Intent(ctx, MainActivity.class);
-        PendingIntent pi = PendingIntent.getActivity(
-                ctx, 0, launchApp,
-                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
-        );
-
+    public static void showNotification(Context ctx) {
         final String[] CATCHPHRASES = {
                 "Venez affronter les joueurs du monde entier sur le challenge du jour !",
                 "Prêt pour votre dose quotidienne de défi ? C’est parti !",
@@ -66,33 +47,17 @@ public class DailyNotificationWorker extends Worker {
                 "Défiez-vous sur l’article du jour et grimpez au classement !",
                 "Votre nouveau défi est prêt : venez le découvrir dès maintenant !"
         };
+        String message = CATCHPHRASES[new Random().nextInt(CATCHPHRASES.length)];
 
-        Random rnd = new Random();
-        String message = CATCHPHRASES[rnd.nextInt(CATCHPHRASES.length)];
-
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(ctx, CHANNEL_ID)
+        NotificationCompat.Builder b = new NotificationCompat.Builder(ctx, CHANNEL_ID)
                 .setSmallIcon(R.mipmap.ic_launcher)
                 .setContentTitle("Défi du jour")
                 .setContentText(message)
-                .setContentIntent(pi)
                 .setAutoCancel(true)
-                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
+                .setDefaults(NotificationCompat.DEFAULT_ALL);
 
         NotificationManager nm = (NotificationManager) ctx.getSystemService(Context.NOTIFICATION_SERVICE);
-        nm.notify(NOTIFICATION_ID, builder.build());
-
-        return Result.success();
-    }
-
-    private void createNotificationChannel(Context ctx) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            CharSequence name = "Daily notifications";
-            String description = "Channel for daily notifications at 08:00 UTC";
-            int importance = NotificationManager.IMPORTANCE_DEFAULT;
-            NotificationChannel channel = new NotificationChannel(CHANNEL_ID, name, importance);
-            channel.setDescription(description);
-            NotificationManager nm = ctx.getSystemService(NotificationManager.class);
-            nm.createNotificationChannel(channel);
-        }
+        nm.notify(NOTIF_ID, b.build());
     }
 }

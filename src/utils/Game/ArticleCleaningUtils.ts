@@ -1,8 +1,3 @@
-// ArticleCleaningUtils.ts
-export const removeClasses = (html: string): string => {
-    return html.replace(/\s*(class|style)="[^"]*"/g, "");
-};
-
 export const cleanHTMLContent = (html: Element, sectionsToRemove?: string[]): string => {
     // Coupure brutale à partir de l'une des sections à supprimer, si définie
     if (sectionsToRemove && sectionsToRemove.length > 0) {
@@ -33,9 +28,8 @@ export const cleanHTMLContent = (html: Element, sectionsToRemove?: string[]): st
     const parser = new DOMParser();
     const doc = parser.parseFromString(html.innerHTML, "text/html");
 
-    doc.querySelectorAll(".mw-editsection").forEach(el => el.remove());
-    doc.querySelectorAll("img").forEach(img => img.remove());
-    doc.querySelectorAll("video, audio, source").forEach(el => el.remove());
+    // Supprimer les sections edit, images et medias
+    doc.querySelectorAll(".mw-editsection, img, video, audio, source").forEach(el => el.remove());
 
     // Supprimer tous les cite_note dans tous les éléments
     doc.querySelectorAll("sup").forEach(sup => {
@@ -62,6 +56,7 @@ export const cleanHTMLContent = (html: Element, sectionsToRemove?: string[]): st
         }
     });
 
+    // Supprimer les liens internes /wiki/ inutiles
     doc.querySelectorAll("a").forEach(a => {
         const href = a.getAttribute("href") || "";
         if (href.startsWith("/wiki/") && decodeURIComponent(href).includes(":")) {
@@ -73,8 +68,13 @@ export const cleanHTMLContent = (html: Element, sectionsToRemove?: string[]): st
         }
     });
 
-    doc.body.innerHTML = removeClasses(doc.body.innerHTML);
+    // Supprimer les classes et styles prédéfinit
+    doc.querySelectorAll("[class], [style]").forEach(el => {
+        el.removeAttribute("class");
+        el.removeAttribute("style");
+    });
 
+    // Englober les tableaux dans des conteneurs personnalisés
     doc.querySelectorAll("table").forEach(table => {
         const wrapper = doc.createElement("div");
         wrapper.className = "table-container";
@@ -84,3 +84,47 @@ export const cleanHTMLContent = (html: Element, sectionsToRemove?: string[]): st
 
     return doc.body.innerHTML;
 };
+
+export function getArtifactKeyword(html: string): string {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, "text/html");
+
+    // Helper pour savoir si un node est dans un titre h1-h6
+    function isInHeading(node: Node): boolean {
+        let el = node.parentElement;
+        while (el) {
+            if (/^H[1-6]$/.test(el.tagName)) return true;
+            el = el.parentElement;
+        }
+        return false;
+    }
+
+    // 1) Compter les mots (≥6 lettres Unicode) hors <a> et hors titres
+    const walker = document.createTreeWalker(doc.body, NodeFilter.SHOW_TEXT, null);
+    const counts = new Map<string, number>();
+    const wordRegex = /\p{L}{6,}/gu;
+    let node: Node | null;
+
+    while ((node = walker.nextNode())) {
+        if (node.parentElement?.tagName === "A") continue;
+        if (isInHeading(node)) continue;
+
+        const text = node.textContent || "";
+        let m: RegExpExecArray | null;
+        while ((m = wordRegex.exec(text))) {
+            const w = m[0].toLowerCase();
+            counts.set(w, (counts.get(w) || 0) + 1);
+        }
+    }
+    if (!counts.size) return "";
+
+    // 2) Sélection des mots les moins fréquents
+    let minCount = Infinity;
+    for (const c of counts.values()) if (c < minCount) minCount = c;
+    const candidates = Array.from(counts.entries())
+        .filter(([, c]) => c === minCount)
+        .map(([w]) => w);
+    const keyword = candidates[Math.floor(Math.random() * candidates.length)];
+
+    return keyword;
+}

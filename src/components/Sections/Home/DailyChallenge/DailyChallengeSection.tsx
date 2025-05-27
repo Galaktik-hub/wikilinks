@@ -60,12 +60,14 @@ const DailyChallengeSection = () => {
 
                     {/* Button Section */}
                     <div className="w-full md:w-auto flex justify-center md:justify-end">
-                        <button
+                        <a
+                            href="/android/Wikilinks.apk"
+                            download
                             className="font-righteous text-base sm:text-lg inline-flex items-center justify-center gap-2 px-6 sm:px-8 py-3 sm:py-4 bg-[#10B981] rounded-full hover:bg-[#0D9668] transition-colors min-w-[160px] sm:min-w-[180px] relative z-20"
                             onClick={() => console.log("Download clicked")}>
                             <AndroidSVG className="w-5 h-5 sm:w-6 sm:h-6" />
                             Télécharger
-                        </button>
+                        </a>
                     </div>
                 </div>
 

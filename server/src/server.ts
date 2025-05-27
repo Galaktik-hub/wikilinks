@@ -25,24 +25,28 @@ wss.on("connection", (ws: WebSocket) => {
         currentChallengeSessionId: null,
     };
 
-    ws.on("message", (data: RawData) => {
+    ws.on("message", async (data: RawData) => {
         try {
             const message = JSON.parse(data.toString());
             logger.info(`Received message: ${JSON.stringify(message)}`);
-            handleMessage(ws, message, context);
+            await handleMessage(ws, message, context);
         } catch (e) {
             logger.error(`Error processing message: ${e}`);
             ws.send(JSON.stringify({kind: "error", message: "Invalid message format"}));
         }
     });
 
-    ws.on("close", () => {
-        logger.info(`Connection closed for user ${context.currentUser?.name}`);
+    ws.on("close", error => {
+        logger.info(`Connection closed for user ${context.currentUser?.name}. Code: ${error}`);
         if (context.currentGameSessionId && context.currentUser) {
             const session = GameSessionManager.getSession(context.currentGameSessionId);
             if (session) {
                 session.handlePlayerDeparture(context.currentUser.name);
             }
         }
+    });
+
+    ws.on("error", (err: Error) => {
+        logger.error(`Error processing message: ${err.message}`);
     });
 });

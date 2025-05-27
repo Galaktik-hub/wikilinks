@@ -43,7 +43,8 @@ void freeQueue(Queue* q) {
 
 // Reconstruct the path from start to end using the parent array
 void print_path(Graphe* graphe, long *parent, long start, long end) {
-    long *stack = malloc((end - start + 1) * sizeof(long));
+    long cap = 100;
+    long* stack = malloc(cap * sizeof(long));
     long top = 0;
     long cur = end;
 
