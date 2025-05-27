@@ -7,6 +7,7 @@ import {useModalContext} from "../components/Modals/ModalProvider.tsx";
 import {HistoryStep} from "../../packages/shared-types/player/history";
 import {Artifact, artifactDefinitions, ArtifactName} from "../../packages/shared-types/player/inventory";
 import {useChallengeContext} from "./ChallengeContext";
+import {useNavigate} from "react-router-dom";
 
 interface PlayerInfo {
     username: string;
@@ -34,6 +35,7 @@ export const PlayersProvider: React.FC<{children: React.ReactNode}> = ({children
     const gameCtx = useGameContext()!;
     const challengeCtx = useChallengeContext();
     const {openModal, closeModal} = useModalContext();
+    const navigate = useNavigate();
     const [players, setPlayers] = useState<PlayerInfo[]>([]);
     const [inventory, setInventory] = useState<Record<ArtifactName, Artifact>>({} as Record<ArtifactName, Artifact>);
     const [histories, setHistories] = useState<Record<string, HistoryStep[]>>({});
@@ -43,6 +45,7 @@ export const PlayersProvider: React.FC<{children: React.ReactNode}> = ({children
             switch (data.kind) {
                 case "game_launched":
                     initInventory();
+                    gameCtx.setPageChangeDelay(0);
                     break;
                 case "players_update":
                     setPlayers(data.players);
@@ -75,6 +78,9 @@ export const PlayersProvider: React.FC<{children: React.ReactNode}> = ({children
                     break;
                 case "game_artifact":
                     if (data.type === "execution") artifactExecution(data.artefact as ArtifactName, data.data);
+                    break;
+                case "room_closed":
+                    roomClosed();
                     break;
             }
         };
@@ -211,6 +217,29 @@ export const PlayersProvider: React.FC<{children: React.ReactNode}> = ({children
                 },
             },
         });
+    };
+
+    const roomClosed = () => {
+        const goBackToHome = () => {
+            navigate("/");
+            exit();
+        };
+        if (gameCtx.leaderName !== gameCtx.username) {
+            openModal({
+                title: "Retour à l'acceuil",
+                type: "confirmation",
+                content: {
+                    message: "L'hôte a fermé le salon ou vous a exclu. Vous allez être redirigé vers la page d'accueil.",
+                    okButton: {
+                        label: "Suivant",
+                        onClick: () => {
+                            goBackToHome();
+                            closeModal();
+                        },
+                    },
+                },
+            });
+        } else goBackToHome();
     };
 
     const exit = () => {

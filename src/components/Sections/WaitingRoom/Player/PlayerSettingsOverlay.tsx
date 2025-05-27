@@ -4,6 +4,7 @@ import * as React from "react";
 import VolumeButton from "../../../Buttons/WaitingRoom/VolumeButton.tsx";
 import ExcludeButton from "../../../Buttons/WaitingRoom/ExcludeButton.tsx";
 import {useWebSocket} from "../../../../context/WebSocketContext.tsx";
+import {useModalContext} from "../../../Modals/ModalProvider";
 
 interface PlayerSettingsOverlayProps {
     muted: boolean;
@@ -14,6 +15,7 @@ interface PlayerSettingsOverlayProps {
 
 export const PlayerSettingsOverlay: React.FC<PlayerSettingsOverlayProps> = props => {
     const socketContext = useWebSocket();
+    const {openModal, closeModal} = useModalContext();
 
     const handleMuteClick = () => {
         socketContext.send({kind: "mute_player", playerName: props.playerName});
@@ -21,7 +23,21 @@ export const PlayerSettingsOverlay: React.FC<PlayerSettingsOverlayProps> = props
     };
 
     const handleExcludeClick = () => {
-        socketContext.send({kind: "exclude_player", playerName: props.playerName});
+        openModal({
+            title: `Exclure ${props.playerName} ?`,
+            type: "confirmation",
+            content: {
+                message: `Voulez-vous vraiment exclure ${props.playerName} du salon ?`,
+                cancelButton: {label: "Non", onClick: () => closeModal()},
+                okButton: {
+                    label: "Oui",
+                    onClick: () => {
+                        socketContext.send({kind: "exclude_player", playerName: props.playerName});
+                        closeModal();
+                    },
+                },
+            },
+        });
     };
 
     return (

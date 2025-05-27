@@ -75,9 +75,20 @@ const ArticleDisplay: React.FC<ArticleDisplayProps> = ({className}) => {
     }, [fetchArticle]);
 
     const insertArtifactWord = useCallback(() => {
-        if (gameContext.artifactInfo.hasArtifact && content.trim()) {
+        if (gameContext.artifactInfo.hasArtifact && content) {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(content, "text/html");
+            const links = doc.querySelectorAll("a");
+            if (links.length <= 1) {
+                // pas assez de liens -> pas d'artefact
+                gameContext.setArtifactInfo({hasArtifact: false, luckPercentage: null});
+                setArtifactKeyword(null);
+                return;
+            }
             const word = getArtifactKeyword(content);
             setArtifactKeyword(word);
+        } else if (!content.trim()) {
+            setArtifactKeyword(null);
         }
     }, [content, gameContext.artifactInfo, currentTitle]);
 
@@ -91,7 +102,7 @@ const ArticleDisplay: React.FC<ArticleDisplayProps> = ({className}) => {
                 // Transformation des liens internes en composant WikiLink
                 if (domNode instanceof Element && domNode.name === "a") {
                     const href = domNode.attribs.href;
-                    if (href && (href.startsWith("/wiki/") || href.includes("wikipedia.org/wiki/"))) {
+                    if (href && (href.startsWith("/wiki/") || href.includes("fr.wikipedia.org/wiki/"))) {
                         const newTitle = decodeURIComponent(href.split("/wiki/")[1] || "");
                         return <WikiLink title={newTitle}>{domToReact(domNode.children as DOMNode[], options)}</WikiLink>;
                     }
