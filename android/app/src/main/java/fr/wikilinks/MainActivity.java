@@ -24,29 +24,20 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
-import androidx.work.ExistingPeriodicWorkPolicy;
-import androidx.work.PeriodicWorkRequest;
-import androidx.work.WorkManager;
 
 import org.json.JSONObject;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneOffset;
-import java.util.Calendar;
 import java.util.Locale;
 import java.util.Map;
-import java.util.TimeZone;
-import java.util.concurrent.TimeUnit;
 
 /**
  * MainActivity hosts the WebView and handles all permission requests
  * as well as binding to the Location service and scheduling daily notifications.
  */
 public class MainActivity extends AppCompatActivity {
-
-    public static final String WORK_NAME = "daily-notification-work";
-    private static final long PERIODIC_INTERVAL_DAYS = 1L;
 
     private WebView webView;
     private PositionService positionService;
@@ -76,11 +67,13 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         AndroidBug5497Workaround.assistActivity(this);
         applyEdgeToEdgePadding();
+        NotificationSender.createNotificationChannel(this);
 
         bindPositionService();
-        initializeWebView();
-
         askPermissions();
+        AlarmHelper.scheduleNext8Alarm(this);
+
+        initializeWebView();
     }
 
     @Override
@@ -105,7 +98,6 @@ public class MainActivity extends AppCompatActivity {
             requestNotificationPermission();
         } else {
             // Pre-Android 13: skip notification prompt and schedule work immediately
-            scheduleDailyWork();
             requestLocationPermissions();
         }
     }
@@ -122,9 +114,7 @@ public class MainActivity extends AppCompatActivity {
      * @param granted whether the user granted notification permission
      */
     private void onNotificationPermissionResult(boolean granted) {
-        if (granted) {
-            scheduleDailyWork();
-        } else {
+        if (!granted) {
             Log.w("[WikiLinks]", "Notification permission denied");
         }
         // Proceed to location permissions regardless of outcome
@@ -165,49 +155,6 @@ public class MainActivity extends AppCompatActivity {
         } else {
             Log.w("[WikiLinks]", "Location permission denied");
         }
-    }
-
-    // ------------------------------------------------------------------------------------------------
-    // WorkManager Scheduling
-    // ------------------------------------------------------------------------------------------------
-
-    /**
-     * Calculates the initial delay until the next 8:00 UTC.
-     *
-     * @return milliseconds until next 8 UTC
-     */
-    private long computeInitialDelayTo8UTC() {
-        Calendar nowUtc = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-        Calendar next8 = (Calendar) nowUtc.clone();
-        next8.set(Calendar.HOUR_OF_DAY, 8);
-        next8.set(Calendar.MINUTE, 0);
-        next8.set(Calendar.SECOND, 0);
-        next8.set(Calendar.MILLISECOND, 0);
-        if (nowUtc.after(next8)) {
-            next8.add(Calendar.DAY_OF_YEAR, 1);
-        }
-        return next8.getTimeInMillis() - nowUtc.getTimeInMillis();
-    }
-
-    /**
-     * Schedules a repeating WorkManager job at 8 UTC every day.
-     */
-    private void scheduleDailyWork() {
-        long initialDelay = computeInitialDelayTo8UTC();
-        PeriodicWorkRequest dailyWork = new PeriodicWorkRequest.Builder(
-                DailyNotificationWorker.class,
-                PERIODIC_INTERVAL_DAYS,
-                TimeUnit.DAYS
-        )
-                .setInitialDelay(initialDelay, TimeUnit.MILLISECONDS)
-                .build();
-
-        WorkManager.getInstance(this)
-                .enqueueUniquePeriodicWork(
-                        WORK_NAME,
-                        ExistingPeriodicWorkPolicy.UPDATE,
-                        dailyWork
-                );
     }
 
     // ------------------------------------------------------------------------------------------------
