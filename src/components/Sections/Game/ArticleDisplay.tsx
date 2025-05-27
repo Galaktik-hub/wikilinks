@@ -91,7 +91,7 @@ const ArticleDisplay: React.FC<ArticleDisplayProps> = ({className}) => {
                 // Transformation des liens internes en composant WikiLink
                 if (domNode instanceof Element && domNode.name === "a") {
                     const href = domNode.attribs.href;
-                    if (href && (href.startsWith("/wiki/") || href.includes("wikipedia.org/wiki/"))) {
+                    if (href && (href.startsWith("/wiki/") || href.includes("fr.wikipedia.org/wiki/"))) {
                         const newTitle = decodeURIComponent(href.split("/wiki/")[1] || "");
                         return <WikiLink title={newTitle}>{domToReact(domNode.children as DOMNode[], options)}</WikiLink>;
                     }
