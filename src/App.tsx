@@ -15,9 +15,9 @@ function App() {
                 <AudioProvider>
                     <PopupProvider>
                         <ModalProvider>
-                                <WebSocketProvider>
-                                    <AppRoutes />
-                                </WebSocketProvider>
+                            <WebSocketProvider>
+                                <AppRoutes />
+                            </WebSocketProvider>
                         </ModalProvider>
                     </PopupProvider>
                 </AudioProvider>
