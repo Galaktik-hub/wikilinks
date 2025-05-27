@@ -99,7 +99,6 @@ const ArticleDisplay: React.FC<ArticleDisplayProps> = ({className}) => {
     const options: HTMLReactParserOptions = useMemo(
         () => ({
             replace: domNode => {
-                console.log("replace", content);
                 // Transformation des liens internes en composant WikiLink
                 if (domNode instanceof Element && domNode.name === "a") {
                     const href = domNode.attribs.href;

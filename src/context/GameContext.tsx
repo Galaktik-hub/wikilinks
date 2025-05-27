@@ -114,7 +114,6 @@ export const GameProvider: React.FC<{children: React.ReactNode}> = ({children}) 
                     break;
                 case "game_launched":
                     setLoading(true);
-                    setIsGameOver(false);
                     break;
                 case "game_started":
                     setLoading(false);
@@ -151,6 +150,7 @@ export const GameProvider: React.FC<{children: React.ReactNode}> = ({children}) 
                     }
                     setArticles([]);
                     setStart("");
+                    setRemainingSeconds(settings.timeLimit * 60);
                     break;
                 }
                 case "room_closed":
