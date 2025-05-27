@@ -41,7 +41,7 @@ const ChallengeContext = createContext<ChallengeContextType | undefined>(undefin
 
 export const ChallengeProvider: React.FC<{children: React.ReactNode}> = ({children}) => {
     const ws = useWebSocket();
-    const {playMusic, stopMusic, playEffect} = useAudio();
+    const {stopMusic, playEffect} = useAudio();
 
     // connexion/session
     const [username, setUsername] = useState<string | null>(null);
@@ -67,7 +67,6 @@ export const ChallengeProvider: React.FC<{children: React.ReactNode}> = ({childr
                 case "challenge_session_created":
                     setSessionId(data.sessionId);
                     setIsGameOver(false);
-                    playMusic();
                     break;
                 case "challenge_ended":
                     stopMusic();
