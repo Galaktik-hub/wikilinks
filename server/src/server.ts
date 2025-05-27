@@ -36,7 +36,7 @@ wss.on("connection", (ws: WebSocket) => {
         }
     });
 
-    ws.on("close", (error) => {
+    ws.on("close", error => {
         logger.info(`Connection closed for user ${context.currentUser?.name}. Code: ${error}`);
         if (context.currentGameSessionId && context.currentUser) {
             const session = GameSessionManager.getSession(context.currentGameSessionId);
@@ -48,5 +48,5 @@ wss.on("connection", (ws: WebSocket) => {
 
     ws.on("error", (err: Error) => {
         logger.error(`Error processing message: ${err.message}`);
-    })
+    });
 });
