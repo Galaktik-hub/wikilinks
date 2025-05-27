@@ -13,8 +13,8 @@ public class AlarmHelper {
     /** Compute next 8:00 UTC in millis */
     private static long computeNext8UtcMillis() {
         Calendar next = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-        next.set(Calendar.HOUR_OF_DAY, 15);
-        next.set(Calendar.MINUTE, 28);
+        next.set(Calendar.HOUR_OF_DAY, 8);
+        next.set(Calendar.MINUTE, 0);
         next.set(Calendar.SECOND, 0);
         next.set(Calendar.MILLISECOND, 0);
         if (next.getTimeInMillis() <= System.currentTimeMillis()) {
