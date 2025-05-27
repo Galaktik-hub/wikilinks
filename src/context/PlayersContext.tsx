@@ -8,6 +8,7 @@ import {HistoryStep} from "../../packages/shared-types/player/history";
 import {Artifact, artifactDefinitions, ArtifactName} from "../../packages/shared-types/player/inventory";
 import {useChallengeContext} from "./ChallengeContext";
 import {useNavigate} from "react-router-dom";
+import {useAudio} from "./AudioContext";
 
 interface PlayerInfo {
     username: string;
@@ -35,6 +36,7 @@ export const PlayersProvider: React.FC<{children: React.ReactNode}> = ({children
     const gameCtx = useGameContext()!;
     const challengeCtx = useChallengeContext();
     const {openModal, closeModal} = useModalContext();
+    const {playEffect} = useAudio();
     const navigate = useNavigate();
     const [players, setPlayers] = useState<PlayerInfo[]>([]);
     const [inventory, setInventory] = useState<Record<ArtifactName, Artifact>>({} as Record<ArtifactName, Artifact>);
@@ -167,6 +169,7 @@ export const PlayersProvider: React.FC<{children: React.ReactNode}> = ({children
                 break;
             case "Mine":
                 artifactExecMine(username);
+                playEffect("mine");
                 break;
             case "Teleporteur":
                 gameCtx.changeCurrentTitle(data!.teleportedTitle);

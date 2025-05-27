@@ -24,8 +24,6 @@ const InventoryPanel: React.FC = () => {
             playEffect("gps");
         } else if (name === "Retour") {
             playEffect("back");
-        } else if (name === "Mine") {
-            playEffect("mine");
         }
     };
 
