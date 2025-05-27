@@ -193,6 +193,7 @@ export async function handleMessage(ws: WebSocket, message: any, context: Client
                         numberOfArticles: session.numberOfArticles,
                         maxPlayers: session.maxPlayers,
                         type: session.type,
+                        difficulty: session.difficulty,
                     },
                 }),
             );
