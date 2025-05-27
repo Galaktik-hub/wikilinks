@@ -33,3 +33,4 @@ android/app/release/*
 *graph.txt
 *graph.txt.bin
 *games.txt
+*.apk

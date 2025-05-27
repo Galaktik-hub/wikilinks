@@ -309,7 +309,7 @@ export class GameSession {
                 player.foundArtifact(data.artefact);
                 break;
             case "usedArtifact": {
-                const success = await player.useArtifact(data.artefact);
+                const success = await player.useArtifact(data.artefact, data.data);
 
                 if (success && data.artefact === "Mine") {
                     const targetPage = data.data.targetPage;

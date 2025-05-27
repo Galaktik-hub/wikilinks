@@ -157,10 +157,11 @@ export const PlayersProvider: React.FC<{children: React.ReactNode}> = ({children
         const username = gameCtx.username;
         if (!username) return;
         switch (name) {
-            case "GPS":
-                // Implemented solver first
-                // Write by another type bot to answer in the chat to make the answer accessible ?
+            case "GPS": {
+                const payload = JSON.stringify(data);
+                gameCtx.sendMessage(`/artifactHint ${payload}`, username);
                 break;
+            }
             case "Retour":
                 // Front side
                 break;

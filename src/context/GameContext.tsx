@@ -231,6 +231,7 @@ export const GameProvider: React.FC<{children: React.ReactNode}> = ({children}) 
         setRoomCode(-1);
         setLoading(false);
         setSettings({timeLimit: 10, numberOfArticles: 4, maxPlayers: 10, type: "private", difficulty: 2});
+        setRemainingSeconds(settings.timeLimit * 60);
         setIsGameOver(false);
         setArticles([]);
         setArtifactInfo({hasArtifact: false, luckPercentage: null});

@@ -7,9 +7,11 @@ import GpsSVG from "../../../../assets/Game/GpsSVG.tsx";
 import InventoryItem from "./InventoryItem.tsx";
 import RetourSVG from "../../../../assets/Game/RetourSVG.tsx";
 import MineSVG from "../../../../assets/Game/MineSVG.tsx";
+import {useGameContext} from "../../../../context/GameContext";
 
 const InventoryPanel: React.FC = () => {
     const playersContext = usePlayersContext();
+    const gameContext = useGameContext();
     const gpsItem = playersContext.inventory.GPS as StackableArtifact;
     const retourItem = playersContext.inventory.Retour as StackableArtifact;
     const mineItem = playersContext.inventory.Mine as StackableArtifact;
@@ -24,7 +26,7 @@ const InventoryPanel: React.FC = () => {
                 <InventorySVG className="w-[50px] h-[50px]" />
             </div>
             <div className="bg-bgSecondary rounded-lg flex justify-center items-center gap-5 p-2.5 shadow-[0px_0px_15px_rgba(0,0,0,0.5)]">
-                <InventoryItem item={gpsItem} onConfirm={() => handleConfirm("GPS")} Icon={GpsSVG} />
+                <InventoryItem item={gpsItem} onConfirm={() => handleConfirm("GPS", {currentTitle: gameContext.currentTitle})} Icon={GpsSVG} />
                 <InventoryItem item={retourItem} onConfirm={() => handleConfirm("Retour")} Icon={RetourSVG} />
                 <InventoryItem item={mineItem} onConfirm={page => handleConfirm("Mine", {targetPage: page as string})} Icon={MineSVG} />
             </div>
