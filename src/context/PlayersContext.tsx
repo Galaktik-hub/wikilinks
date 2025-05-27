@@ -43,6 +43,7 @@ export const PlayersProvider: React.FC<{children: React.ReactNode}> = ({children
             switch (data.kind) {
                 case "game_launched":
                     initInventory();
+                    gameCtx.setPageChangeDelay(0);
                     break;
                 case "players_update":
                     setPlayers(data.players);
