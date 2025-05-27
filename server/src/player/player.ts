@@ -4,11 +4,9 @@ import {PlayerHistory} from "./history/playerHistory";
 import {Inventory} from "./inventory/inventory";
 import {ArtifactName} from "../../../packages/shared-types/player/inventory";
 import {WikipediaServices} from "../WikipediaService";
-import {getIdFromTitle} from "../utils/wikipediaArticleUtils";
-import {execFile} from "node:child_process";
-import * as fs from "fs";
-import * as path from "path";
+import {getIdFromTitle, getTitleFromId} from "../utils/wikipediaArticleUtils";
 import logger from "../logger";
+import {solvePath} from "../utils/solverUtils";
 
 export type PlayerRole = "creator" | "client";
 
@@ -86,7 +84,7 @@ export class Player {
         this.history.addStep("foundPage", {page_name: page_name});
         this.articlesVisited.push(page_name);
         this.objectivesVisited.push(page_name);
-        this.objectivesToVisit = this.objectivesToVisit.filter(name => name !== page_name);
+        this.removeObjective(page_name);
         if (this.priorityObjective === page_name) {
             this.priorityObjective = null;
         }
@@ -102,9 +100,20 @@ export class Player {
         this.inventory.removeArtifact(name, quantity);
     }
 
+    private pickRandomObjective(): string {
+        const idx = Math.floor(Math.random() * this.objectivesToVisit.length);
+        return this.objectivesToVisit[idx];
+    }
+
+    private removeObjective(title: string): void {
+        this.objectivesToVisit = this.objectivesToVisit.filter(t => t !== title);
+    }
+
     async useArtifact(name: ArtifactName, data?: Record<string, string>): Promise<boolean> {
         const result = this.inventory.useArtifact(name);
         if (result) {
+            // Enregistrement de l'action d'utilisation d'un artefact
+            this.history.addStep("usedArtifact", {artefact: name});
             switch (name) {
                 case "GPS":
                     await this.useArtifactGPS(data.currentTitle);
@@ -117,7 +126,7 @@ export class Player {
                     // Back side - manage in gameSession to set trappedArticles
                     break;
                 case "Teleporteur":
-                    // Implemented solver first
+                    await this.useArtifactTeleporteur(data.currentTitle);
                     break;
                 case "Escargot":
                     // Front side
@@ -132,69 +141,63 @@ export class Player {
                     this.useArtifactDictateur();
                     break;
             }
-            // Enregistrement de l'action d'utilisation d'un artefact
-            this.history.addStep("usedArtifact", {artefact: name});
         }
         return result;
     }
 
     async useArtifactGPS(currentTitle: string): Promise<boolean> {
         if (this.objectivesToVisit.length === 0) return false;
-
-        const idx = Math.floor(Math.random() * this.objectivesToVisit.length);
-        const target = this.objectivesToVisit[idx];
-
-        const solverDir = path.join(__dirname, "../solver");
-        const exeName = process.platform === "win32" ? "wikiSolveur.exe" : "wikiSolveur";
-        const solverPath = path.join(solverDir, exeName);
-        const txtPath = path.join(solverDir, "solver/graph.txt");
-        const binPath = txtPath + ".bin";
-
-        if (!fs.existsSync(binPath)) {
-            logger.info("Creation of a non-existent graph.txt.bin file");
-            await new Promise<void>((resolve, reject) => {
-                execFile(solverPath, [txtPath, "0", "0", "0"], err => {
-                    if (err) {
-                        logger.error("Erreur conversion bin:", err);
-                        return reject(err);
-                    }
-                    resolve();
-                });
-            });
+        const target = this.pickRandomObjective();
+        try {
+            const ids = await solvePath(await getIdFromTitle(currentTitle), await getIdFromTitle(target));
+            if (ids.length < 2) return false;
+            const distance = ids.length - 1;
+            const nextId = ids[1];
+            this.ws.send(
+                JSON.stringify({
+                    kind: "game_artifact",
+                    type: "execution",
+                    artefact: "GPS",
+                    data: {distance, nextId},
+                }),
+            );
+            this.history.addStep("artifactEffect", {artefact: "GPS"});
+            return true;
+        } catch (err) {
+            logger.error("GPS artifact error:", err);
+            return false;
         }
+    }
 
-        const currentId = await getIdFromTitle(currentTitle);
-        const targetId = await getIdFromTitle(target);
-
-        return new Promise<boolean>(resolve => {
-            logger.info(`GPS artifact invoked: start=${currentId} target=${targetId}`);
-            execFile(solverPath, [binPath, "1", String(currentId), String(targetId)], (err, stdout) => {
-                if (err) {
-                    logger.error("Erreur GPS solver:", err);
-                    return resolve(false);
-                }
-                const lines = stdout
-                    .trim()
-                    .split(/\r?\n/)
-                    .map(l => l.trim())
-                    .filter(l => l);
-                const pathLine = lines[lines.length - 1];
-                const ids = pathLine.split("->").map(s => s.trim());
-                const distance = ids.length - 1;
-                const nextId = ids[1];
-
-                this.ws.send(
-                    JSON.stringify({
-                        kind: "game_artifact",
-                        type: "execution",
-                        artefact: "GPS",
-                        data: {distance, nextId},
-                    }),
-                );
-                this.history.addStep("artifactEffect", {artefact: "GPS"});
-                resolve(true);
-            });
-        });
+    async useArtifactTeleporteur(currentTitle: string): Promise<boolean> {
+        if (this.objectivesToVisit.length === 0) return false;
+        const target = this.pickRandomObjective();
+        try {
+            const ids = await solvePath(await getIdFromTitle(currentTitle), await getIdFromTitle(target));
+            let teleportedIdx: number;
+            if (ids.length >= 4) teleportedIdx = 2;
+            else if (ids.length === 3) teleportedIdx = 1;
+            else {
+                // direct link, retry with new target
+                this.removeObjective(target);
+                return this.useArtifactTeleporteur(currentTitle);
+            }
+            const teleportedId = ids[teleportedIdx];
+            const teleportedTitle = await getTitleFromId(teleportedId);
+            this.ws.send(
+                JSON.stringify({
+                    kind: "game_artifact",
+                    type: "execution",
+                    artefact: "Teleporteur",
+                    data: {teleportedTitle: teleportedTitle},
+                }),
+            );
+            this.history.addStep("artifactEffect", {artefact: "Teleporteur", source: teleportedTitle});
+            return true;
+        } catch (err) {
+            logger.error("Teleporteur artifact error:", err);
+            return false;
+        }
     }
 
     useArtifactGomme() {

@@ -169,8 +169,7 @@ export const PlayersProvider: React.FC<{children: React.ReactNode}> = ({children
                 artifactExecMine(username);
                 break;
             case "Teleporteur":
-                // Implemented solver first
-                // gameCtx.changeCurrentTitle(data!.page_name);
+                gameCtx.changeCurrentTitle(data!.teleportedTitle);
                 break;
             case "Escargot":
                 // Front side
