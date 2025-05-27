@@ -77,17 +77,17 @@ const ArticleDisplay: React.FC<ArticleDisplayProps> = ({className}) => {
     const insertArtifactWord = useCallback(() => {
         if (gameContext.artifactInfo.hasArtifact && content) {
             const parser = new DOMParser();
-            const doc = parser.parseFromString(content, 'text/html');
-            const links = doc.querySelectorAll('a');
+            const doc = parser.parseFromString(content, "text/html");
+            const links = doc.querySelectorAll("a");
             if (links.length <= 1) {
                 // pas assez de liens -> pas d'artefact
-                gameContext.setArtifactInfo({ hasArtifact: false, luckPercentage: null });
+                gameContext.setArtifactInfo({hasArtifact: false, luckPercentage: null});
                 setArtifactKeyword(null);
                 return;
             }
             const word = getArtifactKeyword(content);
             setArtifactKeyword(word);
-        } else if(!content.trim()) {
+        } else if (!content.trim()) {
             setArtifactKeyword(null);
         }
     }, [content, gameContext.artifactInfo, currentTitle]);
