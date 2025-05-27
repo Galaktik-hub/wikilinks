@@ -5,7 +5,6 @@ import {useWebSocket} from "./WebSocketContext.tsx";
 import {GameSettingsType} from "../components/Sections/WaitingRoom/GameSettings/GameSettings.tsx";
 import {usePopup} from "./PopupContext.tsx";
 import {artifactDefinitions} from "../../packages/shared-types/player/inventory";
-import {useNavigate} from "react-router-dom";
 import {useAudio} from "./AudioContext";
 import {ResultProps} from "../pages/Challenge/Challenge";
 
@@ -67,7 +66,6 @@ const GameContext = createContext<GameContextType | undefined>(undefined);
 export const GameProvider: React.FC<{children: React.ReactNode}> = ({children}) => {
     const ws = useWebSocket()!;
     const {showPopup} = usePopup();
-    const navigate = useNavigate();
     const {playMusic, stopMusic, playEffect} = useAudio();
 
     // connexion/session
@@ -153,9 +151,6 @@ export const GameProvider: React.FC<{children: React.ReactNode}> = ({children}) 
                     setRemainingSeconds(settings.timeLimit * 60);
                     break;
                 }
-                case "room_closed":
-                    navigate("/");
-                    break;
             }
         };
         ws.onMessage(handler);
