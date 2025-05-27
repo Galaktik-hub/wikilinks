@@ -12,15 +12,15 @@ function App() {
     return (
         <Router>
             <MantineProvider>
-                <PopupProvider>
-                    <ModalProvider>
-                        <AudioProvider>
+                <AudioProvider>
+                    <PopupProvider>
+                        <ModalProvider>
                             <WebSocketProvider>
                                 <AppRoutes />
                             </WebSocketProvider>
-                        </AudioProvider>
-                    </ModalProvider>
-                </PopupProvider>
+                        </ModalProvider>
+                    </PopupProvider>
+                </AudioProvider>
             </MantineProvider>
         </Router>
     );

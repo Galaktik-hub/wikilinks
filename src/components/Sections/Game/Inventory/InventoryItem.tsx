@@ -2,6 +2,7 @@
 import React, {useState} from "react";
 import {StackableArtifact} from "../../../../../packages/shared-types/player/inventory";
 import InventoryItemModal from "../../../Modals/Inventory/InventoryItemModal.tsx";
+import {useAudio} from "../../../../context/AudioContext";
 
 export interface InventoryItemProps {
     item: StackableArtifact;
@@ -11,6 +12,7 @@ export interface InventoryItemProps {
 const InventoryItem: React.FC<InventoryItemProps & {Icon: React.FC<{color?: string; className?: string}>}> = ({item, onConfirm, Icon}) => {
     const {name, count} = item;
     const [showModal, setShowModal] = useState(false);
+    const {playEffect} = useAudio();
 
     const isDisabled = count === 0;
     const itemColor = isDisabled ? "#374151" : "var(--bluePrimary)";
@@ -19,6 +21,7 @@ const InventoryItem: React.FC<InventoryItemProps & {Icon: React.FC<{color?: stri
     const handleClick = () => {
         if (isDisabled) return;
         setShowModal(true);
+        playEffect("backpack");
     };
 
     return (

@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, {useEffect} from "react";
 import Layout from "../../components/Layout.tsx";
 import Podium from "../../components/Sections/Result/Podium/Podium.tsx";
 import TextLoungePanel from "../../components/Sections/WaitingRoom/TextLounge/TextLoungePanel.tsx";
@@ -9,9 +9,20 @@ import Header from "../../components/Header/Header.tsx";
 import ReturnToLobbyButton from "../../components/Buttons/Result/ReturnToLobbyButton.tsx";
 import {useGameContext} from "../../context/GameContext.tsx";
 import {ResultProps} from "../Challenge/Challenge";
+import {useAudio} from "../../context/AudioContext";
 
 const Result: React.FC = () => {
     const {username, scoreboard} = useGameContext();
+    const {playEffect} = useAudio();
+
+    useEffect(() => {
+        const playerResult = scoreboard.find((player: any) => player.name === username);
+        if (playerResult && playerResult.rank === 1) {
+            playEffect("victory");
+        } else {
+            playEffect("defeat");
+        }
+    }, []);
 
     if (scoreboard.length === 0) {
         return (

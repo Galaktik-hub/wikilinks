@@ -1,6 +1,7 @@
 "use client";
 
 import {createContext, useState, useContext, ReactNode} from "react";
+import {useAudio} from "./AudioContext";
 
 export type PopupType = "info" | "error";
 
@@ -23,6 +24,7 @@ interface PopupProviderProps {
 }
 
 export function PopupProvider({children}: PopupProviderProps) {
+    const {playEffect} = useAudio();
     const [popup, setPopup] = useState<PopupState>({
         visible: false,
         type: "info",
@@ -31,6 +33,7 @@ export function PopupProvider({children}: PopupProviderProps) {
 
     const showPopup = (type: PopupType, message: string) => {
         setPopup({visible: true, type, message});
+        playEffect("notification");
         setTimeout(() => {
             setPopup(prev => ({...prev, visible: false}));
         }, 5000);

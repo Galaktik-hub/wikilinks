@@ -14,11 +14,13 @@ import LoadingScreen from "../../components/Sections/WaitingRoom/LoadingScreen.t
 import {useWebSocket} from "../../context/WebSocketContext.tsx";
 import {useGameContext} from "../../context/GameContext.tsx";
 import {usePlayersContext} from "../../context/PlayersContext.tsx";
+import {useAudio} from "../../context/AudioContext";
 
 const WaitingRoom: React.FC = () => {
     const socketContext = useWebSocket();
     const gameContext = useGameContext();
     const playersContext = usePlayersContext();
+    const {playEffect} = useAudio();
     const leftRef = useRef<HTMLDivElement>(null);
     const rightRef = useRef<HTMLDivElement>(null);
     const navigate = useNavigate();
@@ -68,6 +70,7 @@ const WaitingRoom: React.FC = () => {
     useEffect(() => {
         if (gameContext.loadingGame) {
             setIsLaunched(true);
+            playEffect("startGame");
         }
     }, [gameContext.loadingGame]);
 

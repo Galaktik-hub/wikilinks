@@ -66,7 +66,7 @@ const GameContext = createContext<GameContextType | undefined>(undefined);
 export const GameProvider: React.FC<{children: React.ReactNode}> = ({children}) => {
     const ws = useWebSocket()!;
     const {showPopup} = usePopup();
-    const {playMusic, stopMusic, playEffect} = useAudio();
+    const {stopMusic, playEffect} = useAudio();
 
     // connexion/session
     const [leaderName, setLeader] = useState<string | null>(null);
@@ -118,12 +118,16 @@ export const GameProvider: React.FC<{children: React.ReactNode}> = ({children}) 
                     setStart(data.startArticle);
                     setCurrentTitle(data.startArticle);
                     setArticles(data.articles.map((n: string) => ({name: n, found: false})));
-                    playMusic();
                     break;
                 case "game_update": {
                     const objectivesVisited: string[] = data.event.obj_visited;
                     const objectivesToVisit: string[] = data.event.obj_to_visit;
+                    const oldNumberOfFoundArticle = articles.filter(a => a.found).length;
                     setArticles(() => objectivesToVisit.map(name => ({name, found: false})).concat(objectivesVisited.map(name => ({name, found: true}))));
+                    const newNumberOfFoundArticle = articles.filter(a => a.found).length;
+                    if (newNumberOfFoundArticle > oldNumberOfFoundArticle) {
+                        playEffect("foundPage");
+                    }
                     break;
                 }
                 case "game_artifact":
@@ -139,13 +143,6 @@ export const GameProvider: React.FC<{children: React.ReactNode}> = ({children}) 
                     setLoading(false);
                     setScoreboard(data.scoreboard);
                     stopMusic();
-                    // Jouer le son de victoire ou défaite selon le résultat
-                    const playerResult = data.scoreboard.find((player: any) => player.name === username);
-                    if (playerResult && playerResult.won) {
-                        playEffect("victory");
-                    } else {
-                        playEffect("defeat");
-                    }
                     setArticles([]);
                     setStart("");
                     setRemainingSeconds(settings.timeLimit * 60);

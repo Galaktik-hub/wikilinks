@@ -4,7 +4,6 @@ import React, {createContext, useContext, useRef, useState, useCallback, useEffe
 
 // Types for our context
 interface AudioContextType {
-    playMusic: () => void;
     stopMusic: () => void;
     playEffect: (effect: AudioEffect) => void;
     isMusicPlaying: boolean;
@@ -12,14 +11,21 @@ interface AudioContextType {
     playAudioOnLoop: (url: string) => {stop: () => void};
 }
 
-export type AudioEffect = "victory" | "defeat" | "artifact";
+export type AudioEffect = "victory" | "defeat" | "foundPage" | "message" | "startGame" | "notification" | "mine" | "eraser" | "back" | "backpack" | "gps";
 
 // URLs or imports for audio files
-const MUSIC_URL = "/audio/ambiance.mp3";
 const EFFECTS: Record<AudioEffect, string> = {
     victory: "/audio/victory.mp3",
     defeat: "/audio/defeat.mp3",
-    artifact: "/audio/artifact.mp3",
+    foundPage: "/audio/foundPage.mp3",
+    message: "/audio/message.mp3",
+    startGame: "/audio/startGame.mp3",
+    notification: "/audio/notification.mp3",
+    mine: "/audio/mine.mp3",
+    eraser: "/audio/eraser.mp3",
+    back: "/audio/back.mp3",
+    backpack: "/audio/backpack.mp3",
+    gps: "/audio/gps.mp3",
 };
 
 const AudioContext = createContext<AudioContextType | undefined>(undefined);
@@ -27,17 +33,6 @@ const AudioContext = createContext<AudioContextType | undefined>(undefined);
 export const AudioProvider: React.FC<{children: React.ReactNode}> = ({children}) => {
     const musicRef = useRef<HTMLAudioElement | null>(null);
     const [isMusicPlaying, setIsMusicPlaying] = useState(false);
-
-    // Play background music (looped)
-    const playMusic = useCallback(() => {
-        if (!musicRef.current) {
-            musicRef.current = new window.Audio(MUSIC_URL);
-            musicRef.current.loop = true;
-        }
-        musicRef.current.currentTime = 0;
-        musicRef.current.play();
-        setIsMusicPlaying(true);
-    }, []);
 
     // Stop background music
     const stopMusic = useCallback(() => {
@@ -84,7 +79,7 @@ export const AudioProvider: React.FC<{children: React.ReactNode}> = ({children})
         };
     }, []);
 
-    return <AudioContext.Provider value={{playMusic, stopMusic, playEffect, isMusicPlaying, playAudioOnce, playAudioOnLoop}}>{children}</AudioContext.Provider>;
+    return <AudioContext.Provider value={{stopMusic, playEffect, isMusicPlaying, playAudioOnce, playAudioOnLoop}}>{children}</AudioContext.Provider>;
 };
 
 // Custom hook for easier usage
