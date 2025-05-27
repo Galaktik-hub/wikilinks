@@ -27,7 +27,7 @@ const Game: React.FC = () => {
     const isDesktop = useMediaQuery({minWidth: 1200});
     const isIntermediate = !isMobile && !isDesktop;
 
-    const phrases = ["Initialisation du processus", "Lancement du solveur", "Analyse du chemin optimal", "Envoi du résultat"]
+    const phrases = ["Initialisation du processus", "Lancement du solveur", "Analyse du chemin optimal", "Envoi du résultat"];
 
     const desktopLeft = (
         <>
