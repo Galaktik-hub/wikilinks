@@ -106,6 +106,7 @@ export const PlayersProvider: React.FC<{children: React.ReactNode}> = ({children
         if (!username) return;
         switch (name) {
             case "GPS":
+                gameCtx.setArtifactLoading(true);
                 // Back side
                 break;
             case "Retour":
@@ -115,6 +116,7 @@ export const PlayersProvider: React.FC<{children: React.ReactNode}> = ({children
                 // Back side
                 break;
             case "Teleporteur":
+                gameCtx.setArtifactLoading(true);
                 // Back side
                 break;
             case "Escargot":
@@ -162,6 +164,7 @@ export const PlayersProvider: React.FC<{children: React.ReactNode}> = ({children
             case "GPS": {
                 const payload = JSON.stringify(data);
                 gameCtx.sendMessage(`/artifactHint ${payload}`, username);
+                gameCtx.setArtifactLoading(false);
                 break;
             }
             case "Retour":
@@ -173,6 +176,7 @@ export const PlayersProvider: React.FC<{children: React.ReactNode}> = ({children
                 break;
             case "Teleporteur":
                 gameCtx.changeCurrentTitle(data!.teleportedTitle);
+                gameCtx.setArtifactLoading(false);
                 break;
             case "Escargot":
                 // Front side

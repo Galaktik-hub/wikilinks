@@ -14,16 +14,20 @@ import GameEndScreen from "../../components/Sections/Game/EndGame/GameEndScreen.
 import {useGameContext} from "../../context/GameContext.tsx";
 import Timer from "../../components/Timer/Timer";
 import {useWebSocket} from "../../context/WebSocketContext";
+import LoadingScreen from "../../components/Sections/WaitingRoom/LoadingScreen";
 
 const Game: React.FC = () => {
     const gameContext = useGameContext();
     const socketContext = useWebSocket();
     const [isGameOver, setIsGameOver] = useState(false);
+    const [isArtifactLoading, setIsArtifactLoading] = React.useState(false);
     const isHost = gameContext.leaderName === gameContext.username;
 
     const isMobile = useMediaQuery({maxWidth: 767});
     const isDesktop = useMediaQuery({minWidth: 1200});
     const isIntermediate = !isMobile && !isDesktop;
+
+    const phrases = ["Initialisation du processus", "Lancement du solveur", "Analyse du chemin optimal", "Envoi du résultat"]
 
     const desktopLeft = (
         <>
@@ -36,6 +40,10 @@ const Game: React.FC = () => {
     useEffect(() => {
         setIsGameOver(gameContext.isGameOver);
     }, [gameContext.isGameOver]);
+
+    useEffect(() => {
+        setIsArtifactLoading(gameContext.artifactLoading);
+    }, [gameContext.artifactLoading]);
 
     const onTimeOver = () => {
         socketContext.send({kind: "time_over"});
@@ -79,6 +87,8 @@ const Game: React.FC = () => {
                         </div>
                     </>
                 )}
+
+                {isArtifactLoading && <LoadingScreen title="Chargement de l'artefact" phrases={phrases} />}
             </Layout>
         </>
     );
