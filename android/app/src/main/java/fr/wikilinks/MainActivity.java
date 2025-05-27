@@ -2,8 +2,6 @@ package fr.wikilinks;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.AlarmManager;
-import android.app.PendingIntent;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -32,18 +30,14 @@ import org.json.JSONObject;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneOffset;
-import java.util.Calendar;
 import java.util.Locale;
 import java.util.Map;
-import java.util.TimeZone;
 
 /**
  * MainActivity hosts the WebView and handles all permission requests
  * as well as binding to the Location service and scheduling daily notifications.
  */
 public class MainActivity extends AppCompatActivity {
-
-    private static final int ALARM_REQUEST_CODE = 1001;
 
     private WebView webView;
     private PositionService positionService;
@@ -73,11 +67,13 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         AndroidBug5497Workaround.assistActivity(this);
         applyEdgeToEdgePadding();
+        NotificationSender.createNotificationChannel(this);
 
         bindPositionService();
-        initializeWebView();
-
         askPermissions();
+        AlarmHelper.scheduleNext8Alarm(this);
+
+        initializeWebView();
     }
 
     @Override
@@ -102,7 +98,6 @@ public class MainActivity extends AppCompatActivity {
             requestNotificationPermission();
         } else {
             // Pre-Android 13: skip notification prompt and schedule work immediately
-            scheduleDailyAlarm(this);
             requestLocationPermissions();
         }
     }
@@ -119,9 +114,7 @@ public class MainActivity extends AppCompatActivity {
      * @param granted whether the user granted notification permission
      */
     private void onNotificationPermissionResult(boolean granted) {
-        if (granted) {
-            scheduleDailyAlarm(this);
-        } else {
+        if (!granted) {
             Log.w("[WikiLinks]", "Notification permission denied");
         }
         // Proceed to location permissions regardless of outcome
@@ -162,71 +155,6 @@ public class MainActivity extends AppCompatActivity {
         } else {
             Log.w("[WikiLinks]", "Location permission denied");
         }
-    }
-
-    // ------------------------------------------------------------------------------------------------
-    // WorkManager Scheduling
-    // ------------------------------------------------------------------------------------------------
-
-    /**
-     * Calculates the initial delay until the next 8:00 UTC.
-     *
-     * @return milliseconds until next 8 UTC
-     */
-    private long computeNext8UtcMillis() {
-        Calendar nowUtc = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-        Calendar next8 = (Calendar) nowUtc.clone();
-        next8.set(Calendar.HOUR_OF_DAY, 8);
-        next8.set(Calendar.MINUTE, 0);
-        next8.set(Calendar.SECOND, 0);
-        next8.set(Calendar.MILLISECOND, 0);
-        if (nowUtc.after(next8)) {
-            next8.add(Calendar.DAY_OF_YEAR, 1);
-        }
-        return next8.getTimeInMillis();
-    }
-
-    /**
-     * Schedules a repeating alarm at 8 UTC every day.
-     */
-    public void scheduleDailyAlarm(Context context) {
-        AlarmManager alarmManager =
-                (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-
-        Intent intent = new Intent(context, DailyNotificationWorker.class);
-        PendingIntent pi = PendingIntent.getBroadcast(
-                context,
-                ALARM_REQUEST_CODE,
-                intent,
-                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
-        );
-
-        long firstTrigger = computeNext8UtcMillis();
-        long interval = AlarmManager.INTERVAL_DAY;
-
-        alarmManager.setInexactRepeating(
-                AlarmManager.RTC_WAKEUP,
-                firstTrigger,
-                interval,
-                pi
-        );
-    }
-
-    /**
-     * To cancel the alarm if needed
-     */
-    public void cancelDailyAlarm(Context context) {
-        AlarmManager alarmManager =
-                (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-
-        Intent intent = new Intent(context, DailyNotificationWorker.class);
-        PendingIntent pi = PendingIntent.getBroadcast(
-                context,
-                ALARM_REQUEST_CODE,
-                intent,
-                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
-        );
-        alarmManager.cancel(pi);
     }
 
     // ------------------------------------------------------------------------------------------------
