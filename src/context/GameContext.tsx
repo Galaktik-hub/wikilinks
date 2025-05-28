@@ -39,6 +39,8 @@ export interface GameContextType {
     // artifacts in article
     artifactInfo: ArtifactInfo;
     setArtifactInfo: (info: ArtifactInfo) => void;
+    artifactLoading: boolean;
+    setArtifactLoading: (loading: boolean) => void;
 
     // game state
     isGameOver: boolean;
@@ -96,6 +98,7 @@ export const GameProvider: React.FC<{children: React.ReactNode}> = ({children}) 
 
     // artifact info
     const [artifactInfo, setArtifactInfo] = useState<ArtifactInfo>({hasArtifact: false, luckPercentage: null});
+    const [artifactLoading, setArtifactLoading] = useState<boolean>(false);
 
     useEffect(() => {
         const handler = (data: any) => {
@@ -256,6 +259,8 @@ export const GameProvider: React.FC<{children: React.ReactNode}> = ({children}) 
                 setPageChangeDelay,
                 artifactInfo,
                 setArtifactInfo,
+                artifactLoading,
+                setArtifactLoading,
                 scoreboard,
                 remainingSeconds,
                 setRemainingSeconds,

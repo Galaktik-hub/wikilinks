@@ -104,7 +104,7 @@ const WaitingRoom: React.FC = () => {
             <div className="xl-custom:hidden">
                 <TextLoungePanel />
             </div>
-            {isLaunched && <LoadingScreen />}
+            {isLaunched && <LoadingScreen title="Lancement de la partie" />}
         </Layout>
     );
 };
