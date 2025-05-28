@@ -102,7 +102,7 @@ export function getArtifactKeyword(html: string): string {
     // 1) Compter les mots (≥6 lettres Unicode) hors <a> et hors titres
     const walker = document.createTreeWalker(doc.body, NodeFilter.SHOW_TEXT, null);
     const counts = new Map<string, number>();
-    const wordRegex = /\p{L}{6,}/gu;
+    const wordRegex = /\p{L}{8,}/gu;
     let node: Node | null;
 
     while ((node = walker.nextNode())) {

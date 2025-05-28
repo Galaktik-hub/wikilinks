@@ -6,7 +6,7 @@
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
         "start": "ts-node src/server.ts",
-        "build": "tsc",
+        "build": "rimraf build && tsc && ts-node src/scripts/copySolverAssets.ts",
         "serve": "node build/server.js",
         "feedChallengesIntoDatabase": "ts-node src/challenge/challengePicker.ts"
     },

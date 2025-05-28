@@ -161,7 +161,7 @@ export class Player {
                     data: {distance, nextId},
                 }),
             );
-            this.history.addStep("artifactEffect", {artefact: "GPS"});
+            this.history.addStep("artifactEffect", {artefact: "GPS", source: currentTitle});
             return true;
         } catch (err) {
             logger.error("GPS artifact error:", err);

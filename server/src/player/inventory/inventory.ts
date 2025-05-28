@@ -32,7 +32,7 @@ export class Inventory {
                     positive: def.positive,
                     target: def.target,
                     immediate: false,
-                    count: 0, // Test value, by default use 0
+                    count: 1,
                 };
             }
         }
