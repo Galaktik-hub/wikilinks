@@ -2,10 +2,14 @@ package fr.wikilinks;
 
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Build;
 
 import androidx.core.app.NotificationCompat;
+
+import com.google.android.gms.common.api.PendingResult;
 
 import java.util.Random;
 
@@ -25,6 +29,14 @@ public class NotificationSender {
     }
 
     public static void showNotification(Context ctx) {
+        Intent i = new Intent(ctx, MainActivity.class);
+        PendingIntent pi = PendingIntent.getActivity(
+            ctx,
+            0,
+            i,
+            PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT
+        );
+
         final String[] CATCHPHRASES = {
                 "Venez affronter les joueurs du monde entier sur le challenge du jour !",
                 "Prêt pour votre dose quotidienne de défi ? C’est parti !",
@@ -55,7 +67,8 @@ public class NotificationSender {
                 .setContentText(message)
                 .setAutoCancel(true)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
-                .setDefaults(NotificationCompat.DEFAULT_ALL);
+                .setDefaults(NotificationCompat.DEFAULT_ALL)
+                .setContentIntent(pi);
 
         NotificationManager nm = (NotificationManager) ctx.getSystemService(Context.NOTIFICATION_SERVICE);
         nm.notify(NOTIF_ID, b.build());
