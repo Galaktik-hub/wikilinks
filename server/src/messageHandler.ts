@@ -6,6 +6,7 @@ import {Player} from "./player/player";
 import logger from "./logger";
 import {ChallengeSession, ChallengeSessionManager} from "./challenge/challengeManager";
 import {checkUsernameUniqueness, registerUsername} from "./utils/challengeUsernameUtils";
+import {activePlayers} from "./server";
 
 export interface ClientContext {
     currentRoomId: number | null;
@@ -538,7 +539,7 @@ export async function handleMessage(ws: WebSocket, message: any, context: Client
                     challengeCount: challengeCount,
                     bannerInfo: {
                         activeGames: GameSessionManager.getAllSessions().size + ChallengeSessionManager.getAllSessions().size,
-                        activePlayers: GameSessionManager.getNumberActivePlayers() + ChallengeSessionManager.getAllSessions().size,
+                        activePlayers: activePlayers,
                         gamesPlayed: getNumberOfGamePlayed(),
                     },
                 }),

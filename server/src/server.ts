@@ -7,7 +7,7 @@ import logger from "./logger";
 import mongoose from "mongoose";
 
 const wss = new WebSocketServer({host: "0.0.0.0", port: 2025});
-logger.info("WebSocket server is running on ws://localhost:2025");
+logger.info("WebSocket server is running on ws://0.0.0.0:2025");
 
 const mongoUri = process.env.MONGODB_URI;
 if (!mongoUri) {
@@ -16,7 +16,10 @@ if (!mongoUri) {
 }
 mongoose.connect(mongoUri, {dbName: "Wikilinks"});
 
+export let activePlayers = 0;
+
 wss.on("connection", (ws: WebSocket) => {
+    activePlayers++;
     logger.info("New client connected");
     const context: ClientContext = {
         currentRoomId: null,
@@ -37,6 +40,7 @@ wss.on("connection", (ws: WebSocket) => {
     });
 
     ws.on("close", error => {
+        activePlayers--;
         logger.info(`Connection closed for user ${context.currentUser?.name}. Code: ${error}`);
         if (context.currentGameSessionId && context.currentUser) {
             const session = GameSessionManager.getSession(context.currentGameSessionId);
